@@ -1,0 +1,82 @@
+.designContainer {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+  animation: fadeIn 1s ease-out;
+
+  .designHero {
+    text-align: center;
+    padding: 4rem 0;
+
+    h1 {
+      font-size: 3.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    p {
+      font-size: 1.3rem;
+      color: #333333; /* Darkened from #4A4A4A */
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  }
+
+  .designForm {
+    max-width: 700px;
+    margin: 0 auto;
+    background: rgba(248, 241, 233, 0.95);
+    padding: 3rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+
+      label {
+        font-size: 1.2rem;
+        color: #333333; /* Darkened from #4A4A4A */
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+
+      input, textarea {
+        width: 100%;
+        padding: 1rem;
+        border: 1px solid #D4A373;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-family: 'Lora', serif;
+        background: #F8F1E9;
+        transition: border-color 0.3s ease;
+
+        &:focus {
+          border-color: #F4E4E4;
+          outline: none;
+        }
+      }
+
+      textarea {
+        min-height: 180px;
+        resize: vertical;
+      }
+
+      button {
+        background: #D4A373;
+        color: #F8F1E9;
+        padding: 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: #F4E4E4;
+          color: #D4A373;
+          transform: scale(1.05);
+        }
+      }
+    }
+  }
+}
