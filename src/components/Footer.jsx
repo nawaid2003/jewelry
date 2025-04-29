@@ -7,7 +7,7 @@ export default function Footer() {
       <div className={styles.footerContent}>
         <div className={styles.footerSection}>
           <h3>Silver Lining</h3>
-          <p>Illuminating elegance since 1995.</p>
+          <p>Where Hope Meets Elegance.</p>
         </div>
         <div className={styles.footerSection}>
           <h3>Explore</h3>

@@ -1,27 +1,29 @@
 .faqContainer {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 3rem 1rem;
+  padding: 2rem 1rem;
   animation: fadeIn 1s ease-out;
 
   h1 {
-    font-size: 3.5rem;
+    font-family: 'Cinzel', serif;
+    font-size: 3rem;
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
+    color: #1c365d;
   }
 
   .faqList {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.2rem;
     max-width: 800px;
     margin: 0 auto;
   }
 
   .faqItem {
-    background: rgba(248, 241, 233, 0.95);
-    padding: 1.5rem;
-    border-radius: 15px;
+    background: rgba(238, 238, 238, 0.95); /* #eeeeee */
+    padding: 1.2rem;
+    border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
 
@@ -34,16 +36,23 @@
       justify-content: space-between;
       align-items: center;
       cursor: pointer;
+      padding: 0.5rem 0;
 
       h3 {
-        font-size: 1.6rem;
-        color: #D4A373;
+        font-family: 'Cinzel', serif;
+        font-size: 1.5rem;
+        color: #1c365d;
       }
 
       span {
-        font-size: 1.8rem;
-        color: #D4A373;
+        font-size: 1.6rem;
+        color: #1c365d;
         transition: transform 0.3s ease;
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       &.open span {
@@ -52,8 +61,8 @@
     }
 
     .faqAnswer {
-      font-size: 1.2rem;
-      color: #333333; /* Darkened from #4A4A4A */
+      font-size: 1.1rem;
+      color: #333333;
       line-height: 1.8;
       max-height: 0;
       overflow: hidden;
@@ -63,13 +72,52 @@
 
       &.open {
         max-height: 300px;
-        padding: 1rem 0;
+        padding: 0.8rem 0;
         opacity: 1;
       }
 
       p {
         margin: 0;
       }
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 1.5rem 1rem;
+
+    h1 {
+      font-size: 2.5rem;
+    }
+
+    .faqList {
+      gap: 1rem;
+      max-width: 90%;
+    }
+
+    .faqItem {
+      padding: 1rem;
+
+      .faqQuestion {
+        h3 {
+          font-size: 1.4rem;
+        }
+
+        span {
+          font-size: 1.4rem;
+        }
+      }
+
+      .faqAnswer {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 1rem 0.8rem;
+
+    .faqItem {
+      padding: 0.8rem;
     }
   }
 }

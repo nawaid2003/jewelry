@@ -1,38 +1,64 @@
-import Image from "next/image";
+import { useState } from "react";
 import Link from "next/link";
 import styles from "../styles/navbar.module.scss";
 
 export default function Navbar() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const closeMenu = () => {
+    setIsOpen(false);
+  };
+
   return (
     <nav className={styles.navbar}>
       <div className={styles.logo}>
         <Link href="/">
-          <Image
-            src="https://placehold.co/150x50/F8F1E9/D4A373?text=Silver+Lining+Logo"
-            alt="Silver Lining Logo"
-            width={150}
-            height={50}
-          />
+          <div className={styles.logoContainer}>
+            <span className={styles.monogram}>SL</span>
+            <div className={styles.logoText}>
+              <span className={styles.brandName}>SILVER LINING</span>
+              <span className={styles.tagline}>WHERE HOPE MEETS ELEGANCE</span>
+            </div>
+          </div>
         </Link>
       </div>
-      <ul className={styles.navLinks}>
+      <button className={styles.menuToggle} onClick={toggleMenu}>
+        {isOpen ? "✕" : "☰"}
+      </button>
+      <ul className={`${styles.navLinks} ${isOpen ? styles.open : ""}`}>
         <li>
-          <Link href="/">Home</Link>
+          <Link href="/" onClick={closeMenu}>
+            Home
+          </Link>
         </li>
         <li>
-          <Link href="/about">About</Link>
+          <Link href="/about" onClick={closeMenu}>
+            About
+          </Link>
         </li>
         <li>
-          <Link href="/products">Products</Link>
+          <Link href="/products" onClick={closeMenu}>
+            Products
+          </Link>
         </li>
         <li>
-          <Link href="/design">Design</Link>
+          <Link href="/design" onClick={closeMenu}>
+            Design
+          </Link>
         </li>
         <li>
-          <Link href="/faq">FAQ</Link>
+          <Link href="/faq" onClick={closeMenu}>
+            FAQ
+          </Link>
         </li>
         <li>
-          <Link href="/contact">Contact</Link>
+          <Link href="/contact" onClick={closeMenu}>
+            Contact
+          </Link>
         </li>
       </ul>
     </nav>

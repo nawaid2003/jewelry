@@ -1,19 +1,21 @@
 .contactContainer {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 3rem 1rem;
+  padding: 2rem 1rem;
   text-align: center;
   animation: fadeIn 1s ease-out;
 
   h1 {
-    font-size: 3.5rem;
-    margin-bottom: 1.5rem;
+    font-family: 'Cinzel', serif;
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #1c365d;
   }
 
   p {
-    font-size: 1.3rem;
-    color: #333333; /* Darkened from #4A4A4A */
-    margin-bottom: 3rem;
+    font-size: 1.2rem;
+    color: #333333;
+    margin-bottom: 2rem;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
@@ -22,57 +24,99 @@
   form {
     max-width: 700px;
     margin: 0 auto;
-    background: rgba(248, 241, 233, 0.95);
-    padding: 3rem;
-    border-radius: 15px;
+    background: rgba(238, 238, 238, 0.95); /* #eeeeee */
+    padding: 2rem;
+    border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.5rem;
 
     label {
-      font-size: 1.2rem;
-      color: #333333; /* Darkened from #4A4A4A */
+      font-size: 1.1rem;
+      color: #333333;
       text-align: left;
       display: block;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.4rem;
     }
 
     input, textarea {
       width: 100%;
-      padding: 1rem;
-      border: 1px solid #D4A373;
+      padding: 0.8rem;
+      border: 1px solid #1c365d;
       border-radius: 8px;
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-family: 'Lora', serif;
-      background: #F8F1E9;
+      background: #EDEEF2;
       transition: border-color 0.3s ease;
 
       &:focus {
-        border-color: #F4E4E4;
+        border-color: #3a5686;
         outline: none;
       }
     }
 
     textarea {
-      min-height: 180px;
+      min-height: 150px;
       resize: vertical;
     }
 
     button {
-      background: #D4A373;
-      color: #F8F1E9;
-      padding: 1rem;
+      background: #1c365d;
+      color: #EDEEF2;
+      padding: 0.8rem;
       border: none;
       border-radius: 8px;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       transition: all 0.3s ease;
+      min-width: 44px;
+      min-height: 44px;
 
       &:hover {
-        background: #F4E4E4;
-        color: #D4A373;
+        background: #3a5686;
+        color: #EDEEF2;
         transform: scale(1.05);
       }
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 1.5rem 1rem;
+
+    h1 {
+      font-size: 2.5rem;
+    }
+
+    p {
+      font-size: 1rem;
+      max-width: 90%;
+    }
+
+    form {
+      padding: 1.5rem;
+      max-width: 90%;
+
+      label {
+        font-size: 1rem;
+      }
+
+      input, textarea {
+        padding: 0.7rem;
+        font-size: 0.9rem;
+      }
+
+      button {
+        padding: 0.7rem;
+        font-size: 1rem;
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 1rem 0.8rem;
+
+    form {
+      padding: 1rem;
     }
   }
 }
