@@ -1,5 +1,7 @@
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import logoSL from "../images/logoSL.png";
 import styles from "../styles/navbar.module.scss";
 
 export default function Navbar() {
@@ -18,7 +20,15 @@ export default function Navbar() {
       <div className={styles.logo}>
         <Link href="/">
           <div className={styles.logoContainer}>
-            <span className={styles.monogram}>SL</span>
+            <div className={styles.logoImage}>
+              <Image
+                src={logoSL}
+                alt="Silver Lining Logo"
+                width={50}
+                height={50}
+                priority
+              />
+            </div>
             <div className={styles.logoText}>
               <span className={styles.brandName}>SILVER LINING</span>
               <span className={styles.tagline}>WHERE HOPE MEETS ELEGANCE</span>

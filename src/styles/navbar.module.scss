@@ -20,12 +20,16 @@
         transform: scale(1.05);
       }
 
-      .monogram {
-        font-family: 'Cinzel', serif;
-        font-size: 2.2rem;
-        font-weight: 700;
-        color: #1c365d;
-        line-height: 1;
+      .logoImage {
+        display: flex;
+        align-items: center;
+        width: 50px;
+        height: 50px;
+        
+        img {
+          max-width: 100%;
+          height: auto;
+        }
       }
 
       .logoText {
@@ -121,8 +125,9 @@
     }
 
     .logo .logoContainer {
-      .monogram {
-        font-size: 1.6rem;
+      .logoImage {
+        width: 40px;
+        height: 40px;
       }
 
       .logoText {
@@ -141,8 +146,9 @@
     padding: 1rem;
 
     .logo .logoContainer {
-      .monogram {
-        font-size: 1.4rem;
+      .logoImage {
+        width: 35px;
+        height: 35px;
       }
 
       .logoText {
