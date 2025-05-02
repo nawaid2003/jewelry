@@ -2,11 +2,14 @@ import { useState, useEffect } from "react";
 import ProductCard from "../components/ProductCard";
 import ProductDetails from "../components/ProductDetails";
 import AdminProductForm from "../components/AdminProductForm";
+import AdminLogin from "../components/AdminLogin";
 import styles from "../styles/products.module.scss";
 
 export default function Products() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showAdminForm, setShowAdminForm] = useState(false);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [products, setProducts] = useState([
     {
       id: 1,
@@ -66,6 +69,12 @@ export default function Products() {
     },
   ]);
 
+  // Check if admin is already logged in (from sessionStorage)
+  useEffect(() => {
+    const adminLoggedIn = sessionStorage.getItem("adminLoggedIn") === "true";
+    setIsAdminLoggedIn(adminLoggedIn);
+  }, []);
+
   // Load products from localStorage on component mount (if available)
   useEffect(() => {
     const savedProducts = localStorage.getItem("jewelryProducts");
@@ -88,11 +97,32 @@ export default function Products() {
   };
 
   const toggleAdminForm = () => {
-    setShowAdminForm(!showAdminForm);
+    if (isAdminLoggedIn) {
+      setShowAdminForm(!showAdminForm);
+    } else {
+      setShowAdminLogin(true);
+    }
+  };
+
+  const handleAdminLogin = (success) => {
+    setIsAdminLoggedIn(success);
+    setShowAdminLogin(false);
+
+    if (success) {
+      // Store login state in sessionStorage (valid until browser is closed)
+      sessionStorage.setItem("adminLoggedIn", "true");
+      setShowAdminForm(true);
+    }
+  };
+
+  const handleAdminLogout = () => {
+    setIsAdminLoggedIn(false);
+    setShowAdminForm(false);
+    sessionStorage.removeItem("adminLoggedIn");
   };
 
   const addNewProduct = (newProduct) => {
-    // Generate a new ID (simple implementation - in a real app you'd use a more robust method)
+    // Generate a new ID
     const newId =
       products.length > 0 ? Math.max(...products.map((p) => p.id)) + 1 : 1;
 
@@ -115,13 +145,49 @@ export default function Products() {
     <div className={styles.productsContainer}>
       <h1>Our Collections</h1>
 
-      {/* Admin button - in a real app, this would be protected by authentication */}
-      <button className={styles.adminToggleButton} onClick={toggleAdminForm}>
-        {showAdminForm ? "Hide Admin Form" : "Show Admin Form"}
-      </button>
+      {/* Admin Panel - Only visible to admins or when logging in */}
+      {isAdminLoggedIn && (
+        <div className={styles.adminPanel}>
+          <div className={styles.adminHeader}>
+            <h2>Admin Panel</h2>
+            <button
+              className={styles.adminLogoutButton}
+              onClick={handleAdminLogout}
+            >
+              Logout
+            </button>
+          </div>
 
-      {/* Admin Form */}
-      {showAdminForm && <AdminProductForm onAddProduct={addNewProduct} />}
+          <button
+            className={styles.adminToggleButton}
+            onClick={() => setShowAdminForm(!showAdminForm)}
+          >
+            {showAdminForm ? "Hide Product Form" : "Add New Product"}
+          </button>
+
+          {/* Admin Form */}
+          {showAdminForm && <AdminProductForm onAddProduct={addNewProduct} />}
+        </div>
+      )}
+
+      {/* Hidden Admin Login Trigger - Small icon that opens login modal */}
+      {!isAdminLoggedIn && (
+        <button
+          className={styles.hiddenAdminButton}
+          onClick={() => setShowAdminLogin(true)}
+          aria-label="Admin Login"
+        >
+          ⚙️
+        </button>
+      )}
+
+      {/* Admin Login Modal */}
+      {showAdminLogin && (
+        <AdminLogin
+          onLogin={handleAdminLogin}
+          onClose={() => setShowAdminLogin(false)}
+        />
+      )}
 
       {/* Products Grid */}
       <div className={styles.productsGrid}>
