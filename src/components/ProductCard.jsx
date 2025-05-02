@@ -1,8 +1,7 @@
 import Image from "next/image";
-import Link from "next/link";
 import styles from "../styles/products.module.scss";
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, onSelect }) {
   return (
     <div className={styles.productCard}>
       <Image
@@ -14,9 +13,9 @@ export default function ProductCard({ product }) {
       />
       <h3>{product.name}</h3>
       <p>${product.price}</p>
-      <Link href={`/products/${product.id}`}>
-        <button className={styles.productButton}>View Details</button>
-      </Link>
+      <button className={styles.productButton} onClick={onSelect}>
+        View Details
+      </button>
     </div>
   );
 }

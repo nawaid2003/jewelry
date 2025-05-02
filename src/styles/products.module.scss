@@ -4,6 +4,7 @@
   padding: 2rem 1rem;
   text-align: center;
   animation: fadeIn 1s ease-out;
+  position: relative;
 
   h1 {
     font-family: 'Cinzel', serif;
@@ -60,12 +61,154 @@
       transition: all 0.3s ease;
       min-width: 44px;
       min-height: 44px;
+      cursor: pointer;
 
       &:hover {
         background: #3a5686;
         color: #EDEEF2;
         transform: scale(1.05);
       }
+    }
+  }
+
+  // Product Details Modal
+  .modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+
+  .productDetails {
+    background: white;
+    width: 90%;
+    max-width: 900px;
+    max-height: 90vh;
+    border-radius: 12px;
+    overflow: auto;
+    position: relative;
+    animation: modalFadeIn 0.3s ease-out;
+  }
+
+  .closeButton {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #1c365d;
+    z-index: 10;
+  }
+
+  .detailsContent {
+    display: flex;
+    flex-direction: column;
+    
+    @media (min-width: 768px) {
+      flex-direction: row;
+    }
+  }
+
+  .detailsImageContainer {
+    padding: 2rem;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .detailsImage {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: contain;
+  }
+
+  .detailsInfo {
+    flex: 1;
+    padding: 2rem;
+    text-align: left;
+
+    h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 2rem;
+      color: #1c365d;
+      margin-bottom: 10px;
+    }
+
+    .price {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #1c365d;
+      margin-bottom: 1.5rem;
+    }
+
+    .tabs {
+      margin-bottom: 2rem;
+    }
+
+    .tabContent {
+      padding: 1rem 0;
+
+      h3 {
+        font-family: 'Cinzel', serif;
+        font-size: 1.3rem;
+        color: #1c365d;
+        margin: 1rem 0;
+      }
+
+      p {
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+      }
+
+      ul {
+        list-style-type: disc;
+        padding-left: 1.5rem;
+        margin-bottom: 1.5rem;
+
+        li {
+          margin-bottom: 0.5rem;
+        }
+      }
+    }
+
+    .addToCartButton {
+      background: #1c365d;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+      max-width: 250px;
+
+      &:hover {
+        background: #3a5686;
+        transform: scale(1.05);
+      }
+    }
+  }
+
+  @keyframes modalFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 
@@ -97,6 +240,18 @@
         font-size: 0.9rem;
       }
     }
+
+    .detailsInfo {
+      padding: 1.5rem;
+
+      h2 {
+        font-size: 1.8rem;
+      }
+
+      .price {
+        font-size: 1.3rem;
+      }
+    }
   }
 
   @media (max-width: 480px) {
@@ -104,6 +259,139 @@
 
     .productsGrid {
       grid-template-columns: 1fr;
+    }
+  }
+}
+
+// Admin Interface Styles
+.adminForm {
+  background: #f5f5f5;
+  padding: 2rem;
+  margin: 2rem 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  text-align: left;
+
+  h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 2rem;
+    color: #1c365d;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .formGroup {
+    margin-bottom: 1.5rem;
+  }
+
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: #1c365d;
+  }
+
+  input, textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+  }
+
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+
+  .detailsFieldset {
+    border: 1px solid #ddd;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+
+    legend {
+      padding: 0 0.5rem;
+      font-weight: bold;
+      color: #1c365d;
+    }
+
+    .detailItem {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+
+      input {
+        flex-grow: 1;
+      }
+
+      button {
+        background: #ddd;
+        border: none;
+        border-radius: 4px;
+        padding: 0.5rem;
+        margin-left: 0.5rem;
+        cursor: pointer;
+        transition: background 0.3s;
+
+        &:hover {
+          background: #ccc;
+        }
+      }
+    }
+
+    .addDetailButton {
+      background: #f0f0f0;
+      border: 1px dashed #aaa;
+      border-radius: 4px;
+      padding: 0.5rem;
+      width: 100%;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+
+      &:hover {
+        background: #e5e5e5;
+      }
+    }
+  }
+
+  .adminButton {
+    background: #1c365d;
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: block;
+    margin: 1rem auto 0;
+    min-width: 200px;
+
+    &:hover {
+      background: #3a5686;
+      transform: scale(1.05);
+    }
+  }
+
+  .adminToggleButton {
+    background: #1c365d;
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: block;
+    margin: 2rem auto;
+    min-width: 200px;
+
+    &:hover {
+      background: #3a5686;
+      transform: scale(1.05);
     }
   }
 }
