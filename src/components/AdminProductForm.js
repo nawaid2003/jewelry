@@ -8,7 +8,10 @@ export default function AdminProductForm({ onAddProduct }) {
     image: "",
     description: "",
     details: [""],
+    category: "",
   });
+
+  const categories = ["Necklaces", "Rings", "Earrings", "Bracelets"];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,36 +48,38 @@ export default function AdminProductForm({ onAddProduct }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Basic validation
-    if (!formData.name || !formData.price || !formData.description) {
+    if (
+      !formData.name ||
+      !formData.price ||
+      !formData.description ||
+      !formData.category
+    ) {
       alert("Please fill out all required fields");
       return;
     }
 
-    // Filter out empty detail fields
     const filteredDetails = formData.details.filter(
       (detail) => detail.trim() !== ""
     );
 
-    // Create the new product object
     const newProduct = {
       name: formData.name,
       price: parseFloat(formData.price),
       image: formData.image,
       description: formData.description,
       details: filteredDetails,
+      category: formData.category,
     };
 
-    // Pass the new product up to the parent component
     onAddProduct(newProduct);
 
-    // Reset the form
     setFormData({
       name: "",
       price: "",
       image: "",
       description: "",
       details: [""],
+      category: "",
     });
   };
 
@@ -109,6 +114,26 @@ export default function AdminProductForm({ onAddProduct }) {
       </div>
 
       <div className={styles.formGroup}>
+        <label htmlFor="category">Category *</label>
+        <select
+          id="category"
+          name="category"
+          value={formData.category}
+          onChange={handleChange}
+          required
+        >
+          <option value="" disabled>
+            Select a category
+          </option>
+          {categories.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className={styles.formGroup}>
         <label htmlFor="image">Image URL (optional)</label>
         <input
           type="text"
@@ -133,7 +158,6 @@ export default function AdminProductForm({ onAddProduct }) {
 
       <fieldset className={styles.detailsFieldset}>
         <legend>Product Details</legend>
-
         {formData.details.map((detail, index) => (
           <div key={index} className={styles.detailItem}>
             <input
@@ -153,7 +177,6 @@ export default function AdminProductForm({ onAddProduct }) {
             )}
           </div>
         ))}
-
         <button
           type="button"
           className={styles.addDetailButton}

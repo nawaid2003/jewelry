@@ -11,14 +11,16 @@ export default function Products() {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
   const [products, setProducts] = useState([
+    // Necklaces
     {
       id: 1,
       name: "Moonlight Necklace",
       price: 299,
       image: "https://placehold.co/300x300/F8F1E9/D4A373?text=Necklace",
       description:
-        "Elegant sterling silver necklace inspired by the soft glow of moonlight. Perfect for both casual and formal occasions, this piece features a delicate pendant that catches the light beautifully.",
+        "Elegant sterling silver necklace inspired by the soft glow of moonlight. Perfect for both casual and formal occasions.",
       details: [
         "Sterling Silver",
         "18-inch chain",
@@ -28,12 +30,43 @@ export default function Products() {
       category: "Necklaces",
     },
     {
+      id: 5,
+      name: "Starshine Necklace",
+      price: 349,
+      image: "https://placehold.co/300x300/F8F1E9/D4A373?text=Starshine",
+      description:
+        "A dazzling necklace with a star-shaped pendant, crafted from white gold and adorned with cubic zirconia.",
+      details: [
+        "White Gold",
+        "16-inch chain",
+        "CZ stones",
+        "Gift box included",
+      ],
+      category: "Necklaces",
+    },
+    {
+      id: 6,
+      name: "Ocean Pearl Necklace",
+      price: 399,
+      image: "https://placehold.co/300x300/F8F1E9/D4A373?text=Pearl",
+      description:
+        "A luxurious necklace featuring a genuine freshwater pearl, set in a delicate gold chain.",
+      details: [
+        "14K Gold",
+        "20-inch chain",
+        "Freshwater Pearl",
+        "Tarnish resistant",
+      ],
+      category: "Necklaces",
+    },
+    // Rings
+    {
       id: 2,
       name: "Starlight Ring",
       price: 499,
       image: "https://placehold.co/300x300/F8F1E9/D4A373?text=Ring",
       description:
-        "A stunning ring that captures the essence of a starry night. Set with premium cubic zirconia that sparkle like distant stars, this ring makes a perfect gift for someone special.",
+        "A stunning ring with premium cubic zirconia that sparkle like distant stars, perfect for special occasions.",
       details: [
         "White Gold Plated",
         "Size adjustable",
@@ -43,27 +76,84 @@ export default function Products() {
       category: "Rings",
     },
     {
+      id: 7,
+      name: "Emerald Glow Ring",
+      price: 599,
+      image: "https://placehold.co/300x300/F8F1E9/D4A373?text=Emerald",
+      description:
+        "A bold ring featuring a synthetic emerald, set in a sterling silver band with intricate detailing.",
+      details: [
+        "Sterling Silver",
+        "Size 7",
+        "Synthetic Emerald",
+        "Polished finish",
+      ],
+      category: "Rings",
+    },
+    {
+      id: 8,
+      name: "Infinity Band Ring",
+      price: 249,
+      image: "https://placehold.co/300x300/F8F1E9/D4A373?text=Infinity",
+      description:
+        "A minimalist ring with an infinity symbol, crafted from rose gold for a modern look.",
+      details: ["Rose Gold", "Size adjustable", "Engravable", "Lightweight"],
+      category: "Rings",
+    },
+    // Earrings
+    {
       id: 3,
       name: "Dawn Earrings",
       price: 199,
       image: "https://placehold.co/300x300/F8F1E9/D4A373?text=Earrings",
       description:
-        "Beautifully crafted drop earrings that evoke the first light of dawn. These lightweight earrings bring a touch of elegance to any outfit.",
+        "Beautifully crafted drop earrings that evoke the first light of dawn, adding elegance to any outfit.",
       details: [
         "Rose Gold Finish",
         "Hypoallergenic posts",
         "Lightweight design",
-        "1.5 inches in length",
+        "1.5 inches",
       ],
       category: "Earrings",
     },
+    {
+      id: 9,
+      name: "Crystal Hoop Earrings",
+      price: 279,
+      image: "https://placehold.co/300x300/F8F1E9/D4A373?text=Hoops",
+      description:
+        "Chic hoop earrings encrusted with tiny crystals, perfect for day-to-night transitions.",
+      details: [
+        "Gold Plated",
+        "1-inch diameter",
+        "Crystal accents",
+        "Secure clasp",
+      ],
+      category: "Earrings",
+    },
+    {
+      id: 10,
+      name: "Sapphire Stud Earrings",
+      price: 329,
+      image: "https://placehold.co/300x300/F8F1E9/D4A373?text=Studs",
+      description:
+        "Elegant stud earrings featuring synthetic sapphires, set in white gold for timeless sophistication.",
+      details: [
+        "White Gold",
+        "Synthetic Sapphire",
+        "Hypoallergenic",
+        "0.5 inches",
+      ],
+      category: "Earrings",
+    },
+    // Bracelets
     {
       id: 4,
       name: "Twilight Bracelet",
       price: 349,
       image: "https://placehold.co/300x300/F8F1E9/D4A373?text=Bracelet",
       description:
-        "A versatile bracelet inspired by the magical moments of twilight. Features an adjustable chain and delicate charms that complement any wrist.",
+        "A versatile bracelet with delicate charms, inspired by the magical moments of twilight.",
       details: [
         "Gold Plated",
         "Adjustable size",
@@ -72,15 +162,43 @@ export default function Products() {
       ],
       category: "Bracelets",
     },
+    {
+      id: 11,
+      name: "Charm Bangle",
+      price: 299,
+      image: "https://placehold.co/300x300/F8F1E9/D4A373?text=Bangle",
+      description:
+        "A sleek bangle with customizable charms, crafted from sterling silver for everyday wear.",
+      details: [
+        "Sterling Silver",
+        "Adjustable",
+        "Custom charms",
+        "Polished finish",
+      ],
+      category: "Bracelets",
+    },
+    {
+      id: 12,
+      name: "Beaded Bracelet",
+      price: 199,
+      image: "https://placehold.co/300x300/F8F1E9/D4A373?text=Beaded",
+      description:
+        "A vibrant bracelet with hand-selected beads, offering a bohemian flair to any outfit.",
+      details: [
+        "Mixed Materials",
+        "Elastic band",
+        "Handmade beads",
+        "Lightweight",
+      ],
+      category: "Bracelets",
+    },
   ]);
 
-  // Check if admin is already logged in (from sessionStorage)
   useEffect(() => {
     const adminLoggedIn = sessionStorage.getItem("adminLoggedIn") === "true";
     setIsAdminLoggedIn(adminLoggedIn);
   }, []);
 
-  // Load products from localStorage on component mount (if available)
   useEffect(() => {
     const savedProducts = localStorage.getItem("jewelryProducts");
     if (savedProducts) {
@@ -88,7 +206,6 @@ export default function Products() {
     }
   }, []);
 
-  // Save products to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem("jewelryProducts", JSON.stringify(products));
   }, [products]);
@@ -112,7 +229,6 @@ export default function Products() {
   const handleAdminLogin = (success) => {
     setIsAdminLoggedIn(success);
     setShowAdminLogin(false);
-
     if (success) {
       sessionStorage.setItem("adminLoggedIn", "true");
       setShowAdminForm(true);
@@ -128,7 +244,6 @@ export default function Products() {
   const addNewProduct = (newProduct) => {
     const newId =
       products.length > 0 ? Math.max(...products.map((p) => p.id)) + 1 : 1;
-
     const productToAdd = {
       ...newProduct,
       id: newId,
@@ -138,23 +253,38 @@ export default function Products() {
           newProduct.name
         )}`,
     };
-
     setProducts([...products, productToAdd]);
     setShowAdminForm(false);
   };
 
-  // Filter products based on selected category
-  const filteredProducts =
-    selectedCategory === "All"
-      ? products
-      : products.filter((product) => product.category === selectedCategory);
+  // Filter products by category and search query
+  const filteredProducts = products.filter((product) => {
+    const matchesCategory =
+      selectedCategory === "All" || product.category === selectedCategory;
+    const matchesSearch =
+      searchQuery.trim() === ""
+        ? true
+        : product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          product.description.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
-  // Define available categories
   const categories = ["All", "Necklaces", "Rings", "Earrings", "Bracelets"];
 
   return (
     <div className={styles.productsContainer}>
       <h1>Our Collections</h1>
+
+      {/* Search Bar */}
+      <div className={styles.searchBar}>
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className={styles.searchInput}
+        />
+      </div>
 
       {/* Category Filter */}
       <div className={styles.categoryFilter}>
@@ -171,7 +301,6 @@ export default function Products() {
         ))}
       </div>
 
-      {/* Admin Panel - Only visible to admins or when logging in */}
       {isAdminLoggedIn && (
         <div className={styles.adminPanel}>
           <div className={styles.adminHeader}>
@@ -183,14 +312,12 @@ export default function Products() {
               Logout
             </button>
           </div>
-
           <button
             className={styles.adminToggleButton}
             onClick={() => setShowAdminForm(!showAdminForm)}
           >
             {showAdminForm ? "Hide Product Form" : "Add New Product"}
           </button>
-
           {showAdminForm && <AdminProductForm onAddProduct={addNewProduct} />}
         </div>
       )}
@@ -212,16 +339,22 @@ export default function Products() {
         />
       )}
 
-      {/* Products Grid */}
-      <div className={styles.productsGrid}>
-        {filteredProducts.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            onSelect={() => handleProductSelect(product)}
-          />
-        ))}
-      </div>
+      {/* Products Grid or No Results Message */}
+      {filteredProducts.length > 0 ? (
+        <div className={styles.productsGrid}>
+          {filteredProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              onSelect={() => handleProductSelect(product)}
+            />
+          ))}
+        </div>
+      ) : (
+        <p className={styles.noResults}>
+          No products found for this category or search query.
+        </p>
+      )}
 
       {selectedProduct && (
         <ProductDetails

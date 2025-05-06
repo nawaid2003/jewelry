@@ -13,6 +13,32 @@
     color: #1c365d;
   }
 
+  .searchBar {
+    margin-bottom: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .searchInput {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.3s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #1c365d;
+    }
+
+    &::placeholder {
+      color: #999;
+    }
+  }
+
   .categoryFilter {
     display: flex;
     justify-content: center;
@@ -40,6 +66,12 @@
       background: #1c365d;
       color: #edeef2;
     }
+  }
+
+  .noResults {
+    font-size: 1.2rem;
+    color: #333;
+    margin: 2rem 0;
   }
 
   .productsGrid {
@@ -411,6 +443,11 @@
       padding: 0.5rem 1rem;
       font-size: 0.9rem;
     }
+
+    .searchInput {
+      font-size: 0.9rem;
+      padding: 0.7rem;
+    }
   }
 }
 
@@ -441,13 +478,26 @@
     color: #1c365d;
   }
 
-  input, textarea {
+  input,
+  textarea,
+  select {
     width: 100%;
     padding: 0.8rem;
     border: 1px solid #ddd;
     border-radius: 8px;
     font-size: 1rem;
     font-family: inherit;
+  }
+
+  select {
+    background: white;
+    appearance: none;
+    cursor: pointer;
+
+    &:focus {
+      outline: none;
+      border-color: #1c365d;
+    }
   }
 
   textarea {
