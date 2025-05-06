@@ -18,7 +18,7 @@ export default function Home() {
           <div className={styles.heroGradient}></div>
         </div>
         <div className={styles.heroText}>
-          <h1>Silver Lining Elegance</h1>
+          <h1>Silver Lining</h1>
           <p>
             Handcrafted jewelry that weaves your moments into timeless stories.
           </p>
