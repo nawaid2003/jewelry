@@ -1,166 +1,356 @@
+@import url('https://fonts.cdnfonts.com/css/hello-paris');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
+@import url('https://fonts.cdnfonts.com/css/the-seasons');
+
 .homeContainer {
-  max-width: 1280px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 2rem 1rem;
-  animation: fadeIn 1s ease-out;
+  padding: 4rem 2rem;
+  background: #edeef2;
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  gap: 8rem;
+  animation: fadeIn 2s ease-out;
 
   .hero {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 1.5rem;
+    min-height: 90vh;
+    justify-content: center;
 
-    .heroImage {
+    .heroImageWrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
-      max-width: 1200px;
-      height: auto;
-      border-radius: 12px;
-      object-fit: cover;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      height: 100%;
+      z-index: 0;
+
+      .heroImage {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: brightness(0.85);
+      }
+
+      .heroGradient {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(28, 54, 93, 0.7), transparent 60%);
+      }
     }
 
     .heroText {
-      background: rgba(238, 238, 238, 0.9); /* #eeeeee */
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      max-width: 500px;
-      margin: 0 auto;
+      background: rgba(237, 238, 242, 0.85);
+      backdrop-filter: blur(8px);
+      padding: 3.5rem 5rem;
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      max-width: 700px;
+      position: relative;
+      z-index: 1;
+      transform: translateY(30px);
+      animation: slideUp 1.2s ease-out forwards;
 
       h1 {
-        font-family: 'Cinzel', serif;
-        font-size: 2.8rem;
-        margin-bottom: 1rem;
+        font-family: 'Hello Paris', serif;
+        font-size: 4.5rem;
         color: #1c365d;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+        letter-spacing: 0.1em;
+        line-height: 1.1;
       }
 
       p {
-        font-size: 1.2rem;
-        margin-bottom: 1.5rem;
+        font-family: 'The Seasons', serif;
+        font-size: 1.5rem;
         color: #333333;
+        margin-bottom: 3rem;
+        font-style: italic;
+        line-height: 1.9;
       }
 
       .ctaButton {
         background: #1c365d;
-        color: #EDEEF2;
-        padding: 0.8rem 1.8rem;
+        color: #edeef2;
+        padding: 1.2rem 3rem;
         border: none;
-        border-radius: 8px;
-        font-size: 1rem;
-        transition: background-color 0.3s ease, transform 0.3s ease;
+        border-radius: 14px;
+        font-family: 'Cinzel', serif;
+        font-size: 1.3rem;
+        font-weight: 700;
+        transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
         min-width: 44px;
         min-height: 44px;
 
         &:hover {
-          background: #3a5686;
-          color: #EDEEF2;
+          background: #d4a373;
           transform: scale(1.05);
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         }
       }
     }
   }
 
-  .intro {
+  .featured {
     text-align: center;
-    padding: 3rem 0;
+    padding: 6rem 2rem;
 
     h2 {
       font-family: 'Cinzel', serif;
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
+      font-size: 3.2rem;
       color: #1c365d;
+      margin-bottom: 3rem;
+      letter-spacing: 0.05em;
     }
 
-    p {
-      font-size: 1.1rem;
-      margin-bottom: 1.5rem;
-      color: #333333;
+    .featuredGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 3rem;
+      max-width: 1200px;
+      margin: 0 auto;
+
+      .featuredItem {
+        background: #fff;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+
+        &:hover {
+          transform: translateY(-10px);
+        }
+
+        .featuredImage {
+          width: 100%;
+          height: auto;
+          border-radius: 12px;
+          margin-bottom: 1.5rem;
+        }
+
+        h3 {
+          font-family: 'Hello Paris', serif;
+          font-size: 2rem;
+          color: #1c365d;
+          margin-bottom: 1rem;
+        }
+
+        .featuredLink {
+          font-family: 'Cinzel', serif;
+          font-size: 1.1rem;
+          font-weight: 700;
+          padding: 0.8rem 2rem;
+          border: 2px solid #1c365d;
+          border-radius: 12px;
+          color: #1c365d;
+          transition: all 0.3s ease;
+          display: inline-block;
+
+          &:hover {
+            background: #1c365d;
+            color: #edeef2;
+            transform: scale(1.05);
+          }
+        }
+      }
+    }
+  }
+
+  .story {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5rem;
+    padding: 6rem 2rem;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+
+    .storyContent {
+      flex: 1;
+      text-align: left;
+
+      h2 {
+        font-family: 'Cinzel', serif;
+        font-size: 3rem;
+        color: #1c365d;
+        margin-bottom: 1.5rem;
+        letter-spacing: 0.05em;
+      }
+
+      p {
+        font-family: 'The Seasons', serif;
+        font-size: 1.3rem;
+        color: #333333;
+        margin-bottom: 2.5rem;
+        font-style: italic;
+        line-height: 1.9;
+      }
+
+      .storyLink {
+        font-family: 'Cinzel', serif;
+        font-size: 1.2rem;
+        font-weight: 700;
+        padding: 0.8rem 2rem;
+        border: 2px solid #1c365d;
+        border-radius: 12px;
+        color: #1c365d;
+        transition: all 0.3s ease;
+        display: inline-block;
+
+        &:hover {
+          background: #1c365d;
+          color: #edeef2;
+          transform: scale(1.05);
+        }
+      }
     }
 
-    .introLink {
-      font-size: 1rem;
-      font-weight: 500;
-      padding: 0.6rem 1.4rem;
-      border: 2px solid #1c365d;
-      border-radius: 8px;
-      color: #1c365d;
-      transition: all 0.3s ease;
-      display: inline-block;
+    .storyImageWrapper {
+      flex: 1;
+      max-width: 600px;
 
-      &:hover {
-        background: #1c365d;
-        color: #EDEEF2;
+      .storyImage {
+        width: 100%;
+        height: auto;
+        border-radius: 16px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+
+        &:hover {
+          transform: scale(1.02);
+        }
+      }
+    }
+  }
+
+  @media (max-width: 1024px) {
+    padding: 3rem 1.5rem;
+    gap: 6rem;
+
+    .story {
+      flex-direction: column;
+      text-align: center;
+
+      .storyContent {
+        text-align: center;
       }
     }
   }
 
   @media (max-width: 768px) {
-    padding: 1.5rem 1rem;
-    gap: 2rem;
+    padding: 2rem 1rem;
 
     .hero {
-      gap: 1rem;
-
-      .heroImage {
-        max-width: 100%;
-        border-radius: 10px;
-      }
+      min-height: 70vh;
 
       .heroText {
-        padding: 1.5rem;
+        padding: 2.5rem 3rem;
         max-width: 90%;
 
         h1 {
-          font-size: 2rem;
+          font-size: 3.5rem;
         }
 
         p {
-          font-size: 1rem;
+          font-size: 1.3rem;
         }
 
         .ctaButton {
-          padding: 0.7rem 1.5rem;
-          font-size: 0.9rem;
+          padding: 1rem 2.5rem;
+          font-size: 1.2rem;
         }
       }
     }
 
-    .intro {
-      padding: 2rem 0;
+    .featured {
+      padding: 4rem 1rem;
 
       h2 {
-        font-size: 2rem;
+        font-size: 2.5rem;
       }
 
-      p {
-        font-size: 1rem;
+      .featuredGrid {
+        grid-template-columns: 1fr;
       }
+    }
 
-      .introLink {
-        padding: 0.5rem 1.2rem;
-        font-size: 0.9rem;
+    .story {
+      padding: 4rem 1rem;
+      gap: 3rem;
+
+      .storyContent {
+        h2 {
+          font-size: 2.5rem;
+        }
+
+        p {
+          font-size: 1.2rem;
+        }
+
+        .storyLink {
+          font-size: 1.1rem;
+        }
       }
     }
   }
 
   @media (max-width: 480px) {
-    padding: 1rem 0.8rem;
+    padding: 1.5rem 1rem;
 
-    .hero .heroText {
-      padding: 1rem;
+    .hero {
+      min-height: 60vh;
 
-      h1 {
-        font-size: 1.8rem;
-      }
+      .heroText {
+        padding: 2rem;
+        max-width: 95%;
 
-      p {
-        font-size: 0.9rem;
+        h1 {
+          font-size: 2.8rem;
+        }
+
+        p {
+          font-size: 1.1rem;
+        }
+
+        .ctaButton {
+          padding: 0.8rem 2rem;
+          font-size: 1.1rem;
+        }
       }
     }
+
+    .featured {
+      h2 {
+        font-size: 2rem;
+      }
+    }
+
+    .story {
+      .storyContent {
+        h2 {
+          font-size: 2rem;
+        }
+
+        p {
+          font-size: 1.1rem;
+        }
+      }
+    }
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

@@ -6,30 +6,92 @@ export default function Home() {
   return (
     <div className={styles.homeContainer}>
       <section className={styles.hero}>
-        <Image
-          src="https://placehold.co/1200x600/F8F1E9/D4A373?text=Silver+Lining+Hero"
-          alt="Silver Lining Jewelry Hero"
-          width={1200}
-          height={600}
-          className={styles.heroImage}
-        />
+        <div className={styles.heroImageWrapper}>
+          <Image
+            src="https://placehold.co/1920x900/1C365D/EDEEF2?text=Silver+Lining+Hero"
+            alt="Silver Lining Jewelry Hero"
+            width={1920}
+            height={900}
+            className={styles.heroImage}
+            priority
+          />
+          <div className={styles.heroGradient}></div>
+        </div>
         <div className={styles.heroText}>
           <h1>Silver Lining Elegance</h1>
-          <p>Crafted to illuminate your moments with timeless beauty.</p>
+          <p>
+            Handcrafted jewelry that weaves your moments into timeless stories.
+          </p>
           <Link href="/products">
             <button className={styles.ctaButton}>Explore Collections</button>
           </Link>
         </div>
       </section>
-      <section className={styles.intro}>
-        <h2>Discover Our Craft</h2>
-        <p>
-          From delicate necklaces to radiant rings, each piece tells a story of
-          artistry.
-        </p>
-        <Link href="/products" className={styles.introLink}>
-          Shop Now
-        </Link>
+      <section className={styles.featured}>
+        <h2>Our Signature Collections</h2>
+        <div className={styles.featuredGrid}>
+          <div className={styles.featuredItem}>
+            <Image
+              src="https://placehold.co/400x400/EDEEF2/1C365D?text=Necklaces"
+              alt="Necklaces Collection"
+              width={400}
+              height={400}
+              className={styles.featuredImage}
+            />
+            <h3>Necklaces</h3>
+            <Link href="/products/necklaces" className={styles.featuredLink}>
+              Shop Now
+            </Link>
+          </div>
+          <div className={styles.featuredItem}>
+            <Image
+              src="https://placehold.co/400x400/EDEEF2/1C365D?text=Rings"
+              alt="Rings Collection"
+              width={400}
+              height={400}
+              className={styles.featuredImage}
+            />
+            <h3>Rings</h3>
+            <Link href="/products/rings" className={styles.featuredLink}>
+              Shop Now
+            </Link>
+          </div>
+          <div className={styles.featuredItem}>
+            <Image
+              src="https://placehold.co/400x400/EDEEF2/1C365D?text=Bracelets"
+              alt="Bracelets Collection"
+              width={400}
+              height={400}
+              className={styles.featuredImage}
+            />
+            <h3>Bracelets</h3>
+            <Link href="/products/bracelets" className={styles.featuredLink}>
+              Shop Now
+            </Link>
+          </div>
+        </div>
+      </section>
+      <section className={styles.story}>
+        <div className={styles.storyContent}>
+          <h2>Crafted with Soul</h2>
+          <p>
+            Every piece in our collection is a testament to artistry, blending
+            tradition with modern elegance to create jewelry that resonates with
+            your story.
+          </p>
+          <Link href="/about" className={styles.storyLink}>
+            Our Journey
+          </Link>
+        </div>
+        <div className={styles.storyImageWrapper}>
+          <Image
+            src="https://placehold.co/600x500/EDEEF2/1C365D?text=Craftsmanship"
+            alt="Craftsmanship"
+            width={600}
+            height={500}
+            className={styles.storyImage}
+          />
+        </div>
       </section>
     </div>
   );

@@ -12,10 +12,9 @@ export default function About() {
         <div className={styles.aboutText}>
           <h2>Our Journey</h2>
           <p>
-            Founded in 1995, Silver Lining creates jewelry that celebrates
-            life’s brightest moments. Each piece is handcrafted with passion,
-            using ethically sourced materials to ensure beauty that shines
-            inside and out.
+            Silver Lining creates jewelry that celebrates life’s brightest
+            moments. Each piece is handcrafted with passion, using ethically
+            sourced materials to ensure beauty that shines inside and out.
           </p>
         </div>
         <Image
