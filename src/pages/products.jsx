@@ -10,6 +10,7 @@ export default function Products() {
   const [showAdminForm, setShowAdminForm] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const [products, setProducts] = useState([
     {
       id: 1,
@@ -24,6 +25,7 @@ export default function Products() {
         "Handcrafted",
         "Includes gift box",
       ],
+      category: "Necklaces",
     },
     {
       id: 2,
@@ -38,6 +40,7 @@ export default function Products() {
         "Premium CZ stones",
         "Tarnish resistant",
       ],
+      category: "Rings",
     },
     {
       id: 3,
@@ -52,6 +55,7 @@ export default function Products() {
         "Lightweight design",
         "1.5 inches in length",
       ],
+      category: "Earrings",
     },
     {
       id: 4,
@@ -66,6 +70,7 @@ export default function Products() {
         "Water resistant",
         "Signature clasp",
       ],
+      category: "Bracelets",
     },
   ]);
 
@@ -109,7 +114,6 @@ export default function Products() {
     setShowAdminLogin(false);
 
     if (success) {
-      // Store login state in sessionStorage (valid until browser is closed)
       sessionStorage.setItem("adminLoggedIn", "true");
       setShowAdminForm(true);
     }
@@ -122,14 +126,12 @@ export default function Products() {
   };
 
   const addNewProduct = (newProduct) => {
-    // Generate a new ID
     const newId =
       products.length > 0 ? Math.max(...products.map((p) => p.id)) + 1 : 1;
 
     const productToAdd = {
       ...newProduct,
       id: newId,
-      // Set a default image if none provided
       image:
         newProduct.image ||
         `https://placehold.co/300x300/F8F1E9/D4A373?text=${encodeURIComponent(
@@ -141,9 +143,33 @@ export default function Products() {
     setShowAdminForm(false);
   };
 
+  // Filter products based on selected category
+  const filteredProducts =
+    selectedCategory === "All"
+      ? products
+      : products.filter((product) => product.category === selectedCategory);
+
+  // Define available categories
+  const categories = ["All", "Necklaces", "Rings", "Earrings", "Bracelets"];
+
   return (
     <div className={styles.productsContainer}>
       <h1>Our Collections</h1>
+
+      {/* Category Filter */}
+      <div className={styles.categoryFilter}>
+        {categories.map((category) => (
+          <button
+            key={category}
+            className={`${styles.categoryButton} ${
+              selectedCategory === category ? styles.active : ""
+            }`}
+            onClick={() => setSelectedCategory(category)}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
 
       {/* Admin Panel - Only visible to admins or when logging in */}
       {isAdminLoggedIn && (
@@ -165,12 +191,10 @@ export default function Products() {
             {showAdminForm ? "Hide Product Form" : "Add New Product"}
           </button>
 
-          {/* Admin Form */}
           {showAdminForm && <AdminProductForm onAddProduct={addNewProduct} />}
         </div>
       )}
 
-      {/* Hidden Admin Login Trigger - Small icon that opens login modal */}
       {!isAdminLoggedIn && (
         <button
           className={styles.hiddenAdminButton}
@@ -181,7 +205,6 @@ export default function Products() {
         </button>
       )}
 
-      {/* Admin Login Modal */}
       {showAdminLogin && (
         <AdminLogin
           onLogin={handleAdminLogin}
@@ -191,7 +214,7 @@ export default function Products() {
 
       {/* Products Grid */}
       <div className={styles.productsGrid}>
-        {products.map((product) => (
+        {filteredProducts.map((product) => (
           <ProductCard
             key={product.id}
             product={product}
@@ -200,7 +223,6 @@ export default function Products() {
         ))}
       </div>
 
-      {/* Product Details Modal */}
       {selectedProduct && (
         <ProductDetails
           product={selectedProduct}

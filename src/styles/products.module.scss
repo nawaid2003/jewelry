@@ -13,6 +13,35 @@
     color: #1c365d;
   }
 
+  .categoryFilter {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .categoryButton {
+    background: #f0f0f0;
+    color: #1c365d;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: #d4a373;
+      color: #edeef2;
+    }
+
+    &.active {
+      background: #1c365d;
+      color: #edeef2;
+    }
+  }
+
   .productsGrid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -71,7 +100,6 @@
     }
   }
 
-  // Product Details Modal
   .modalOverlay {
     position: fixed;
     top: 0;
@@ -201,7 +229,6 @@
     }
   }
 
-  // Hidden Admin Button
   .hiddenAdminButton {
     position: fixed;
     bottom: 20px;
@@ -225,7 +252,6 @@
     }
   }
 
-  // Admin Panel
   .adminPanel {
     background: #f5f5f5;
     padding: 1.5rem;
@@ -264,7 +290,6 @@
     }
   }
 
-  // Admin Login Modal
   .loginModal {
     background: white;
     width: 90%;
@@ -377,10 +402,18 @@
     .productsGrid {
       grid-template-columns: 1fr;
     }
+
+    .categoryFilter {
+      gap: 0.5rem;
+    }
+
+    .categoryButton {
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+    }
   }
 }
 
-// Admin Form Styles
 .adminForm {
   background: #f5f5f5;
   padding: 2rem;
