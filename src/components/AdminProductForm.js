@@ -49,7 +49,7 @@ export default function AdminProductForm({ onAddProduct }) {
       };
 
       // Save to Firestore
-      const newId = Date.now().toString(); // Unique ID
+      const newId = Date.now().toString();
       await setDoc(doc(db, "products", newId), {
         ...productData,
         id: newId,
@@ -73,59 +73,75 @@ export default function AdminProductForm({ onAddProduct }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className={styles.adminForm}>
-      <div>
-        <label>Name:</label>
-        <input
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <label>Price:</label>
-        <input
-          type="number"
-          name="price"
-          value={formData.price}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <label>Description:</label>
-        <textarea
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <label>Category:</label>
-        <select
-          name="category"
-          value={formData.category}
-          onChange={handleChange}
-        >
-          <option value="Necklaces">Necklaces</option>
-          <option value="Rings">Rings</option>
-          <option value="Earrings">Earrings</option>
-          <option value="Bracelets">Bracelets</option>
-        </select>
-      </div>
-      <div>
-        <label>Details (comma-separated):</label>
-        <input
-          type="text"
-          name="details"
-          value={formData.details}
-          onChange={handleChange}
-        />
-      </div>
-      <button type="submit">Add Product</button>
-    </form>
+    <div className={styles.adminFormContainer}>
+      <h3>Add New Product</h3>
+      <form onSubmit={handleSubmit} className={styles.adminForm}>
+        <div className={styles.formGroup}>
+          <label htmlFor="name">Product Name</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="e.g., Moonlight Necklace"
+            required
+          />
+        </div>
+        <div className={styles.formGroup}>
+          <label htmlFor="price">Price ($)</label>
+          <input
+            type="number"
+            id="price"
+            name="price"
+            value={formData.price}
+            onChange={handleChange}
+            placeholder="e.g., 150"
+            min="0"
+            step="0.01"
+            required
+          />
+        </div>
+        <div className={styles.formGroup}>
+          <label htmlFor="description">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            placeholder="e.g., A delicate necklace with a moonstone pendant"
+            required
+          />
+        </div>
+        <div className={styles.formGroup}>
+          <label htmlFor="category">Category</label>
+          <select
+            id="category"
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+          >
+            <option value="Necklaces">Necklaces</option>
+            <option value="Rings">Rings</option>
+            <option value="Earrings">Earrings</option>
+            <option value="Bracelets">Bracelets</option>
+          </select>
+        </div>
+        <div className={styles.formGroup}>
+          <label htmlFor="details">Details (comma-separated)</label>
+          <input
+            type="text"
+            id="details"
+            name="details"
+            value={formData.details}
+            onChange={handleChange}
+            placeholder="e.g., Gold, Adjustable, Handmade"
+          />
+        </div>
+        <button type="submit" className={styles.submitButton}>
+          Add Product
+        </button>
+      </form>
+    </div>
   );
 }
