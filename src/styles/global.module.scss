@@ -4,3 +4,17 @@
   min-height: 100vh;
   background: linear-gradient(180deg, #EDEEF2 0%, #E5E7ED 100%);
 }
+
+.navbar {
+  display: flex;
+  gap: 20px;
+  padding: 10px;
+  background: #f8f1e9;
+  a {
+    text-decoration: none;
+    color: #333;
+    &:hover {
+      color: #d4a373;
+    }
+  }
+}

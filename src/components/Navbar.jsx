@@ -70,6 +70,11 @@ export default function Navbar() {
             Contact
           </Link>
         </li>
+        <li>
+          <Link href="/cart" onClick={closeMenu}>
+            Cart
+          </Link>
+        </li>
       </ul>
     </nav>
   );

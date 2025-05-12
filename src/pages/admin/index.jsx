@@ -6,28 +6,14 @@ import styles from "../../styles/products.module.scss";
 export default function AdminPage() {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [showAdminLogin, setShowAdminLogin] = useState(true);
-  const [products, setProducts] = useState([]);
   const [successMessage, setSuccessMessage] = useState("");
 
-  // Clear login status and load products on mount
+  // Clear login status on mount
   useEffect(() => {
-    // Clear admin login status to force re-authentication
     sessionStorage.removeItem("adminLoggedIn");
     setIsAdminLoggedIn(false);
     setShowAdminLogin(true);
-
-    // Load products from localStorage
-    const savedProducts = localStorage.getItem("jewelryProducts");
-    if (savedProducts) {
-      setProducts(JSON.parse(savedProducts));
-    }
   }, []);
-
-  // Sync products to localStorage
-  useEffect(() => {
-    localStorage.setItem("jewelryProducts", JSON.stringify(products));
-    console.log("Updated localStorage with products:", products);
-  }, [products]);
 
   const handleAdminLogin = (success) => {
     setIsAdminLoggedIn(success);
@@ -44,19 +30,6 @@ export default function AdminPage() {
   };
 
   const addNewProduct = (newProduct) => {
-    const newId =
-      products.length > 0 ? Math.max(...products.map((p) => p.id)) + 1 : 1;
-    const productToAdd = {
-      ...newProduct,
-      id: newId,
-      image:
-        newProduct.image ||
-        `https://placehold.co/300x300/F8F1E9/D4A373?text=${encodeURIComponent(
-          newProduct.name
-        )}`,
-    };
-    setProducts([...products, productToAdd]);
-    console.log("Added new product:", productToAdd);
     // Show success message
     setSuccessMessage(`Product "${newProduct.name}" added successfully!`);
     // Hide message after 3 seconds
