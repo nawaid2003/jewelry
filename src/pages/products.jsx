@@ -12,8 +12,9 @@ export default function Products() {
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [products, setProducts] = useState([
-    // Necklaces
+
+  // Initial hardcoded products
+  const initialProducts = [
     {
       id: 1,
       name: "Moonlight Necklace",
@@ -59,7 +60,6 @@ export default function Products() {
       ],
       category: "Necklaces",
     },
-    // Rings
     {
       id: 2,
       name: "Starlight Ring",
@@ -100,7 +100,6 @@ export default function Products() {
       details: ["Rose Gold", "Size adjustable", "Engravable", "Lightweight"],
       category: "Rings",
     },
-    // Earrings
     {
       id: 3,
       name: "Dawn Earrings",
@@ -146,7 +145,6 @@ export default function Products() {
       ],
       category: "Earrings",
     },
-    // Bracelets
     {
       id: 4,
       name: "Twilight Bracelet",
@@ -192,22 +190,62 @@ export default function Products() {
       ],
       category: "Bracelets",
     },
-  ]);
+  ];
+
+  const [products, setProducts] = useState(initialProducts);
 
   useEffect(() => {
     const adminLoggedIn = sessionStorage.getItem("adminLoggedIn") === "true";
     setIsAdminLoggedIn(adminLoggedIn);
   }, []);
 
+  // Load products from localStorage on mount
   useEffect(() => {
     const savedProducts = localStorage.getItem("jewelryProducts");
     if (savedProducts) {
-      setProducts(JSON.parse(savedProducts));
+      const parsedProducts = JSON.parse(savedProducts);
+      const mergedProducts = [
+        ...initialProducts,
+        ...parsedProducts.filter(
+          (saved) => !initialProducts.some((initial) => initial.id === saved.id)
+        ),
+      ];
+      setProducts(mergedProducts);
+      console.log("Loaded products on mount:", mergedProducts);
+    } else {
+      localStorage.setItem("jewelryProducts", JSON.stringify(initialProducts));
+      console.log("Initialized localStorage with initialProducts");
     }
   }, []);
 
+  // Listen for localStorage changes (e.g., from /admin)
+  useEffect(() => {
+    const handleStorageChange = (event) => {
+      if (event.key === "jewelryProducts") {
+        const savedProducts = event.newValue ? JSON.parse(event.newValue) : [];
+        const mergedProducts = [
+          ...initialProducts,
+          ...savedProducts.filter(
+            (saved) =>
+              !initialProducts.some((initial) => initial.id === saved.id)
+          ),
+        ];
+        setProducts(mergedProducts);
+        console.log("Updated products from storage event:", mergedProducts);
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
+
+  // Sync products to localStorage
   useEffect(() => {
     localStorage.setItem("jewelryProducts", JSON.stringify(products));
+    console.log("Saved products to localStorage:", products);
   }, [products]);
 
   const handleProductSelect = (product) => {
@@ -255,6 +293,7 @@ export default function Products() {
     };
     setProducts([...products, productToAdd]);
     setShowAdminForm(false);
+    console.log("Added new product on products page:", productToAdd);
   };
 
   // Filter products by category and search query
