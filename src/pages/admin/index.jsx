@@ -5,15 +5,18 @@ import styles from "../../styles/products.module.scss";
 
 export default function AdminPage() {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
-  const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [showAdminLogin, setShowAdminLogin] = useState(true);
   const [products, setProducts] = useState([]);
+  const [successMessage, setSuccessMessage] = useState("");
 
-  // Check admin login status and load products on mount
+  // Clear login status and load products on mount
   useEffect(() => {
-    const adminLoggedIn = sessionStorage.getItem("adminLoggedIn") === "true";
-    setIsAdminLoggedIn(adminLoggedIn);
-    setShowAdminLogin(!adminLoggedIn);
+    // Clear admin login status to force re-authentication
+    sessionStorage.removeItem("adminLoggedIn");
+    setIsAdminLoggedIn(false);
+    setShowAdminLogin(true);
 
+    // Load products from localStorage
     const savedProducts = localStorage.getItem("jewelryProducts");
     if (savedProducts) {
       setProducts(JSON.parse(savedProducts));
@@ -54,6 +57,12 @@ export default function AdminPage() {
     };
     setProducts([...products, productToAdd]);
     console.log("Added new product:", productToAdd);
+    // Show success message
+    setSuccessMessage(`Product "${newProduct.name}" added successfully!`);
+    // Hide message after 3 seconds
+    setTimeout(() => {
+      setSuccessMessage("");
+    }, 3000);
   };
 
   return (
@@ -71,6 +80,9 @@ export default function AdminPage() {
               Logout
             </button>
           </div>
+          {successMessage && (
+            <div className={styles.successMessage}>{successMessage}</div>
+          )}
           <AdminProductForm onAddProduct={addNewProduct} />
         </div>
       ) : (
