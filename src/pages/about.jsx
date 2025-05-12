@@ -18,7 +18,7 @@ export default function About() {
           </p>
         </div>
         <Image
-          src="https://placehold.co/500x400/F8F1E9/D4A373?text=Silver+Lining+Craft"
+          src="https://placehold.co/500x400/F8F1E9/D4A373?text=Silver+newtextLining+Craft"
           alt="Silver Lining Craftsmanship"
           width={500}
           height={400}

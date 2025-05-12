@@ -14,7 +14,7 @@ export default function Contact() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert("Message sent!"); // Placeholder for form submission
+    alert("Message sent!");
   };
 
   return (

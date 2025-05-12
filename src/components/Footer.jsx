@@ -45,8 +45,8 @@ export default function Footer() {
         </div>
         <div className={styles.footerSection}>
           <h3>Contact</h3>
-          <p>Email: info@silverliningjewelry.com</p>
-          <p>Phone: (123) 456-7890</p>
+          <p>Email: test@silverliningjewelry.com</p>
+          <p>Phone: 123 456-7890</p>
         </div>
         <div className={styles.footerSection}>
           <h3>Follow Us</h3>

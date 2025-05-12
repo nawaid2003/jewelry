@@ -167,12 +167,7 @@ export default function Products() {
       image: "https://placehold.co/300x300/F8F1E9/D4A373?text=Bangle",
       description:
         "A sleek bangle with customizable charms, crafted from sterling silver for everyday wear.",
-      details: [
-        "Sterling Silver",
-        "Adjustable",
-        "Custom charms",
-        "Polished finish",
-      ],
+      details: ["Sterling Silver", "Adjustable", "Custom charms"],
       category: "Bracelets",
     },
     {

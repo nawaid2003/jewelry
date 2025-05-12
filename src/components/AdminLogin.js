@@ -22,7 +22,6 @@ export default function AdminLogin({ onLogin, onClose }) {
     e.preventDefault();
 
     // In a real application, you would validate against a secure backend
-    // For demonstration purposes, we're using a simple check
     // IMPORTANT: In production, NEVER hardcode credentials like this
     // This is only for demonstration purposes
 
