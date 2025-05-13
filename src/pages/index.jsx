@@ -39,7 +39,7 @@ export default function Home() {
               className={styles.featuredImage}
             />
             <h3>Necklaces</h3>
-            <Link href="/products/necklaces" className={styles.featuredLink}>
+            <Link href="/products" className={styles.featuredLink}>
               Shop Now
             </Link>
           </div>
@@ -52,7 +52,7 @@ export default function Home() {
               className={styles.featuredImage}
             />
             <h3>Rings</h3>
-            <Link href="/products/rings" className={styles.featuredLink}>
+            <Link href="/products" className={styles.featuredLink}>
               Shop Now
             </Link>
           </div>
@@ -65,7 +65,7 @@ export default function Home() {
               className={styles.featuredImage}
             />
             <h3>Bracelets</h3>
-            <Link href="/products/bracelets" className={styles.featuredLink}>
+            <Link href="/products" className={styles.featuredLink}>
               Shop Now
             </Link>
           </div>
