@@ -1,93 +1,108 @@
 import { useState } from "react";
+import { collection, addDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
-import { doc, setDoc } from "firebase/firestore";
 import styles from "../styles/products.module.scss";
 
-export default function AdminProductForm({ onAddProduct }) {
+export default function AdminProductForm() {
   const [formData, setFormData] = useState({
     name: "",
-    price: "",
-    description: "",
     category: "Necklaces",
-    details: "",
+    description: "",
+    price: "",
+    image: "",
+    details: "", // Store as comma-separated string in form, convert to array on submit
   });
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const categories = ["Necklaces", "Rings", "Earrings", "Bracelets"];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
+
     try {
-      // Validate required fields
-      if (
-        !formData.name ||
-        !formData.price ||
-        !formData.description ||
-        !formData.category
-      ) {
-        alert("Please fill out all required fields");
-        return;
-      }
-
-      // Prepare product data
       const productData = {
-        name: formData.name,
+        ...formData,
         price: parseFloat(formData.price),
-        description: formData.description,
-        category: formData.category,
         details: formData.details
-          ? formData.details.split(",").map((item) => item.trim())
-          : [],
-        image: `https://placehold.co/300x300/F8F1E9/D4A373?text=${encodeURIComponent(
-          formData.name
-        )}`,
+          .split(",")
+          .map((detail) => detail.trim())
+          .filter((detail) => detail), // Convert comma-separated string to array
       };
-
-      // Save to Firestore
-      const newId = Date.now().toString();
-      await setDoc(doc(db, "products", newId), {
-        ...productData,
-        id: newId,
-      });
-
-      // Trigger success callback
-      onAddProduct(productData);
-
-      // Reset form
+      await addDoc(collection(db, "products"), productData);
+      setSuccess("Product added successfully!");
       setFormData({
         name: "",
-        price: "",
-        description: "",
         category: "Necklaces",
+        description: "",
+        price: "",
+        image: "",
         details: "",
       });
-    } catch (error) {
-      console.error("Error adding product:", error);
-      alert("Failed to add product. Please try again.");
+    } catch (err) {
+      setError("Failed to add product. Please try again.");
+      console.error(err);
     }
   };
 
   return (
-    <div className={styles.adminFormContainer}>
-      <h3>Add New Product</h3>
-      <form onSubmit={handleSubmit} className={styles.adminForm}>
+    <div className={styles.productsContainer}>
+      <h1>Add New Product</h1>
+      <p>Fill in the details to add a new product to your collection.</p>
+
+      <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.formGroup}>
-          <label htmlFor="name">Product Name</label>
+          <label htmlFor="name">Name</label>
           <input
             type="text"
             id="name"
             name="name"
             value={formData.name}
             onChange={handleChange}
-            placeholder="e.g., Moonlight Necklace"
+            placeholder="Enter product name"
             required
+            className={styles.formInput}
           />
         </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="category">Category</label>
+          <select
+            id="category"
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            className={styles.formInput}
+          >
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="description">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            placeholder="Describe the product..."
+            rows="4"
+            required
+            className={styles.formInput}
+          />
+        </div>
+
         <div className={styles.formGroup}>
           <label htmlFor="price">Price ($)</label>
           <input
@@ -96,48 +111,44 @@ export default function AdminProductForm({ onAddProduct }) {
             name="price"
             value={formData.price}
             onChange={handleChange}
-            placeholder="e.g., 150"
-            min="0"
+            placeholder="Enter price"
             step="0.01"
+            min="0"
             required
+            className={styles.formInput}
           />
         </div>
+
         <div className={styles.formGroup}>
-          <label htmlFor="description">Description</label>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
+          <label htmlFor="image">Image URL</label>
+          <input
+            type="url"
+            id="image"
+            name="image"
+            value={formData.image}
             onChange={handleChange}
-            placeholder="e.g., A delicate necklace with a moonstone pendant"
+            placeholder="Enter image URL"
             required
+            className={styles.formInput}
           />
         </div>
-        <div className={styles.formGroup}>
-          <label htmlFor="category">Category</label>
-          <select
-            id="category"
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-          >
-            <option value="Necklaces">Necklaces</option>
-            <option value="Rings">Rings</option>
-            <option value="Earrings">Earrings</option>
-            <option value="Bracelets">Bracelets</option>
-          </select>
-        </div>
+
         <div className={styles.formGroup}>
           <label htmlFor="details">Details (comma-separated)</label>
-          <input
-            type="text"
+          <textarea
             id="details"
             name="details"
             value={formData.details}
             onChange={handleChange}
-            placeholder="e.g., Gold, Adjustable, Handmade"
+            placeholder="e.g., Material: 14K Gold, Length: 45cm, Stone: 1ct Emerald"
+            rows="3"
+            className={styles.formInput}
           />
         </div>
+
+        {error && <p className={styles.error}>{error}</p>}
+        {success && <p className={styles.success}>{success}</p>}
+
         <button type="submit" className={styles.submitButton}>
           Add Product
         </button>
