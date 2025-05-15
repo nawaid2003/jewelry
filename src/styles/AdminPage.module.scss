@@ -6,26 +6,28 @@ $background-offwhite: #eeeeee;
 $primary-blue: #1c365d;
 $white: #ffffff;
 $text-dark: #2a2a2a;
-$shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+$shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+$gradient: linear-gradient(135deg, $primary-blue, lighten($primary-blue, 15%));
 
 .productsContainer {
   background: $background-offwhite;
   min-height: 100vh;
-  padding: 48px 16px;
+  padding: 60px 20px;
   text-align: center;
   font-family: 'The Seasons', serif;
 
   h1 {
     font-family: 'Cinzel', serif;
     color: $primary-blue;
-    font-size: 2.8rem;
+    font-size: 3.2rem;
     font-weight: 700;
     margin-bottom: 24px;
+    text-shadow: 0 2px 4px rgba($primary-blue, 0.1);
   }
 }
 
 .adminPanel {
-  max-width: 720px;
+  max-width: 800px;
   margin: 0 auto;
 }
 
@@ -33,44 +35,30 @@ $shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 
   h2 {
     font-family: 'Cinzel', serif;
     color: $primary-blue;
-    font-size: 1.8rem;
+    font-size: 2rem;
     font-weight: 700;
   }
 }
 
 .adminLogoutButton {
-  padding: 10px 20px;
-  border: 1px solid $primary-blue;
-  border-radius: 8px;
-  background: transparent;
-  color: $primary-blue;
-  font-size: 1rem;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  background: $gradient;
+  color: $white;
+  font-size: 1.1rem;
   font-family: 'Hello Paris', sans-serif;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
 
   &:hover {
-    background: $primary-blue;
-    color: $white;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba($primary-blue, 0.3);
   }
-}
-
-.successMessage {
-  color: #388e3c;
-  font-size: 1rem;
-  margin-bottom: 16px;
-  text-align: center;
-  font-family: 'The Seasons', serif;
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }

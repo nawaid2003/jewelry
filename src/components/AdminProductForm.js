@@ -7,13 +7,13 @@ export default function AdminProductForm({ onAddProduct }) {
   const [formData, setFormData] = useState({
     name: "",
     category: "Necklaces",
-    description: [""], // Array for bullet points
+    description: [""],
     price: "",
     image: "",
-    details: "", // Comma-separated string
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const categories = ["Necklaces", "Rings", "Earrings", "Bracelets"];
 
@@ -44,33 +44,33 @@ export default function AdminProductForm({ onAddProduct }) {
     e.preventDefault();
     setError("");
     setSuccess("");
+    setIsSubmitting(true);
 
     try {
       const productData = {
         ...formData,
         price: parseFloat(formData.price),
-        description: formData.description.filter((desc) => desc.trim() !== ""), // Filter out empty descriptions
-        details: formData.details
-          .split(",")
-          .map((detail) => detail.trim())
-          .filter((detail) => detail),
+        description: formData.description.filter((desc) => desc.trim() !== ""),
       };
       const docRef = await addDoc(collection(db, "products"), productData);
-      setSuccess("Product added successfully!");
+      setSuccess("Product added to your database!");
       setFormData({
         name: "",
         category: "Necklaces",
         description: [""],
         price: "",
         image: "",
-        details: "",
       });
       if (onAddProduct) {
         onAddProduct({ id: docRef.id, ...productData });
       }
     } catch (err) {
-      setError("Failed to add product. Please try again.");
+      setError(
+        "Failed to add product. Please check your Firebase configuration."
+      );
       console.error(err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -91,6 +91,7 @@ export default function AdminProductForm({ onAddProduct }) {
             placeholder="Enter product name"
             required
             className={styles.formInput}
+            disabled={isSubmitting}
           />
         </div>
 
@@ -102,6 +103,7 @@ export default function AdminProductForm({ onAddProduct }) {
             value={formData.category}
             onChange={handleChange}
             className={styles.formInput}
+            disabled={isSubmitting}
           >
             {categories.map((cat) => (
               <option key={cat} value={cat}>
@@ -121,14 +123,16 @@ export default function AdminProductForm({ onAddProduct }) {
                 onChange={(e) => handleDescriptionChange(index, e.target.value)}
                 placeholder={`Bullet point ${index + 1}`}
                 className={styles.formInput}
+                disabled={isSubmitting}
               />
               {formData.description.length > 1 && (
                 <button
                   type="button"
                   onClick={() => removeDescriptionField(index)}
                   className={styles.removeButton}
+                  disabled={isSubmitting}
                 >
-                  -
+                  −
                 </button>
               )}
             </div>
@@ -137,6 +141,7 @@ export default function AdminProductForm({ onAddProduct }) {
             type="button"
             onClick={addDescriptionField}
             className={styles.addButton}
+            disabled={isSubmitting}
           >
             +
           </button>
@@ -155,6 +160,7 @@ export default function AdminProductForm({ onAddProduct }) {
             min="0"
             required
             className={styles.formInput}
+            disabled={isSubmitting}
           />
         </div>
 
@@ -169,27 +175,19 @@ export default function AdminProductForm({ onAddProduct }) {
             placeholder="Enter image URL"
             required
             className={styles.formInput}
-          />
-        </div>
-
-        <div className={styles.formGroup}>
-          <label htmlFor="details">Details (comma-separated)</label>
-          <textarea
-            id="details"
-            name="details"
-            value={formData.details}
-            onChange={handleChange}
-            placeholder="e.g., Material: 14K Gold, Length: 45cm, Stone: 1ct Emerald"
-            rows="3"
-            className={styles.formInput}
+            disabled={isSubmitting}
           />
         </div>
 
         {error && <p className={styles.error}>{error}</p>}
         {success && <p className={styles.success}>{success}</p>}
 
-        <button type="submit" className={styles.submitButton}>
-          Add Product
+        <button
+          type="submit"
+          className={styles.submitButton}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Adding..." : "Add Product"}
         </button>
       </form>
     </div>

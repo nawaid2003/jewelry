@@ -6,81 +6,79 @@ $background-offwhite: #eeeeee;
 $primary-blue: #1c365d;
 $white: #ffffff;
 $text-dark: #2a2a2a;
-$shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+$shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+$gradient: linear-gradient(135deg, $primary-blue, lighten($primary-blue, 15%));
 
 .productsContainer {
   background: $background-offwhite;
   min-height: 100vh;
-  padding: 48px 16px;
+  padding: 60px 20px;
   text-align: center;
   font-family: 'The Seasons', serif;
 
   h1 {
     font-family: 'Cinzel', serif;
     color: $primary-blue;
-    font-size: 2.8rem;
+    font-size: 3rem;
     font-weight: 700;
     margin-bottom: 16px;
+    text-shadow: 0 2px 4px rgba($primary-blue, 0.1);
   }
 
   p {
     color: $text-dark;
-    font-size: 1.1rem;
-    margin-bottom: 32px;
+    font-size: 1.2rem;
+    margin-bottom: 40px;
   }
 }
 
 .form {
   background: $white;
-  max-width: 560px;
+  max-width: 600px;
   margin: 0 auto;
-  padding: 32px;
-  border-radius: 12px;
+  padding: 40px;
+  border-radius: 16px;
   box-shadow: $shadow;
   text-align: left;
+  animation: fadeIn 0.5s ease-in-out;
 }
 
 .formGroup {
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 
   label {
     display: block;
     color: $primary-blue;
     font-family: 'Hello Paris', sans-serif;
-    font-size: 1.1rem;
-    font-weight: 500;
-    margin-bottom: 8px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 10px;
   }
 
-  input, select, textarea {
+  input, select {
     width: 100%;
-    padding: 12px;
+    padding: 14px;
     border: 1px solid lighten($primary-blue, 40%);
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 1rem;
     color: $text-dark;
     background: $white;
     font-family: 'The Seasons', serif;
-    transition: border-color 0.3s ease;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 
     &:focus {
       outline: none;
       border-color: $primary-blue;
-      box-shadow: 0 0 4px rgba($primary-blue, 0.3);
+      box-shadow: 0 0 6px rgba($primary-blue, 0.3);
     }
-  }
-
-  textarea {
-    resize: vertical;
-    min-height: 80px;
   }
 }
 
 .descriptionGroup {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 12px;
+  margin-bottom: 16px;
 
   input {
     flex: 1;
@@ -88,55 +86,70 @@ $shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .addButton, .removeButton {
-  width: 36px;
-  height: 36px;
-  border: 1px solid $primary-blue;
+  width: 40px;
+  height: 40px;
+  border: none;
   border-radius: 50%;
-  background: $white;
-  color: $primary-blue;
-  font-size: 1.2rem;
+  background: $gradient;
+  color: $white;
+  font-size: 1.4rem;
   font-family: 'Hello Paris', sans-serif;
   cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
+  transition: transform 0.2s ease, opacity 0.3s ease;
 
   &:hover {
-    background: $primary-blue;
-    color: $white;
     transform: scale(1.1);
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    background: lighten($primary-blue, 40%);
+    cursor: not-allowed;
   }
 }
 
 .submitButton {
   width: 100%;
-  padding: 14px;
-  background: $primary-blue;
+  padding: 16px;
+  background: $gradient;
   color: $white;
   border: none;
-  border-radius: 8px;
-  font-size: 1.1rem;
+  border-radius: 12px;
+  font-size: 1.2rem;
   font-family: 'Hello Paris', sans-serif;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease, background 0.3s ease;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
 
   &:hover {
     transform: scale(1.02);
-    background: lighten($primary-blue, 10%);
+    box-shadow: 0 4px 12px rgba($primary-blue, 0.3);
+  }
+
+  &:disabled {
+    background: lighten($primary-blue, 40%);
+    cursor: not-allowed;
   }
 }
 
 .error {
   color: #d32f2f;
-  font-size: 0.95rem;
-  margin: 16px 0;
+  font-size: 1rem;
+  margin: 20px 0;
   text-align: center;
   font-family: 'The Seasons', serif;
 }
 
 .success {
   color: #388e3c;
-  font-size: 0.95rem;
-  margin: 16px 0;
+  font-size: 1rem;
+  margin: 20px 0;
   text-align: center;
   font-family: 'The Seasons', serif;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

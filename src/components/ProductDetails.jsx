@@ -34,20 +34,18 @@ export default function ProductDetails({ product, onClose }) {
         </button>
         <img src={product.image} alt={product.name} />
         <h2>{product.name}</h2>
-        <p>{product.description}</p>
-        <p className={styles.price}>${product.price.toFixed(2)}</p>
-        <h3>Details</h3>
-        {product.details &&
-        Array.isArray(product.details) &&
-        product.details.length > 0 ? (
+        {product.description &&
+        Array.isArray(product.description) &&
+        product.description.length > 0 ? (
           <ul>
-            {product.details.map((detail, index) => (
-              <li key={index}>{detail}</li>
+            {product.description.map((desc, index) => (
+              <li key={index}>{desc}</li>
             ))}
           </ul>
         ) : (
-          <p>No additional details available.</p>
+          <p>{product.description || "No description available."}</p>
         )}
+        <p className={styles.price}>${product.price.toFixed(2)}</p>
         <button onClick={handleAddToCart} className={styles.addToCartButton}>
           Add to Cart
         </button>
