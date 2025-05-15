@@ -6,7 +6,8 @@ $background-offwhite: #eeeeee;
 $primary-blue: #1c365d;
 $white: #ffffff;
 $text-dark: #2a2a2a;
-$shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+$shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+$gradient: linear-gradient(135deg, lighten($primary-blue, 20%), $primary-blue);
 
 .overlay {
   position: fixed;
@@ -16,7 +17,7 @@ $shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   height: 100%;
   background: rgba($primary-blue, 0.6);
   z-index: 999;
-  backdrop-filter: blur(4px menopau);
+  backdrop-filter: blur(4px);
 }
 
 .productDetails {
@@ -24,99 +25,151 @@ $shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: $white;
-  border-radius: 12px;
+  background: $background-offwhite;
+  border-radius: 16px;
   box-shadow: $shadow;
-  padding: 32px;
-  max-width: 640px;
+  padding: 40px;
+  max-width: 800px;
   width: 90%;
   max-height: 80vh;
   overflow-y: auto;
   z-index: 1000;
   font-family: 'The Seasons', serif;
-  animation: slideIn 0.4s ease-in-out;
+  animation: slideIn 0.5s ease-in-out;
+}
 
+.contentWrapper {
+  display: flex;
+  gap: 32px;
+}
+
+.imageContainer {
+  flex: 0 0 40%;
   img {
     width: 100%;
-    height: 280px;
+    height: 300px;
     object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 16px;
+    border-radius: 12px;
+    transition: transform 0.4s ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
   }
+}
+
+.detailsContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 
   h2 {
     color: $primary-blue;
     font-family: 'Cinzel', serif;
-    font-size: 1.8rem;
+    font-size: 2.2rem;
     font-weight: 700;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
+    text-shadow: 0 1px 2px rgba($primary-blue, 0.1);
   }
 
-  h3 {
-    color: $primary-blue;
-    font-family: 'Cinzel', serif;
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin: 16px 0 8px;
-  }
+  .descriptionSection, .detailsSection {
+    margin-bottom: 20px;
 
-  p {
-    color: $text-dark;
-    font-size: 1rem;
-    margin-bottom: 12px;
+    h3 {
+      color: $primary-blue;
+      font-family: 'Cinzel', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    p {
+      color: $text-dark;
+      font-family: 'The Seasons', serif;
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+    }
+
+    ul {
+      list-style-type: disc;
+      padding-left: 24px;
+      margin-bottom: 16px;
+
+      li {
+        color: $text-dark;
+        font-family: 'The Seasons', serif;
+        font-size: 1rem;
+        margin-bottom: 8px;
+      }
+    }
   }
 
   .price {
     color: $primary-blue;
-    font-size: 1.4rem;
-    font-weight: 700;
-    margin-bottom: 16px;
-  }
-
-  ul {
-    list-style-type: disc;
-    padding-left: 20px;
-    margin-bottom: 16px;
-
-    li {
-      color: $text-dark;
-      font-size: 0.95rem;
-      margin-bottom: 8px;
-    }
-  }
-
-  .closeButton {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: none;
-    border: none;
+    font-family: 'Cinzel', serif;
     font-size: 1.6rem;
-    color: $text-dark;
-    cursor: pointer;
-    transition: color 0.3s ease;
-
-    &:hover {
-      color: $primary-blue;
-    }
+    font-weight: 700;
+    margin-bottom: 24px;
   }
 
   .addToCartButton {
-    width: 100%;
-    padding: 12px;
-    background: $primary-blue;
-    color: $white;
+    align-self: flex-end;
+    padding: 14px 28px;
     border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
+    border-radius: 12px;
+    background: $gradient;
+    color: $white;
+    font-size: 1.2rem;
     font-family: 'Hello Paris', sans-serif;
     font-weight: 600;
     cursor: pointer;
-    transition: transform 0.2s ease, background 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 
     &:hover {
-      transform: scale(1.02);
-      background: lighten($primary-blue, 10%);
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba($primary-blue, 0.3);
+    }
+  }
+}
+
+.closeButton {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: $text-dark;
+  cursor: pointer;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: $primary-blue;
+  }
+}
+
+@media (max-width: 600px) {
+  .contentWrapper {
+    flex-direction: column;
+  }
+
+  .imageContainer {
+    flex: none;
+    width: 100%;
+    margin-bottom: 16px;
+
+    img {
+      height: 250px;
+    }
+  }
+
+  .detailsContainer {
+    align-items: center;
+    text-align: center;
+
+    .addToCartButton {
+      align-self: flex-start;
     }
   }
 }

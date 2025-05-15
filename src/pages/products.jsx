@@ -165,8 +165,8 @@ export default function Products() {
           id: doc.id,
           ...doc.data(),
         }));
+        console.log("Firestore products:", firestoreProducts);
         setProducts((prevProducts) => {
-          // Merge Firestore products, avoiding duplicates
           const uniqueProducts = [
             ...prevProducts,
             ...firestoreProducts.filter(
