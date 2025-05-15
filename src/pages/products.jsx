@@ -3,7 +3,7 @@ import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import ProductCard from "../components/ProductCard";
 import ProductDetails from "../components/ProductDetails";
-import styles from "../styles/Products.module.scss";
+import styles from "../styles/products.module.scss";
 
 export default function Products() {
   const [selectedProduct, setSelectedProduct] = useState(null);
