@@ -1,7 +1,9 @@
+// index.jsx
+
 import { useState, useEffect } from "react";
 import AdminLogin from "../../components/AdminLogin";
 import AdminProductForm from "../../components/AdminProductForm";
-import styles from "../../styles/products.module.scss";
+import styles from "../../styles/AdminPage.module.scss";
 
 export default function AdminPage() {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);

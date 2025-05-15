@@ -1,64 +1,52 @@
-$primary-blue: #1A3552;
-$background-light: #F5F7FA;
-$white: #FFFFFF;
-$text-gray: #666;
-$border-gray: #DDE1E6;
-$accent-pink: #E91E63;
-$shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+@import url('https://fonts.cdnfonts.com/css/cinzel');
+@import url('https://fonts.cdnfonts.com/css/the-seasons');
+@import url('https://fonts.cdnfonts.com/css/hello-paris');
+
+$background-offwhite: #eeeeee;
+$primary-blue: #1c365d;
+$white: #ffffff;
+$text-dark: #2a2a2a;
+$shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 
 .productsContainer {
-  background-color: $background-light;
+  background: $background-offwhite;
   min-height: 100vh;
-  padding: 40px 20px;
+  padding: 48px 16px;
   text-align: center;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'The Seasons', serif;
 
   h1 {
+    font-family: 'Cinzel', serif;
     color: $primary-blue;
-    font-size: 2.5rem;
+    font-size: 2.8rem;
     font-weight: 700;
-    margin-bottom: 16px;
-  }
-
-  p {
-    color: $text-gray;
-    font-size: 1.1rem;
-    margin-bottom: 32px;
-
-    a {
-      color: $primary-blue;
-      text-decoration: none;
-      border-bottom: 1px solid transparent;
-      transition: border-color 0.3s ease;
-
-      &:hover {
-        border-color: $primary-blue;
-      }
-    }
+    margin-bottom: 24px;
   }
 }
 
 .searchBar {
   margin: 24px auto;
-  max-width: 500px;
+  max-width: 480px;
 
   .searchInput {
     width: 100%;
     padding: 12px 16px;
-    border: 1px solid $border-gray;
+    border: 1px solid lighten($primary-blue, 40%);
     border-radius: 8px;
     font-size: 1rem;
-    color: $text-gray;
-    background-color: $white;
+    color: $text-dark;
+    background: $white;
+    font-family: 'The Seasons', serif;
     transition: border-color 0.3s ease;
 
     &:focus {
       outline: none;
       border-color: $primary-blue;
+      box-shadow: 0 0 4px rgba($primary-blue, 0.3);
     }
 
     &::placeholder {
-      color: #A0A0A0;
+      color: lighten($text-dark, 20%);
     }
   }
 }
@@ -72,382 +60,39 @@ $shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 
   .categoryButton {
     padding: 10px 20px;
-    border: 1px solid $border-gray;
+    border: 1px solid lighten($primary-blue, 40%);
     border-radius: 20px;
-    background-color: $white;
+    background: $white;
     color: $primary-blue;
     font-size: 0.95rem;
-    font-weight: 500;
+    font-family: 'Hello Paris', sans-serif;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
 
     &:hover {
-      background-color: $primary-blue;
+      background: $primary-blue;
       color: $white;
-      border-color: $primary-blue;
     }
 
     &.active {
-      background-color: $primary-blue;
+      background: $primary-blue;
       color: $white;
-      border-color: $primary-blue;
     }
   }
 }
 
 .productsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 24px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .noResults {
-  color: $text-gray;
+  color: $text-dark;
   font-size: 1.1rem;
   margin-top: 32px;
-}
-
-.form {
-  background-color: $white;
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 32px;
-  border-radius: 12px;
-  box-shadow: $shadow;
-  text-align: left;
-}
-
-.formGroup {
-  margin-bottom: 24px;
-
-  label {
-    display: block;
-    color: $primary-blue;
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 8px;
-  }
-}
-
-.formInput {
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid $border-gray;
-  border-radius: 8px;
-  font-size: 1rem;
-  color: $text-gray;
-  background-color: $white;
-  transition: border-color 0.3s ease;
-  resize: vertical;
-
-  &:focus {
-    outline: none;
-    border-color: $primary-blue;
-  }
-
-  &::placeholder {
-    color: #A0A0A0;
-  }
-}
-
-.submitButton {
-  width: 100%;
-  padding: 12px;
-  background-color: $primary-blue;
-  color: $white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: lighten($primary-blue, 10%);
-  }
-}
-
-.error {
-  color: #D32F2F;
-  font-size: 0.95rem;
-  margin-top: 16px;
-  text-align: center;
-}
-
-.success {
-  color: #388E3C;
-  font-size: 0.95rem;
-  margin-top: 16px;
-  text-align: center;
-}
-
-.productCard {
-  background-color: $white;
-  border-radius: 12px;
-  box-shadow: $shadow;
-  padding: 16px;
-  text-align: center;
-  transition: transform 0.3s ease;
-
-  &:hover {
-    transform: translateY(-4px);
-  }
-
-  img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 12px;
-  }
-
-  h3 {
-    color: $primary-blue;
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 8px;
-  }
-
-  p {
-    color: $text-gray;
-    font-size: 0.9rem;
-    margin-bottom: 12px;
-  }
-
-  .price {
-    color: $primary-blue;
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 12px;
-  }
-}
-
-.buttonGroup {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-}
-
-.viewDetailsButton {
-  padding: 8px 16px;
-  border: 1px solid $primary-blue;
-  border-radius: 8px;
-  background-color: transparent;
-  color: $primary-blue;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background-color: $primary-blue;
-    color: $white;
-  }
-}
-
-.addToCartButton {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  background-color: $primary-blue;
-  color: $white;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: lighten($primary-blue, 10%);
-  }
-}
-
-.cartTable {
-  max-width: 1000px;
-  margin: 0 auto;
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: $white;
-    border-radius: 12px;
-    box-shadow: $shadow;
-  }
-
-  th, td {
-    padding: 16px;
-    text-align: left;
-    border-bottom: 1px solid $border-gray;
-  }
-
-  th {
-    color: $primary-blue;
-    font-weight: 600;
-    font-size: 1rem;
-  }
-
-  td {
-    color: $text-gray;
-    font-size: 0.95rem;
-  }
-}
-
-.cartItem {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  img {
-    border-radius: 8px;
-  }
-}
-
-.cartItemImage {
-  object-fit: cover;
-}
-
-.quantityButton {
-  width: 32px;
-  height: 32px;
-  border: 1px solid $border-gray;
-  border-radius: 4px;
-  background-color: $white;
-  color: $primary-blue;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin: 0 8px;
-
-  &:hover {
-    background-color: $background-light;
-  }
-}
-
-.removeButton {
-  padding: 6px 12px;
-  border: 1px solid #D32F2F;
-  border-radius: 8px;
-  background-color: transparent;
-  color: #D32F2F;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background-color: #D32F2F;
-    color: $white;
-  }
-}
-
-.cartTotal {
-  text-align: right;
-  margin-top: 24px;
-
-  h2 {
-    color: $primary-blue;
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 16px;
-  }
-}
-
-.checkoutButton {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
-  background-color: $primary-blue;
-  color: $white;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: lighten($primary-blue, 10%);
-  }
-}
-
-.productDetails {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: $white;
-  border-radius: 12px;
-  box-shadow: $shadow;
-  padding: 32px;
-  max-width: 600px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-  z-index: 1000;
-
-  img {
-    width: 100%;
-    height: 300px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 16px;
-  }
-
-  h2 {
-    color: $primary-blue;
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 12px;
-  }
-
-  h3 {
-    color: $primary-blue;
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 12px;
-  }
-
-  p {
-    color: $text-gray;
-    font-size: 1rem;
-    margin-bottom: 16px;
-  }
-
-  .price {
-    color: $primary-blue;
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin-bottom: 16px;
-  }
-
-  ul {
-    list-style-type: disc;
-    padding-left: 20px;
-    margin-bottom: 16px;
-
-    li {
-      color: $text-gray;
-      font-size: 0.95rem;
-      margin-bottom: 8px;
-    }
-  }
-
-  .closeButton {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: $text-gray;
-    cursor: pointer;
-  }
-}
-
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999;
+  font-family: 'The Seasons', serif;
 }

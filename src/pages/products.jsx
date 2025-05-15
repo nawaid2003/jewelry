@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import ProductCard from "../components/ProductCard";
 import ProductDetails from "../components/ProductDetails";
-import styles from "../styles/products.module.scss";
+import styles from "../styles/Products.module.scss";
 
 export default function Products() {
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -156,31 +156,31 @@ export default function Products() {
     },
   ]);
 
-  // Fetch products from Firestore
+  // Fetch products from Firestore with real-time updates
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "products"));
-        const firestoreProducts = querySnapshot.docs.map((doc) => ({
+    const unsubscribe = onSnapshot(
+      collection(db, "products"),
+      (snapshot) => {
+        const firestoreProducts = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
-        // Merge Firestore products with prewritten products, avoiding duplicates
         setProducts((prevProducts) => {
-          const combinedProducts = [
+          // Merge Firestore products, avoiding duplicates
+          const uniqueProducts = [
             ...prevProducts,
             ...firestoreProducts.filter(
               (fp) => !prevProducts.some((pp) => pp.id === fp.id)
             ),
           ];
-          console.log("Combined products:", combinedProducts);
-          return combinedProducts;
+          return uniqueProducts;
         });
-      } catch (error) {
+      },
+      (error) => {
         console.error("Error fetching products:", error);
       }
-    };
-    fetchProducts();
+    );
+    return () => unsubscribe();
   }, []);
 
   // Filter products by category and search query
@@ -191,7 +191,14 @@ export default function Products() {
       searchQuery.trim() === ""
         ? true
         : product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.description.toLowerCase().includes(searchQuery.toLowerCase());
+          (typeof product.description === "string" &&
+            product.description
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase())) ||
+          (Array.isArray(product.description) &&
+            product.description.some((desc) =>
+              desc.toLowerCase().includes(searchQuery.toLowerCase())
+            ));
     return matchesCategory && matchesSearch;
   });
 

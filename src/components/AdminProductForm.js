@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
-import styles from "../styles/products.module.scss";
+import styles from "../styles/AdminProductForm.module.scss";
 
-export default function AdminProductForm() {
+export default function AdminProductForm({ onAddProduct }) {
   const [formData, setFormData] = useState({
     name: "",
     category: "Necklaces",
-    description: "",
+    description: [""], // Array for bullet points
     price: "",
     image: "",
-    details: "", // Store as comma-separated string in form, convert to array on submit
+    details: "", // Comma-separated string
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -22,6 +22,24 @@ export default function AdminProductForm() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleDescriptionChange = (index, value) => {
+    const newDescription = [...formData.description];
+    newDescription[index] = value;
+    setFormData((prev) => ({ ...prev, description: newDescription }));
+  };
+
+  const addDescriptionField = () => {
+    setFormData((prev) => ({
+      ...prev,
+      description: [...prev.description, ""],
+    }));
+  };
+
+  const removeDescriptionField = (index) => {
+    const newDescription = formData.description.filter((_, i) => i !== index);
+    setFormData((prev) => ({ ...prev, description: newDescription }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -31,21 +49,25 @@ export default function AdminProductForm() {
       const productData = {
         ...formData,
         price: parseFloat(formData.price),
+        description: formData.description.filter((desc) => desc.trim() !== ""), // Filter out empty descriptions
         details: formData.details
           .split(",")
           .map((detail) => detail.trim())
-          .filter((detail) => detail), // Convert comma-separated string to array
+          .filter((detail) => detail),
       };
-      await addDoc(collection(db, "products"), productData);
+      const docRef = await addDoc(collection(db, "products"), productData);
       setSuccess("Product added successfully!");
       setFormData({
         name: "",
         category: "Necklaces",
-        description: "",
+        description: [""],
         price: "",
         image: "",
         details: "",
       });
+      if (onAddProduct) {
+        onAddProduct({ id: docRef.id, ...productData });
+      }
     } catch (err) {
       setError("Failed to add product. Please try again.");
       console.error(err);
@@ -90,17 +112,34 @@ export default function AdminProductForm() {
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="description">Description</label>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            placeholder="Describe the product..."
-            rows="4"
-            required
-            className={styles.formInput}
-          />
+          <label>Description (Bullet Points)</label>
+          {formData.description.map((desc, index) => (
+            <div key={index} className={styles.descriptionGroup}>
+              <input
+                type="text"
+                value={desc}
+                onChange={(e) => handleDescriptionChange(index, e.target.value)}
+                placeholder={`Bullet point ${index + 1}`}
+                className={styles.formInput}
+              />
+              {formData.description.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeDescriptionField(index)}
+                  className={styles.removeButton}
+                >
+                  -
+                </button>
+              )}
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addDescriptionField}
+            className={styles.addButton}
+          >
+            +
+          </button>
         </div>
 
         <div className={styles.formGroup}>

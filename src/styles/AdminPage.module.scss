@@ -1,0 +1,76 @@
+@import url('https://fonts.cdnfonts.com/css/cinzel');
+@import url('https://fonts.cdnfonts.com/css/the-seasons');
+@import url('https://fonts.cdnfonts.com/css/hello-paris');
+
+$background-offwhite: #eeeeee;
+$primary-blue: #1c365d;
+$white: #ffffff;
+$text-dark: #2a2a2a;
+$shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+
+.productsContainer {
+  background: $background-offwhite;
+  min-height: 100vh;
+  padding: 48px 16px;
+  text-align: center;
+  font-family: 'The Seasons', serif;
+
+  h1 {
+    font-family: 'Cinzel', serif;
+    color: $primary-blue;
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+  }
+}
+
+.adminPanel {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.adminHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h2 {
+    font-family: 'Cinzel', serif;
+    color: $primary-blue;
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
+}
+
+.adminLogoutButton {
+  padding: 10px 20px;
+  border: 1px solid $primary-blue;
+  border-radius: 8px;
+  background: transparent;
+  color: $primary-blue;
+  font-size: 1rem;
+  font-family: 'Hello Paris', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: $primary-blue;
+    color: $white;
+  }
+}
+
+.successMessage {
+  color: #388e3c;
+  font-size: 1rem;
+  margin-bottom: 16px;
+  text-align: center;
+  font-family: 'The Seasons', serif;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

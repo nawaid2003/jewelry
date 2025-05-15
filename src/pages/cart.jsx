@@ -1,5 +1,7 @@
+// Cart.jsx
+
 import { useState, useEffect } from "react";
-import styles from "../styles/products.module.scss";
+import styles from "../styles/Cart.module.scss";
 import Link from "next/link";
 import Image from "next/image";
 

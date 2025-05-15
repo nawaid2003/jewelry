@@ -1,7 +1,7 @@
 //AdminLogin.js
 
 import { useState } from "react";
-import styles from "../styles/products.module.scss";
+import styles from "../styles/AdminLogin.module.scss";
 
 export default function AdminLogin({ onLogin, onClose }) {
   const [credentials, setCredentials] = useState({
