@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { useRouter } from "next/router";
 import { db } from "../lib/firebase";
 import ProductCard from "../components/ProductCard";
@@ -11,7 +11,11 @@ export default function Products() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [products, setProducts] = useState([
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Sample hardcoded products
+  const sampleProducts = [
     // Necklaces
     {
       id: "n1",
@@ -156,43 +160,87 @@ export default function Products() {
         "https://images.unsplash.com/photo-1608043152295-203a036e503c?ixlib=rb-4.0.3&fit=crop&w=200&h=200",
       details: ["Material: 14K Gold", "Diameter: 6.5cm", "Thickness: 1.5mm"],
     },
-  ]);
+  ];
+
+  // Initialize state with sample products
+  const [products, setProducts] = useState(sampleProducts);
+  const [firestoreProducts, setFirestoreProducts] = useState([]);
 
   // Fetch products from Firestore with real-time updates
   useEffect(() => {
-    const unsubscribe = onSnapshot(
-      collection(db, "products"),
-      (snapshot) => {
-        const firestoreProducts = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        console.log("Firestore products:", firestoreProducts);
-        setProducts((prevProducts) => {
-          const uniqueProducts = [
-            ...prevProducts,
-            ...firestoreProducts.filter(
-              (fp) => !prevProducts.some((pp) => pp.id === fp.id)
-            ),
-          ];
-          return uniqueProducts;
-        });
-      },
-      (error) => {
-        console.error("Error fetching products:", error);
-      }
-    );
-    return () => unsubscribe();
+    console.log("Setting up Firestore listener with db:", db);
+    setLoading(true);
+
+    try {
+      // Create a query with ordering to ensure consistent display
+      const productsQuery = query(
+        collection(db, "products"),
+        orderBy("createdAt", "desc")
+      );
+
+      const unsubscribe = onSnapshot(
+        productsQuery,
+        (snapshot) => {
+          setLoading(false);
+
+          if (snapshot.empty) {
+            console.log("No products found in Firestore");
+            return;
+          }
+
+          const fetchedProducts = snapshot.docs.map((doc) => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              ...data,
+              // Make sure description is properly formatted for display
+              details: Array.isArray(data.description)
+                ? data.description
+                : [data.description],
+            };
+          });
+
+          console.log("Firestore products loaded:", fetchedProducts.length);
+
+          // Store Firestore products separately
+          setFirestoreProducts(fetchedProducts);
+
+          // Combine sample and Firestore products
+          setProducts([...sampleProducts, ...fetchedProducts]);
+        },
+        (err) => {
+          console.error("Error fetching products:", err);
+          setError(
+            "Failed to load Firestore products. Using sample products only."
+          );
+          setLoading(false);
+
+          // Fall back to sample products on error
+          setProducts(sampleProducts);
+        }
+      );
+
+      // Clean up listener on unmount
+      return () => unsubscribe();
+    } catch (err) {
+      console.error("Error setting up Firestore listener:", err);
+      setError("Failed to connect to database. Using sample products only.");
+      setLoading(false);
+
+      // Fall back to sample products on error
+      setProducts(sampleProducts);
+    }
   }, []);
 
   // Filter products by category and search query
   const filteredProducts = products.filter((product) => {
     const matchesCategory =
       selectedCategory === "All" || product.category === selectedCategory;
+
     const matchesSearch =
       searchQuery.trim() === ""
         ? true
-        : product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        : product.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           (typeof product.description === "string" &&
             product.description
               .toLowerCase()
@@ -200,7 +248,12 @@ export default function Products() {
           (Array.isArray(product.description) &&
             product.description.some((desc) =>
               desc.toLowerCase().includes(searchQuery.toLowerCase())
+            )) ||
+          (Array.isArray(product.details) &&
+            product.details.some((detail) =>
+              detail.toLowerCase().includes(searchQuery.toLowerCase())
             ));
+
     return matchesCategory && matchesSearch;
   });
 
@@ -248,21 +301,31 @@ export default function Products() {
         ))}
       </div>
 
+      {/* Loading State */}
+      {loading && <p className={styles.loadingMessage}>Loading products...</p>}
+
+      {/* Error State */}
+      {error && <p className={styles.errorMessage}>{error}</p>}
+
       {/* Products Grid or No Results Message */}
-      {filteredProducts.length > 0 ? (
-        <div className={styles.productsGrid}>
-          {filteredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onSelect={() => handleProductSelect(product)}
-            />
-          ))}
-        </div>
-      ) : (
-        <p className={styles.noResults}>
-          No products found for this category or search query.
-        </p>
+      {!loading && (
+        <>
+          {filteredProducts.length > 0 ? (
+            <div className={styles.productsGrid}>
+              {filteredProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onSelect={() => handleProductSelect(product)}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className={styles.noResults}>
+              No products found for this category or search query.
+            </p>
+          )}
+        </>
       )}
 
       {/* Floating Cart Button */}

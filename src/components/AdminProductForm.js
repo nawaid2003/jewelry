@@ -46,14 +46,40 @@ export default function AdminProductForm({ onAddProduct }) {
     setSuccess("");
     setIsSubmitting(true);
 
+    // Check Firebase configuration
+    console.log("Submitting product with Firestore database:", db);
+
     try {
+      // Filter out empty description entries
+      const filteredDescription = formData.description.filter(
+        (desc) => desc.trim() !== ""
+      );
+
+      // Validate the form
+      if (!formData.name || !formData.price || !formData.image) {
+        throw new Error("Please fill in all required fields");
+      }
+
+      // Prepare product data
       const productData = {
-        ...formData,
+        name: formData.name,
+        category: formData.category,
+        description:
+          filteredDescription.length > 0 ? filteredDescription : [""],
         price: parseFloat(formData.price),
-        description: formData.description.filter((desc) => desc.trim() !== ""),
+        image: formData.image,
+        createdAt: new Date().toISOString(),
       };
+
+      console.log("Adding product to Firestore:", productData);
+
+      // Add to Firestore
       const docRef = await addDoc(collection(db, "products"), productData);
-      setSuccess("Product added to your database!");
+      console.log("Product added with ID:", docRef.id);
+
+      setSuccess(`Product added successfully! ID: ${docRef.id}`);
+
+      // Reset form
       setFormData({
         name: "",
         category: "Necklaces",
@@ -61,14 +87,18 @@ export default function AdminProductForm({ onAddProduct }) {
         price: "",
         image: "",
       });
+
+      // Callback if provided
       if (onAddProduct) {
         onAddProduct({ id: docRef.id, ...productData });
       }
     } catch (err) {
+      console.error("Error adding product:", err);
       setError(
-        "Failed to add product. Please check your Firebase configuration."
+        `Failed to add product: ${
+          err.message || "Check your Firebase configuration"
+        }`
       );
-      console.error(err);
     } finally {
       setIsSubmitting(false);
     }
