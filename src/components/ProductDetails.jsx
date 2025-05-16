@@ -1,8 +1,10 @@
 import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
 import styles from "../styles/ProductDetails.module.scss";
 
 export default function ProductDetails({ product, onClose }) {
   const router = useRouter();
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   if (!product) {
     return null;
@@ -25,8 +27,18 @@ export default function ProductDetails({ product, onClose }) {
     }
 
     localStorage.setItem("cartItems", JSON.stringify(updatedCart));
-    router.push("/cart");
+    setShowConfirmation(true);
   };
+
+  useEffect(() => {
+    if (showConfirmation) {
+      const timer = setTimeout(() => {
+        setShowConfirmation(false);
+        onClose(); // Close the modal after 3 seconds
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showConfirmation, onClose]);
 
   return (
     <>
@@ -63,22 +75,36 @@ export default function ProductDetails({ product, onClose }) {
               {product.details &&
               Array.isArray(product.details) &&
               product.details.length > 0 ? (
-                <ul>
-                  {product.details.map((detail, index) => (
-                    <li key={index}>{detail}</li>
-                  ))}
-                </ul>
+                <div className={styles.detailsCard}>
+                  <ul className={styles.detailsList}>
+                    {product.details.map((detail, index) => (
+                      <li key={index} className={styles.detailItem}>
+                        {detail}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ) : (
-                <p>No details available.</p>
+                <p className={styles.noDetails}>No details available.</p>
               )}
             </div>
-            <p className={styles.price}>${product.price.toFixed(2)}</p>
+            <div className={styles.priceContainer}>
+              <span className={styles.priceLabel}>Price</span>
+              <span className={styles.priceAmount}>
+                ${product.price.toFixed(2)}
+              </span>
+            </div>
             <button
               onClick={handleAddToCart}
               className={styles.addToCartButton}
             >
               Add to Cart
             </button>
+            {showConfirmation && (
+              <div className={styles.confirmation}>
+                <p>Product Added to Cart!</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

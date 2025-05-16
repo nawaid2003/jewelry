@@ -8,6 +8,7 @@ $white: #ffffff;
 $text-dark: #2a2a2a;
 $shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 $gradient: linear-gradient(135deg, lighten($primary-blue, 20%), $primary-blue);
+$gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($primary-blue, 10%));
 
 .overlay {
   position: fixed;
@@ -63,6 +64,7 @@ $gradient: linear-gradient(135deg, lighten($primary-blue, 20%), $primary-blue);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: center;
 
   h2 {
     color: $primary-blue;
@@ -75,6 +77,7 @@ $gradient: linear-gradient(135deg, lighten($primary-blue, 20%), $primary-blue);
 
   .descriptionSection, .detailsSection {
     margin-bottom: 20px;
+    width: 100%;
 
     h3 {
       color: $primary-blue;
@@ -91,7 +94,7 @@ $gradient: linear-gradient(135deg, lighten($primary-blue, 20%), $primary-blue);
       margin-bottom: 16px;
     }
 
-    ul {
+ ul {
       list-style-type: disc;
       padding-left: 24px;
       margin-bottom: 16px;
@@ -105,30 +108,146 @@ $gradient: linear-gradient(135deg, lighten($primary-blue, 20%), $primary-blue);
     }
   }
 
-  .price {
-    color: $primary-blue;
-    font-family: 'Cinzel', serif;
-    font-size: 1.6rem;
-    font-weight: 700;
+  .detailsSection {
+    .detailsCard {
+      background: $white;
+      border: 1px solid lighten($primary-blue, 40%);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 4px 10px rgba($primary-blue, 0.08);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 14px rgba($primary-blue, 0.12);
+      }
+
+      .detailsList {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 12px;
+
+        .detailItem {
+          color: $text-dark;
+          font-family: 'The Seasons', serif;
+          font-size: 1rem;
+          position: relative;
+          padding-left: 20px;
+          animation: fadeIn 0.5s ease-in-out;
+          animation-delay: calc(0.1s * var(--index));
+
+          &:before {
+            content: '•';
+            color: $primary-blue;
+            position: absolute;
+            left: 0;
+            font-size: 1.2rem;
+          }
+        }
+      }
+    }
+
+    .noDetails {
+      color: $text-dark;
+      font-style: italic;
+      opacity: 0.7;
+    }
+  }
+
+  .priceContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: $white;
+    border: 2px solid $primary-blue;
+    border-radius: 10px;
+    padding: 10px 20px;
     margin-bottom: 24px;
+    box-shadow: 0 4px 10px rgba($primary-blue, 0.1);
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: scale(1.03);
+    }
+
+    .priceLabel {
+      color: $primary-blue;
+      font-family: 'Cinzel', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .priceAmount {
+      color: $primary-blue;
+      font-family: 'Cinzel', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      text-shadow: 0 1px 2px rgba($primary-blue, 0.1);
+    }
   }
 
   .addToCartButton {
-    align-self: flex-end;
-    padding: 14px 28px;
-    border: none;
-    border-radius: 12px;
+    padding: 16px 32px;
+    border: 2px solid transparent;
+    border-radius: 14px;
     background: $gradient;
     color: $white;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-family: 'Hello Paris', sans-serif;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba($primary-blue, 0.2);
+    animation: pulse 2s infinite ease-in-out;
+
+    &:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 12px;
+      padding: 2px;
+      background: $gradient-border;
+      -webkit-mask: 
+        linear-gradient($white 0 0) content-box, 
+        linear-gradient($white 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    }
 
     &:hover {
       transform: scale(1.05);
-      box-shadow: 0 4px 12px rgba($primary-blue, 0.3);
+      box-shadow: 0 6px 16px rgba($primary-blue, 0.4);
+      animation: none;
+    }
+  }
+
+  .confirmation {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: $white;
+    border-radius: 12px;
+    padding: 15px 30px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba($primary-blue, 0.1);
+    animation: fadeIn 0.5s ease-in-out;
+    z-index: 1001;
+
+    p {
+      color: $primary-blue;
+      font-family: 'Cinzel', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin: 0;
     }
   }
 }
@@ -168,8 +287,22 @@ $gradient: linear-gradient(135deg, lighten($primary-blue, 20%), $primary-blue);
     align-items: center;
     text-align: center;
 
+    .descriptionSection, .detailsSection {
+      text-align: left;
+    }
+
     .addToCartButton {
-      align-self: flex-start;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .confirmation {
+      width: 90%;
+      padding: 10px 20px;
+
+      p {
+        font-size: 1.2rem;
+      }
     }
   }
 }
@@ -177,4 +310,15 @@ $gradient: linear-gradient(135deg, lighten($primary-blue, 20%), $primary-blue);
 @keyframes slideIn {
   from { opacity: 0; transform: translate(-50%, -60%); }
   to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 4px 12px rgba($primary-blue, 0.2); }
+  50% { box-shadow: 0 6px 16px rgba($primary-blue, 0.3); }
+  100% { box-shadow: 0 4px 12px rgba($primary-blue, 0.2); }
 }

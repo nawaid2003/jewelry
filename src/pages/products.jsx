@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
+import { useRouter } from "next/router";
 import { db } from "../lib/firebase";
 import ProductCard from "../components/ProductCard";
 import ProductDetails from "../components/ProductDetails";
-import styles from "../styles/products.module.scss";
+import styles from "../styles/Products.module.scss";
 
 export default function Products() {
+  const router = useRouter();
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -210,11 +212,15 @@ export default function Products() {
     setSelectedProduct(null);
   };
 
+  const handleGoToCart = () => {
+    router.push("/cart");
+  };
+
   const categories = ["All", "Necklaces", "Rings", "Earrings", "Bracelets"];
 
   return (
     <div className={styles.productsContainer}>
-      <h1>Our Collections</h1>
+      <h1 className={styles.productsTitle}>Our Collections</h1>
 
       {/* Search Bar */}
       <div className={styles.searchBar}>
@@ -258,6 +264,11 @@ export default function Products() {
           No products found for this category or search query.
         </p>
       )}
+
+      {/* Floating Cart Button */}
+      <button onClick={handleGoToCart} className={styles.floatingCartButton}>
+        Go to Cart
+      </button>
 
       {selectedProduct && (
         <ProductDetails

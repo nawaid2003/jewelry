@@ -1,15 +1,12 @@
-// Cart.jsx
-
+import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import styles from "../styles/Cart.module.scss";
-import Link from "next/link";
-import Image from "next/image";
 
 export default function Cart() {
+  const router = useRouter();
   const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
-    // Load cart from localStorage
     const items = JSON.parse(localStorage.getItem("cartItems")) || [];
     setCartItems(items);
   }, []);
@@ -21,15 +18,12 @@ export default function Cart() {
 
   const handleQuantityChange = (id, delta) => {
     const updatedItems = cartItems
-      .map((item) => {
-        if (item.id === id) {
-          const newQuantity = item.quantity + delta;
-          if (newQuantity < 1) return null; // Remove item if quantity is 0
-          return { ...item, quantity: newQuantity };
-        }
-        return item;
-      })
-      .filter(Boolean); // Remove null items
+      .map((item) =>
+        item.id === id
+          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
+          : item
+      )
+      .filter((item) => item.quantity > 0);
     updateCart(updatedItems);
   };
 
@@ -38,52 +32,64 @@ export default function Cart() {
     updateCart(updatedItems);
   };
 
-  const total = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const calculateTotal = () => {
+    return cartItems
+      .reduce((total, item) => total + item.price * item.quantity, 0)
+      .toFixed(2);
+  };
+
+  const handleCheckout = () => {
+    // Placeholder for checkout functionality
+    alert("Proceeding to checkout!");
+  };
 
   return (
-    <div className={styles.productsContainer}>
-      <h1>Your Cart</h1>
+    <div className={styles.cartContainer}>
+      <h1 className={styles.cartTitle}>Your Shopping Cart</h1>
       {cartItems.length === 0 ? (
-        <p>
-          Your cart is empty. <Link href="/">Shop now</Link>.
-        </p>
+        <div className={styles.emptyCart}>
+          <div className={styles.emptyCartIcon}>
+            {/* Placeholder for an icon or SVG */}
+            <svg
+              width="100"
+              height="100"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke={styles.primaryBlue}
+              strokeWidth="2"
+            >
+              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+              <path d="M3 6h18" />
+              <path d="M16 10a4 4 0 01-8 0" />
+            </svg>
+          </div>
+          <p>
+            Your cart is empty. Explore our products to find something you love!
+          </p>
+          <button
+            onClick={() => router.push("/")}
+            className={styles.shopNowButton}
+          >
+            Shop Now
+          </button>
+        </div>
       ) : (
-        <div className={styles.cartTable}>
-          <table>
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Subtotal</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {cartItems.map((item) => (
-                <tr key={item.id}>
-                  <td>
-                    <div className={styles.cartItem}>
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        width={50}
-                        height={50}
-                        className={styles.cartItemImage}
-                      />
-                      {item.name}
-                    </div>
-                  </td>
-                  <td>${item.price.toFixed(2)}</td>
-                  <td>
+        <>
+          <div className={styles.cartItems}>
+            {cartItems.map((item) => (
+              <div key={item.id} className={styles.cartItem}>
+                <div className={styles.itemImage}>
+                  <img src={item.image} alt={item.name} />
+                </div>
+                <div className={styles.itemDetails}>
+                  <h3>{item.name}</h3>
+                  <p className={styles.itemPrice}>${item.price.toFixed(2)}</p>
+                  <div className={styles.quantityControl}>
                     <button
                       onClick={() => handleQuantityChange(item.id, -1)}
                       className={styles.quantityButton}
                     >
-                      -
+                      −
                     </button>
                     <span>{item.quantity}</span>
                     <button
@@ -92,27 +98,27 @@ export default function Cart() {
                     >
                       +
                     </button>
-                  </td>
-                  <td>${(item.price * item.quantity).toFixed(2)}</td>
-                  <td>
-                    <button
-                      onClick={() => handleRemoveItem(item.id)}
-                      className={styles.removeButton}
-                    >
-                      Remove
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className={styles.cartTotal}>
-            <h2>Total: ${total.toFixed(2)}</h2>
-            <button className={styles.checkoutButton}>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleRemoveItem(item.id)}
+                  className={styles.removeButton}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className={styles.cartSummary}>
+            <div className={styles.totalContainer}>
+              <span className={styles.totalLabel}>Total</span>
+              <span className={styles.totalAmount}>${calculateTotal()}</span>
+            </div>
+            <button onClick={handleCheckout} className={styles.checkoutButton}>
               Proceed to Checkout
             </button>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
