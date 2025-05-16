@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import styles from "../styles/AdminProductForm.module.scss";
@@ -6,38 +6,60 @@ import styles from "../styles/AdminProductForm.module.scss";
 export default function AdminProductForm({ onAddProduct }) {
   const [formData, setFormData] = useState({
     name: "",
-    category: "Necklaces",
-    description: [""],
+    category: "", // Start with blank category
+    description: "",
+    details: [""],
     price: "",
     image: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   const categories = ["Necklaces", "Rings", "Earrings", "Bracelets"];
+
+  // Handle clicking outside to close dropdown
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleDescriptionChange = (index, value) => {
-    const newDescription = [...formData.description];
-    newDescription[index] = value;
-    setFormData((prev) => ({ ...prev, description: newDescription }));
+  const handleCategorySelect = (category) => {
+    setFormData((prev) => ({ ...prev, category }));
+    setIsDropdownOpen(false);
   };
 
-  const addDescriptionField = () => {
+  const handleDetailsChange = (index, value) => {
+    const newDetails = [...formData.details];
+    newDetails[index] = value;
+    setFormData((prev) => ({ ...prev, details: newDetails }));
+  };
+
+  const addDetailsField = () => {
     setFormData((prev) => ({
       ...prev,
-      description: [...prev.description, ""],
+      details: [...prev.details, ""],
     }));
   };
 
-  const removeDescriptionField = (index) => {
-    const newDescription = formData.description.filter((_, i) => i !== index);
-    setFormData((prev) => ({ ...prev, description: newDescription }));
+  const removeDetailsField = (index) => {
+    const newDetails = formData.details.filter((_, i) => i !== index);
+    setFormData((prev) => ({ ...prev, details: newDetails }));
   };
 
   const handleSubmit = async (e) => {
@@ -50,13 +72,19 @@ export default function AdminProductForm({ onAddProduct }) {
     console.log("Submitting product with Firestore database:", db);
 
     try {
-      // Filter out empty description entries
-      const filteredDescription = formData.description.filter(
-        (desc) => desc.trim() !== ""
+      // Filter out empty details entries
+      const filteredDetails = formData.details.filter(
+        (detail) => detail.trim() !== ""
       );
 
       // Validate the form
-      if (!formData.name || !formData.price || !formData.image) {
+      if (
+        !formData.name ||
+        !formData.category ||
+        !formData.price ||
+        !formData.image ||
+        !formData.description
+      ) {
         throw new Error("Please fill in all required fields");
       }
 
@@ -64,8 +92,8 @@ export default function AdminProductForm({ onAddProduct }) {
       const productData = {
         name: formData.name,
         category: formData.category,
-        description:
-          filteredDescription.length > 0 ? filteredDescription : [""],
+        description: formData.description.trim(),
+        details: filteredDetails.length > 0 ? filteredDetails : [""],
         price: parseFloat(formData.price),
         image: formData.image,
         createdAt: new Date().toISOString(),
@@ -82,8 +110,9 @@ export default function AdminProductForm({ onAddProduct }) {
       // Reset form
       setFormData({
         name: "",
-        category: "Necklaces",
-        description: [""],
+        category: "", // Reset to blank category
+        description: "",
+        details: [""],
         price: "",
         image: "",
       });
@@ -125,40 +154,78 @@ export default function AdminProductForm({ onAddProduct }) {
           />
         </div>
 
+        {/* Custom Dropdown for Category */}
         <div className={styles.formGroup}>
           <label htmlFor="category">Category</label>
-          <select
-            id="category"
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            className={styles.formInput}
-            disabled={isSubmitting}
-          >
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
+          <div className={styles.dropdown} ref={dropdownRef}>
+            <button
+              type="button"
+              className={styles.dropdownToggle}
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              disabled={isSubmitting}
+            >
+              <span>{formData.category || "Select category"}</span>
+              <svg
+                className={`${styles.dropdownArrow} ${
+                  isDropdownOpen ? styles.open : ""
+                }`}
+                viewBox="0 0 24 24"
+              >
+                <path d="M7 10l5 5 5-5z" />
+              </svg>
+            </button>
+
+            {isDropdownOpen && (
+              <div className={styles.dropdownMenu}>
+                {categories.map((category) => (
+                  <div
+                    key={category}
+                    className={`${styles.dropdownItem} ${
+                      formData.category === category ? styles.selected : ""
+                    }`}
+                    onClick={() => handleCategorySelect(category)}
+                  >
+                    {category}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className={styles.formGroup}>
-          <label>Description (Bullet Points)</label>
-          {formData.description.map((desc, index) => (
+          <label htmlFor="description">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            placeholder="Enter general product description (e.g., A delicate gold necklace with a leaf pendant)"
+            required
+            className={`${styles.formInput} ${styles.textarea}`}
+            disabled={isSubmitting}
+            rows={3}
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label>Product Details (Bullet Points)</label>
+          {formData.details.map((detail, index) => (
             <div key={index} className={styles.descriptionGroup}>
               <input
                 type="text"
-                value={desc}
-                onChange={(e) => handleDescriptionChange(index, e.target.value)}
-                placeholder={`Bullet point ${index + 1}`}
+                value={detail}
+                onChange={(e) => handleDetailsChange(index, e.target.value)}
+                placeholder={`Detail bullet point ${
+                  index + 1
+                } (e.g., "Material: 18K Gold")`}
                 className={styles.formInput}
                 disabled={isSubmitting}
               />
-              {formData.description.length > 1 && (
+              {formData.details.length > 1 && (
                 <button
                   type="button"
-                  onClick={() => removeDescriptionField(index)}
+                  onClick={() => removeDetailsField(index)}
                   className={styles.removeButton}
                   disabled={isSubmitting}
                 >
@@ -169,7 +236,7 @@ export default function AdminProductForm({ onAddProduct }) {
           ))}
           <button
             type="button"
-            onClick={addDescriptionField}
+            onClick={addDetailsField}
             className={styles.addButton}
             disabled={isSubmitting}
           >
