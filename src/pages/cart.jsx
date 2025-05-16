@@ -67,7 +67,7 @@ export default function Cart() {
             Your cart is empty. Explore our products to find something you love!
           </p>
           <button
-            onClick={() => router.push("/")}
+            onClick={() => router.push("/products")}
             className={styles.shopNowButton}
           >
             Shop Now
