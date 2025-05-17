@@ -1,0 +1,399 @@
+import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
+import styles from "../styles/Checkout.module.scss";
+
+export default function Checkout() {
+  const router = useRouter();
+  const [cartItems, setCartItems] = useState([]);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    state: "",
+    pincode: "",
+    paymentMethod: "card",
+  });
+  const [step, setStep] = useState(1); // 1: Shipping, 2: Payment, 3: Review
+  const [isFormValid, setIsFormValid] = useState(false);
+
+  useEffect(() => {
+    const items = JSON.parse(localStorage.getItem("cartItems")) || [];
+    if (items.length === 0) {
+      router.push("/cart");
+    }
+    setCartItems(items);
+  }, [router]);
+
+  useEffect(() => {
+    // Basic form validation - check if required fields are filled
+    const { firstName, lastName, email, phone, address, city, state, pincode } =
+      formData;
+    if (step === 1) {
+      setIsFormValid(
+        firstName &&
+          lastName &&
+          email &&
+          phone &&
+          address &&
+          city &&
+          state &&
+          pincode
+      );
+    } else if (step === 2) {
+      setIsFormValid(true); // Will be controlled by Razorpay form validation
+    } else if (step === 3) {
+      setIsFormValid(true); // Always allow confirmation
+    }
+  }, [formData, step]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const nextStep = () => {
+    if (isFormValid) {
+      setStep((prev) => Math.min(prev + 1, 3));
+    }
+  };
+
+  const prevStep = () => {
+    setStep((prev) => Math.max(prev - 1, 1));
+  };
+
+  const calculateSubtotal = () => {
+    return cartItems
+      .reduce((total, item) => total + item.price * item.quantity, 0)
+      .toFixed(2);
+  };
+
+  const calculateShipping = () => {
+    // Simplified shipping calculation
+    const subtotal = parseFloat(calculateSubtotal());
+    return subtotal > 5000 ? 0 : 250;
+  };
+
+  const calculateTotal = () => {
+    const subtotal = parseFloat(calculateSubtotal());
+    const shipping = calculateShipping();
+    return (subtotal + shipping).toFixed(2);
+  };
+
+  const handlePayment = () => {
+    // Placeholder for Razorpay integration
+    alert("Razorpay integration will be implemented here!");
+    // When payment is successful, proceed to final confirmation
+    setStep(3);
+  };
+
+  const handleSubmitOrder = () => {
+    // Placeholder for final order submission
+    alert("Order submitted successfully!");
+    // Clear cart after successful order
+    localStorage.removeItem("cartItems");
+    router.push("/order-confirmation");
+  };
+
+  return (
+    <div className={styles.checkoutContainer}>
+      <h1 className={styles.checkoutTitle}>Checkout</h1>
+
+      <div className={styles.checkoutSteps}>
+        <div className={`${styles.step} ${step >= 1 ? styles.active : ""}`}>
+          <span className={styles.stepNumber}>1</span>
+          <span className={styles.stepLabel}>Shipping</span>
+        </div>
+        <div className={styles.stepConnector}></div>
+        <div className={`${styles.step} ${step >= 2 ? styles.active : ""}`}>
+          <span className={styles.stepNumber}>2</span>
+          <span className={styles.stepLabel}>Payment</span>
+        </div>
+        <div className={styles.stepConnector}></div>
+        <div className={`${styles.step} ${step >= 3 ? styles.active : ""}`}>
+          <span className={styles.stepNumber}>3</span>
+          <span className={styles.stepLabel}>Review</span>
+        </div>
+      </div>
+
+      <div className={styles.checkoutContent}>
+        <div className={styles.formContainer}>
+          {step === 1 && (
+            <div className={styles.shippingForm}>
+              <h2>Shipping Information</h2>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="firstName">First Name*</label>
+                  <input
+                    type="text"
+                    id="firstName"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label htmlFor="lastName">Last Name*</label>
+                  <input
+                    type="text"
+                    id="lastName"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="email">Email*</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label htmlFor="phone">Phone*</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="address">Address*</label>
+                <input
+                  type="text"
+                  id="address"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="city">City*</label>
+                  <input
+                    type="text"
+                    id="city"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label htmlFor="state">State*</label>
+                  <input
+                    type="text"
+                    id="state"
+                    name="state"
+                    value={formData.state}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label htmlFor="pincode">Pincode*</label>
+                  <input
+                    type="text"
+                    id="pincode"
+                    name="pincode"
+                    value={formData.pincode}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className={styles.paymentForm}>
+              <h2>Payment Information</h2>
+              <div className={styles.paymentOptions}>
+                <div className={styles.paymentOption}>
+                  <input
+                    type="radio"
+                    id="card"
+                    name="paymentMethod"
+                    value="card"
+                    checked={formData.paymentMethod === "card"}
+                    onChange={handleChange}
+                  />
+                  <label htmlFor="card">Credit/Debit Card</label>
+                </div>
+                <div className={styles.paymentOption}>
+                  <input
+                    type="radio"
+                    id="upi"
+                    name="paymentMethod"
+                    value="upi"
+                    checked={formData.paymentMethod === "upi"}
+                    onChange={handleChange}
+                  />
+                  <label htmlFor="upi">UPI</label>
+                </div>
+                <div className={styles.paymentOption}>
+                  <input
+                    type="radio"
+                    id="netbanking"
+                    name="paymentMethod"
+                    value="netbanking"
+                    checked={formData.paymentMethod === "netbanking"}
+                    onChange={handleChange}
+                  />
+                  <label htmlFor="netbanking">Net Banking</label>
+                </div>
+              </div>
+
+              <div className={styles.razorpayPlaceholder}>
+                <div className={styles.razorpayLogo}>
+                  <svg
+                    width="40"
+                    height="40"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <rect x="3" y="5" width="18" height="14" rx="2" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                </div>
+                <p>Razorpay Payment Form Will Render Here</p>
+                <div className={styles.securePayment}>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0110 0v4" />
+                  </svg>
+                  <span>Secured by Razorpay</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className={styles.orderReview}>
+              <h2>Order Review</h2>
+              <div className={styles.reviewSection}>
+                <h3>Shipping Details</h3>
+                <div className={styles.reviewInfo}>
+                  <p>
+                    {formData.firstName} {formData.lastName}
+                  </p>
+                  <p>{formData.address}</p>
+                  <p>
+                    {formData.city}, {formData.state} {formData.pincode}
+                  </p>
+                  <p>Email: {formData.email}</p>
+                  <p>Phone: {formData.phone}</p>
+                </div>
+              </div>
+
+              <div className={styles.reviewSection}>
+                <h3>Payment Method</h3>
+                <div className={styles.reviewInfo}>
+                  <p>
+                    {formData.paymentMethod === "card"
+                      ? "Credit/Debit Card"
+                      : formData.paymentMethod === "upi"
+                      ? "UPI"
+                      : "Net Banking"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className={styles.orderSummary}>
+          <h2>Order Summary</h2>
+          <div className={styles.summaryItems}>
+            {cartItems.map((item) => (
+              <div key={item.id} className={styles.summaryItem}>
+                <div className={styles.itemImage}>
+                  <img src={item.image} alt={item.name} />
+                  <span className={styles.itemQuantity}>{item.quantity}</span>
+                </div>
+                <div className={styles.itemInfo}>
+                  <h4>{item.name}</h4>
+                  <p className={styles.itemPrice}>₹{item.price.toFixed(2)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className={styles.summaryCalculation}>
+            <div className={styles.calculationRow}>
+              <span>Subtotal</span>
+              <span>₹{calculateSubtotal()}</span>
+            </div>
+            <div className={styles.calculationRow}>
+              <span>Shipping</span>
+              <span>
+                {calculateShipping() === 0
+                  ? "Free"
+                  : `₹${calculateShipping().toFixed(2)}`}
+              </span>
+            </div>
+            <div className={`${styles.calculationRow} ${styles.totalRow}`}>
+              <span>Total</span>
+              <span>₹{calculateTotal()}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.checkoutActions}>
+        {step > 1 && (
+          <button onClick={prevStep} className={styles.backButton}>
+            Back
+          </button>
+        )}
+
+        {step < 3 ? (
+          <button
+            onClick={step === 2 ? handlePayment : nextStep}
+            className={styles.nextButton}
+            disabled={!isFormValid}
+          >
+            {step === 1 ? "Continue to Payment" : "Pay Now"}
+          </button>
+        ) : (
+          <button
+            onClick={handleSubmitOrder}
+            className={styles.placeOrderButton}
+          >
+            Place Order
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}

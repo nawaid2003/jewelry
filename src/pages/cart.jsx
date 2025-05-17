@@ -39,8 +39,8 @@ export default function Cart() {
   };
 
   const handleCheckout = () => {
-    // Placeholder for checkout functionality
-    alert("Proceeding to checkout!");
+    // Navigate to checkout page instead of showing alert
+    router.push("/checkout");
   };
 
   return (
