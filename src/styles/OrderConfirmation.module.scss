@@ -1,0 +1,475 @@
+@import url('https://fonts.cdnfonts.com/css/cinzel');
+@import url('https://fonts.cdnfonts.com/css/the-seasons');
+@import url('https://fonts.cdnfonts.com/css/hello-paris');
+
+$background-offwhite: #eeeeee;
+$primary-blue: #1c365d;
+$white: #ffffff;
+$text-dark: #2a2a2a;
+$shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+$gradient: linear-gradient(135deg, lighten($primary-blue, 20%), $primary-blue);
+$gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($primary-blue, 10%));
+$background-gradient: linear-gradient(to bottom, lighten($background-offwhite, 5%), $background-offwhite);
+$light-blue: rgba($primary-blue, 0.05);
+$border-color: rgba($primary-blue, 0.2);
+$success-green: #3bb75e;
+
+.confirmationContainer {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 40px;
+  font-family: 'The Seasons', serif;
+  background: $background-gradient;
+  border-radius: 20px;
+  box-shadow: $shadow;
+  min-height: 80vh;
+  position: relative;
+  overflow: hidden;
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: $gradient;
+  }
+}
+
+.successBanner {
+  text-align: center;
+  padding: 30px;
+  margin-bottom: 40px;
+  background: $white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba($primary-blue, 0.1);
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+.checkmarkCircle {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 24px;
+  position: relative;
+}
+
+.checkmark {
+  width: 100px;
+  height: 100px;
+  
+  .checkmarkCircle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 2;
+    stroke: $success-green;
+    fill: none;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+  }
+  
+  .checkmarkCheck {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    stroke-width: 3;
+    stroke: $success-green;
+    fill: none;
+    animation: stroke 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+  }
+}
+
+.successTitle {
+  color: $primary-blue;
+  font-family: 'Cinzel', serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  text-shadow: 0 1px 2px rgba($primary-blue, 0.1);
+}
+
+.successMessage {
+  color: $text-dark;
+  font-family: 'The Seasons', serif;
+  font-size: 1.2rem;
+  opacity: 0.8;
+  margin-bottom: 0;
+}
+
+.orderDetails {
+  background: $white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 12px rgba($primary-blue, 0.1);
+  animation: fadeIn 0.6s ease-in-out 0.3s both;
+}
+
+.orderTitle {
+  color: $primary-blue;
+  font-family: 'Cinzel', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 30px;
+  text-align: center;
+  position: relative;
+
+  &:after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 2px;
+    background: $primary-blue;
+    margin: 10px auto;
+  }
+}
+
+.orderGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 40px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.orderInfo {
+  .infoItem {
+    display: flex;
+    margin-bottom: 12px;
+    
+    .infoLabel {
+      flex: 0 0 140px;
+      color: $text-dark;
+      font-family: 'The Seasons', serif;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    
+    .infoValue {
+      color: $text-dark;
+      font-family: 'The Seasons', serif;
+      font-size: 1rem;
+    }
+  }
+}
+
+.shippingDetails {
+  h3 {
+    color: $primary-blue;
+    font-family: 'Cinzel', serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    position: relative;
+    
+    &:after {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 2px;
+      background: $primary-blue;
+      margin-top: 8px;
+    }
+  }
+  
+  .addressBlock {
+    color: $text-dark;
+    font-family: 'The Seasons', serif;
+    font-size: 1rem;
+    
+    p {
+      margin: 6px 0;
+      
+      &.name {
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+.orderItems {
+  margin-bottom: 40px;
+  
+  h3 {
+    color: $primary-blue;
+    font-family: 'Cinzel', serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    position: relative;
+    
+    &:after {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 2px;
+      background: $primary-blue;
+      margin-top: 8px;
+    }
+  }
+  
+  .itemsList {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+.orderItem {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  background: $light-blue;
+  border-radius: 12px;
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-3px);
+  }
+  
+  .itemImage {
+    flex: 0 0 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+  
+  .itemDetails {
+    flex: 1;
+    margin-left: 20px;
+    
+    .itemName {
+      color: $primary-blue;
+      font-family: 'The Seasons', serif;
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+    
+    .itemMeta {
+      display: flex;
+      justify-content: space-between;
+      
+      .itemQuantity {
+        color: $text-dark;
+        font-family: 'The Seasons', serif;
+        font-size: 0.9rem;
+        opacity: 0.8;
+      }
+      
+      .itemPrice {
+        color: $primary-blue;
+        font-family: 'The Seasons', serif;
+        font-weight: 600;
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+.orderSummary {
+  margin: 30px 0;
+  padding: 20px;
+  background: $light-blue;
+  border-radius: 12px;
+  
+  .summaryRow {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    color: $text-dark;
+    font-family: 'The Seasons', serif;
+    font-size: 1rem;
+    
+    &.totalRow {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid $border-color;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: $primary-blue;
+    }
+  }
+}
+
+.estimatedDelivery {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  background: $white;
+  border: 1px solid $border-color;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  
+  .deliveryIcon {
+    margin-right: 20px;
+    color: $primary-blue;
+  }
+  
+  .deliveryText {
+    .deliveryTitle {
+      color: $text-dark;
+      font-family: 'The Seasons', serif;
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+    
+    .deliveryDate {
+      color: $primary-blue;
+      font-family: 'The Seasons', serif;
+      font-size: 1.1rem;
+      margin: 0;
+    }
+  }
+}
+
+.orderActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 40px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+  
+  .orderHelp {
+    p {
+      color: $text-dark;
+      font-family: 'The Seasons', serif;
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+    
+    .contactLink {
+      color: $primary-blue;
+      font-family: 'The Seasons', serif;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      position: relative;
+      
+      &:after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 1px;
+        bottom: -2px;
+        left: 0;
+        background-color: $primary-blue;
+        transform: scaleX(0);
+        transform-origin: bottom right;
+        transition: transform 0.3s ease;
+      }
+      
+      &:hover:after {
+        transform: scaleX(1);
+        transform-origin: bottom left;
+      }
+    }
+  }
+  
+  .continueShoppingButton {
+    padding: 14px 28px;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    background: $gradient;
+    color: $white;
+    font-size: 1.1rem;
+    font-family: 'Hello Paris', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba($primary-blue, 0.2);
+    position: relative;
+    overflow: hidden;
+    
+    &:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 10px;
+      padding: 2px;
+      background: $gradient-border;
+      -webkit-mask: 
+        linear-gradient($white 0 0) content-box, 
+        linear-gradient($white 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    }
+    
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 16px rgba($primary-blue, 0.4);
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .confirmationContainer {
+    margin: 20px;
+    padding: 20px;
+  }
+  
+  .successTitle {
+    font-size: 2rem;
+  }
+  
+  .orderTitle {
+    font-size: 1.6rem;
+  }
+  
+  .orderItem {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    .itemImage {
+      width: 100%;
+      height: 120px;
+    }
+    
+    .itemDetails {
+      margin-left: 0;
+      margin-top: 16px;
+      width: 100%;
+      
+      .itemMeta {
+        margin-top: 10px;
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes stroke {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes scale {
+  0%, 100% {
+    transform: none;
+  }
+  50% {
+    transform: scale3d(1.1, 1.1, 1);
+  }
+}
