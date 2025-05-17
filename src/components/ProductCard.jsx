@@ -20,7 +20,7 @@ export default function ProductCard({ product, onSelect }) {
       ) : (
         <p>{product.description || "No description available."}</p>
       )}
-      <p className={styles.price}>${product.price.toFixed(2)}</p>
+      <p className={styles.price}>₹{product.price.toFixed(2)}</p>
       <div className={styles.buttonGroup}>
         <button onClick={onSelect} className={styles.viewDetailsButton}>
           View Details

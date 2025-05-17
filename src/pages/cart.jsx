@@ -83,7 +83,7 @@ export default function Cart() {
                 </div>
                 <div className={styles.itemDetails}>
                   <h3>{item.name}</h3>
-                  <p className={styles.itemPrice}>${item.price.toFixed(2)}</p>
+                  <p className={styles.itemPrice}>₹{item.price.toFixed(2)}</p>
                   <div className={styles.quantityControl}>
                     <button
                       onClick={() => handleQuantityChange(item.id, -1)}
@@ -112,7 +112,7 @@ export default function Cart() {
           <div className={styles.cartSummary}>
             <div className={styles.totalContainer}>
               <span className={styles.totalLabel}>Total</span>
-              <span className={styles.totalAmount}>${calculateTotal()}</span>
+              <span className={styles.totalAmount}>₹{calculateTotal()}</span>
             </div>
             <button onClick={handleCheckout} className={styles.checkoutButton}>
               Proceed to Checkout
