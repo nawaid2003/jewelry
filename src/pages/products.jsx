@@ -167,6 +167,8 @@ export default function Products() {
   const [firestoreProducts, setFirestoreProducts] = useState([]);
 
   // Fetch products from Firestore with real-time updates
+
+  // Update this section in your useEffect for Firestore
   useEffect(() => {
     console.log("Setting up Firestore listener with db:", db);
     setLoading(true);
@@ -193,10 +195,19 @@ export default function Products() {
             return {
               id: doc.id,
               ...data,
-              // Make sure description is properly formatted for display
-              details: Array.isArray(data.description)
-                ? data.description
-                : [data.description],
+              // Ensure description is a string
+              description:
+                typeof data.description === "string"
+                  ? data.description
+                  : Array.isArray(data.description)
+                  ? data.description.join(", ")
+                  : "No description available",
+              // Ensure details is an array
+              details: Array.isArray(data.details)
+                ? data.details
+                : data.details
+                ? [data.details]
+                : [],
             };
           });
 

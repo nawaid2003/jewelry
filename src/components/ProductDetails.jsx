@@ -5,6 +5,7 @@ import styles from "../styles/ProductDetails.module.scss";
 export default function ProductDetails({ product, onClose }) {
   const router = useRouter();
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   if (!product) {
     return null;
@@ -12,8 +13,20 @@ export default function ProductDetails({ product, onClose }) {
 
   // Debug: Log product data to check description and details
   console.log("ProductDetails product:", product);
+  console.log(
+    "Description type:",
+    typeof product.description,
+    Array.isArray(product.description)
+  );
+  console.log(
+    "Details type:",
+    typeof product.details,
+    Array.isArray(product.details)
+  );
 
   const handleAddToCart = () => {
+    setIsLoading(true);
+
     const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
     const existingItem = cartItems.find((item) => item.id === product.id);
     let updatedCart;
@@ -27,7 +40,12 @@ export default function ProductDetails({ product, onClose }) {
     }
 
     localStorage.setItem("cartItems", JSON.stringify(updatedCart));
-    setShowConfirmation(true);
+
+    // Use requestAnimationFrame to ensure smoother UI updates
+    requestAnimationFrame(() => {
+      setShowConfirmation(true);
+      setIsLoading(false);
+    });
   };
 
   useEffect(() => {
@@ -39,6 +57,52 @@ export default function ProductDetails({ product, onClose }) {
       return () => clearTimeout(timer);
     }
   }, [showConfirmation, onClose]);
+
+  // Helper function to ensure we're handling the data correctly
+  const renderDescription = () => {
+    if (!product.description) {
+      return <p>No description available.</p>;
+    }
+
+    if (Array.isArray(product.description)) {
+      return (
+        <ul>
+          {product.description.map((desc, index) => (
+            <li key={index}>{desc}</li>
+          ))}
+        </ul>
+      );
+    }
+
+    return <p>{product.description}</p>;
+  };
+
+  // Separate function for details with explicit differentiation
+  const renderDetails = () => {
+    if (
+      !product.details ||
+      (Array.isArray(product.details) && product.details.length === 0)
+    ) {
+      return <p className={styles.noDetails}>No details available.</p>;
+    }
+
+    if (Array.isArray(product.details)) {
+      return (
+        <div className={styles.detailsCard}>
+          <ul className={styles.detailsList}>
+            {product.details.map((detail, index) => (
+              <li key={index} className={styles.detailItem}>
+                {detail}
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
+
+    // Handle string or object details format
+    return <p>{JSON.stringify(product.details)}</p>;
+  };
 
   return (
     <>
@@ -55,38 +119,11 @@ export default function ProductDetails({ product, onClose }) {
             <h2>{product.name}</h2>
             <div className={styles.descriptionSection}>
               <h3>Description</h3>
-              {product.description ? (
-                Array.isArray(product.description) &&
-                product.description.length > 0 ? (
-                  <ul>
-                    {product.description.map((desc, index) => (
-                      <li key={index}>{desc}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>{product.description}</p>
-                )
-              ) : (
-                <p>No description available.</p>
-              )}
+              {renderDescription()}
             </div>
             <div className={styles.detailsSection}>
               <h3>Details</h3>
-              {product.details &&
-              Array.isArray(product.details) &&
-              product.details.length > 0 ? (
-                <div className={styles.detailsCard}>
-                  <ul className={styles.detailsList}>
-                    {product.details.map((detail, index) => (
-                      <li key={index} className={styles.detailItem}>
-                        {detail}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : (
-                <p className={styles.noDetails}>No details available.</p>
-              )}
+              {renderDetails()}
             </div>
             <div className={styles.priceContainer}>
               <span className={styles.priceLabel}>Price</span>
@@ -97,8 +134,9 @@ export default function ProductDetails({ product, onClose }) {
             <button
               onClick={handleAddToCart}
               className={styles.addToCartButton}
+              disabled={isLoading}
             >
-              Add to Cart
+              {isLoading ? "Adding..." : "Add to Cart"}
             </button>
             {showConfirmation && (
               <div className={styles.confirmation}>
