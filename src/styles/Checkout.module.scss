@@ -557,3 +557,12 @@ $success-green: #3bb75e;
   50% { box-shadow: 0 6px 16px rgba($primary-blue, 0.3); }
   100% { box-shadow: 0 4px 12px rgba($primary-blue, 0.2); }
 }
+
+.error {
+  color: #dc3545;
+  padding: 10px;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  margin: 10px 0;
+}

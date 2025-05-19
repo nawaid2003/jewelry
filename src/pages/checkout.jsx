@@ -1,5 +1,7 @@
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
+import { collection, addDoc } from "firebase/firestore";
+import { db } from "../lib/firebase";
 import styles from "../styles/Checkout.module.scss";
 
 export default function Checkout() {
@@ -18,6 +20,8 @@ export default function Checkout() {
   });
   const [step, setStep] = useState(1); // 1: Shipping, 2: Payment, 3: Review
   const [isFormValid, setIsFormValid] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const items = JSON.parse(localStorage.getItem("cartItems")) || [];
@@ -92,12 +96,70 @@ export default function Checkout() {
     setStep(3);
   };
 
-  const handleSubmitOrder = () => {
-    // Placeholder for final order submission
-    alert("Order submitted successfully!");
-    // Clear cart after successful order
-    localStorage.removeItem("cartItems");
-    router.push("/order-confirmation");
+  const handleSubmitOrder = async () => {
+    setIsSubmitting(true);
+    setError("");
+
+    try {
+      // Generate a unique order ID (you can use your own format)
+      const orderId = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
+
+      // Prepare order data for Firestore
+      const orderData = {
+        orderId,
+        customerInfo: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          pincode: formData.pincode,
+        },
+        items: cartItems.map((item) => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image,
+          total: (item.price * item.quantity).toFixed(2),
+        })),
+        orderSummary: {
+          subtotal: parseFloat(calculateSubtotal()),
+          shipping: calculateShipping(),
+          total: parseFloat(calculateTotal()),
+        },
+        paymentInfo: {
+          method: formData.paymentMethod,
+          status: "pending", // You can update this after actual payment
+        },
+        orderStatus: "pending", // pending, confirmed, shipped, delivered, cancelled
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      console.log("Storing order in Firestore:", orderData);
+
+      // Add order to Firestore
+      const docRef = await addDoc(collection(db, "orders"), orderData);
+      console.log("Order stored with ID:", docRef.id);
+
+      // Clear cart after successful order storage
+      localStorage.removeItem("cartItems");
+
+      // You can store the order ID to pass to confirmation page
+      localStorage.setItem("lastOrderId", orderId);
+      localStorage.setItem("firestoreOrderId", docRef.id);
+
+      // Navigate to order confirmation with the order ID
+      router.push(`/order-confirmation?orderId=${orderId}`);
+    } catch (err) {
+      console.error("Error storing order:", err);
+      setError(`Failed to place order: ${err.message || "Please try again"}`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -328,6 +390,8 @@ export default function Checkout() {
                   </p>
                 </div>
               </div>
+
+              {error && <div className={styles.error}>{error}</div>}
             </div>
           )}
         </div>
@@ -372,7 +436,11 @@ export default function Checkout() {
 
       <div className={styles.checkoutActions}>
         {step > 1 && (
-          <button onClick={prevStep} className={styles.backButton}>
+          <button
+            onClick={prevStep}
+            className={styles.backButton}
+            disabled={isSubmitting}
+          >
             Back
           </button>
         )}
@@ -381,7 +449,7 @@ export default function Checkout() {
           <button
             onClick={step === 2 ? handlePayment : nextStep}
             className={styles.nextButton}
-            disabled={!isFormValid}
+            disabled={!isFormValid || isSubmitting}
           >
             {step === 1 ? "Continue to Payment" : "Pay Now"}
           </button>
@@ -389,8 +457,9 @@ export default function Checkout() {
           <button
             onClick={handleSubmitOrder}
             className={styles.placeOrderButton}
+            disabled={isSubmitting}
           >
-            Place Order
+            {isSubmitting ? "Placing Order..." : "Place Order"}
           </button>
         )}
       </div>
