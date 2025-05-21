@@ -51,6 +51,21 @@ export default function Footer() {
         </div>
 
         <div className={styles.footerSection}>
+          <h3>Policies</h3>
+          <ul>
+            <li>
+              <Link href="/TermsAndConditions">Terms & Conditions</Link>
+            </li>
+            <li>
+              <Link href="/PrivacyPolicy">Privacy Policy</Link>
+            </li>
+            <li>
+              <Link href="/RefundPolicy">Refund Policy</Link>
+            </li>
+          </ul>
+        </div>
+
+        <div className={styles.footerSection}>
           <h3>Size Guide</h3>
           <p>
             Find your perfect fit with our comprehensive sizing information.
@@ -76,7 +91,7 @@ export default function Footer() {
           <h3>Contact</h3>
           <p>Email: test@silverliningjewelry.com</p>
           <p>Phone: 123 456-7890</p>
-          <p>Address: Itwari , Nagpur</p>
+          <p>Address: Itwari, Nagpur</p>
         </div>
 
         <div className={styles.footerSection}>

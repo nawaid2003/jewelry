@@ -1,0 +1,77 @@
+.policyContainer {
+  max-width: 800px;
+  margin: 3rem auto;
+  padding: 0 2rem;
+  color: #333333;
+  font-family: 'Open Sans', sans-serif;
+  line-height: 1.8;
+
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 2.5rem;
+    color: #1c365d;
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.8rem;
+    color: #1c365d;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    position: relative;
+
+    &:after {
+      content: '';
+      display: block;
+      width: 50px;
+      height: 2px;
+      background: rgba(28, 54, 93, 0.4);
+      margin-top: 0.5rem;
+    }
+  }
+
+  p {
+    font-size: 1rem;
+    margin-bottom: 1.2rem;
+  }
+
+  ul {
+    list-style: disc;
+    padding-left: 2rem;
+    margin-bottom: 1.2rem;
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  a {
+    color: #1c365d;
+    text-decoration: none;
+    transition: color 0.3s ease;
+
+    &:hover {
+      color: #3a5686;
+      text-decoration: underline;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 0 1.5rem;
+    margin: 2rem auto;
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+    }
+
+    p {
+      font-size: 0.95rem;
+    }
+  }
+}
