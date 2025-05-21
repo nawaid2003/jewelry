@@ -3,10 +3,11 @@ import styles from "../styles/ProductCard.module.scss";
 
 export default function ProductCard({ product, onSelect }) {
   const router = useRouter();
+  const fallbackImage = "/images/fallback-product.jpg"; // Add a fallback image in your public folder
 
   return (
     <div className={styles.productCard}>
-      <img src={product.image} alt={product.name} />
+      <img src={product.image || fallbackImage} alt={product.name} />
       <h3>{product.name}</h3>
       {product.description &&
       Array.isArray(product.description) &&

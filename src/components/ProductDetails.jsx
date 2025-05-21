@@ -6,23 +6,11 @@ export default function ProductDetails({ product, onClose }) {
   const router = useRouter();
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const fallbackImage = "/images/fallback-product.jpg"; // Add a fallback image
 
   if (!product) {
     return null;
   }
-
-  // Debug: Log product data to check description and details
-  console.log("ProductDetails product:", product);
-  console.log(
-    "Description type:",
-    typeof product.description,
-    Array.isArray(product.description)
-  );
-  console.log(
-    "Details type:",
-    typeof product.details,
-    Array.isArray(product.details)
-  );
 
   const handleAddToCart = () => {
     setIsLoading(true);
@@ -41,7 +29,6 @@ export default function ProductDetails({ product, onClose }) {
 
     localStorage.setItem("cartItems", JSON.stringify(updatedCart));
 
-    // Use requestAnimationFrame to ensure smoother UI updates
     requestAnimationFrame(() => {
       setShowConfirmation(true);
       setIsLoading(false);
@@ -52,13 +39,12 @@ export default function ProductDetails({ product, onClose }) {
     if (showConfirmation) {
       const timer = setTimeout(() => {
         setShowConfirmation(false);
-        onClose(); // Close the modal after 3 seconds
+        onClose();
       }, 3000);
       return () => clearTimeout(timer);
     }
   }, [showConfirmation, onClose]);
 
-  // Helper function to ensure we're handling the data correctly
   const renderDescription = () => {
     if (!product.description) {
       return <p>No description available.</p>;
@@ -77,7 +63,6 @@ export default function ProductDetails({ product, onClose }) {
     return <p>{product.description}</p>;
   };
 
-  // Separate function for details with explicit differentiation
   const renderDetails = () => {
     if (
       !product.details ||
@@ -100,7 +85,6 @@ export default function ProductDetails({ product, onClose }) {
       );
     }
 
-    // Handle string or object details format
     return <p>{JSON.stringify(product.details)}</p>;
   };
 
@@ -113,7 +97,7 @@ export default function ProductDetails({ product, onClose }) {
         </button>
         <div className={styles.contentWrapper}>
           <div className={styles.imageContainer}>
-            <img src={product.image} alt={product.name} />
+            <img src={product.image || fallbackImage} alt={product.name} />
           </div>
           <div className={styles.detailsContainer}>
             <h2>{product.name}</h2>
@@ -128,7 +112,7 @@ export default function ProductDetails({ product, onClose }) {
             <div className={styles.priceContainer}>
               <span className={styles.priceLabel}>Price</span>
               <span className={styles.priceAmount}>
-                ${product.price.toFixed(2)}
+                ₹{product.price.toFixed(2)}
               </span>
             </div>
             <button

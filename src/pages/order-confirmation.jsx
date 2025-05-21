@@ -14,10 +14,9 @@ export default function OrderConfirmation() {
     shipping_cost: 0,
     total: 0,
   });
+  const fallbackImage = "/images/fallback-product.jpg"; // Add a fallback image
 
   useEffect(() => {
-    // Generate random order ID for demo purposes
-    // In a real app, this would come from your backend
     const generateOrderId = () => {
       const timestamp = new Date().getTime().toString().slice(-6);
       const random = Math.floor(Math.random() * 10000)
@@ -26,32 +25,28 @@ export default function OrderConfirmation() {
       return `JW-${timestamp}-${random}`;
     };
 
-    // Get order details from localStorage or session
-    // In a real app, you'd fetch this from your backend API
     const getOrderDetails = () => {
       try {
-        // Check if we have order data in localStorage
         const storedOrderData = localStorage.getItem("orderData");
 
         if (storedOrderData) {
           const parsedData = JSON.parse(storedOrderData);
           setOrderDetails(parsedData);
         } else {
-          // Demo data if no real order data exists
           const demoItems = [
             {
               id: 1,
               name: "Diamond Pendant Necklace",
               price: 2499.99,
               quantity: 1,
-              image: "/images/diamond-pendant.jpg",
+              image: fallbackImage,
             },
             {
               id: 2,
               name: "Gold Bracelet",
               price: 1299.99,
               quantity: 1,
-              image: "/images/gold-bracelet.jpg",
+              image: fallbackImage,
             },
           ];
 
@@ -89,7 +84,6 @@ export default function OrderConfirmation() {
           });
         }
 
-        // Clear cart after successfully loading order details
         localStorage.removeItem("cartItems");
       } catch (error) {
         console.error("Error getting order details:", error);
@@ -181,7 +175,7 @@ export default function OrderConfirmation() {
             {orderDetails.items.map((item) => (
               <div key={item.id} className={styles.orderItem}>
                 <div className={styles.itemImage}>
-                  <img src={item.image} alt={item.name} />
+                  <img src={item.image || fallbackImage} alt={item.name} />
                 </div>
                 <div className={styles.itemDetails}>
                   <div className={styles.itemName}>{item.name}</div>

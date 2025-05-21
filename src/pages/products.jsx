@@ -13,168 +13,12 @@ export default function Products() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [products, setProducts] = useState([]);
 
-  // Sample hardcoded products
-  const sampleProducts = [
-    // Necklaces
-    {
-      id: "n1",
-      name: "Golden Leaf Necklace",
-      category: "Necklaces",
-      description: "A delicate gold necklace with a leaf pendant.",
-      price: 89.99,
-      image:
-        "https://images.unsplash.com/photo-1611652351235-7a78d8c68eb4?ixlib=rb-4.0.3&fit=crop&w=200&h=200",
-      details: [
-        "Material: 18K Gold",
-        "Pendant Size: 1.5cm",
-        "Chain Length: 45cm",
-      ],
-    },
-    {
-      id: "n2",
-      name: "Pearl Strand Necklace",
-      category: "Necklaces",
-      description: "Elegant strand of freshwater pearls.",
-      price: 129.99,
-      image:
-        "https://images.unsplash.com/photo-1606760227091-3dd44d7e6723?ixlib=rb-4.0.3&fit=crop&w=200&h=200",
-      details: [
-        "Material: Freshwater Pearls",
-        "Length: 50cm",
-        "Clasp: Sterling Silver",
-      ],
-    },
-    {
-      id: "n3",
-      name: "Emerald Choker",
-      category: "Necklaces",
-      description: "A bold choker with an emerald centerpiece.",
-      price: 149.99,
-      image:
-        "https://images.unsplash.com/photo-1608043152295-203a036e503c?ixlib=rb-4.0.3&fit=crop&w=200&h=200",
-      details: ["Material: 14K Gold", "Stone: 2ct Emerald", "Length: 40cm"],
-    },
-    // Rings
-    {
-      id: "r1",
-      name: "Sapphire Ring",
-      category: "Rings",
-      description: "A stunning ring with a deep blue sapphire gemstone.",
-      price: 129.99,
-      image:
-        "https://images.unsplash.com/photo-1608042314453-ec68cdcf2fe0?ixlib=rb-4.0.3&fit=crop&w=200&h=200",
-      details: ["Material: 14K White Gold", "Stone: 1.5ct Sapphire", "Size: 7"],
-    },
-    {
-      id: "r2",
-      name: "Diamond Band",
-      category: "Rings",
-      description: "A sleek band encrusted with small diamonds.",
-      price: 199.99,
-      image:
-        "https://images.unsplash.com/photo-1589234219434-1a4b5f5e6150?ixlib=rb-4.0.3&fit=crop&w=200&h=200",
-      details: ["Material: 18K Gold", "Stones: 0.5ct Diamonds", "Width: 3mm"],
-    },
-    {
-      id: "r3",
-      name: "Rose Gold Ring",
-      category: "Rings",
-      description: "A minimalist rose gold ring with a subtle gem.",
-      price: 79.99,
-      image:
-        "https://images.unsplash.com/photo-1608057954357-5a7b7b8334a8?ixlib=rb-4.0.3&fit=crop&w=200&h=200",
-      details: [
-        "Material: Rose Gold",
-        "Stone: 0.1ct Cubic Zirconia",
-        "Size: 6",
-      ],
-    },
-    // Earrings
-    {
-      id: "e1",
-      name: "Pearl Earrings",
-      category: "Earrings",
-      description: "Classic pearl drop earrings for timeless elegance.",
-      price: 49.99,
-      image:
-        "https://images.unsplash.com/photo-1611652351303-6a13d2b9d44e?ixlib=rb-4.0.3&fit=crop&w=200&h=200",
-      details: [
-        "Material: Sterling Silver",
-        "Pearl Size: 8mm",
-        "Drop Length: 2cm",
-      ],
-    },
-    {
-      id: "e2",
-      name: "Gold Hoop Earrings",
-      category: "Earrings",
-      description: "Bold gold hoops for a statement look.",
-      price: 69.99,
-      image:
-        "https://images.unsplash.com/photo-1606761568499-6d378555723e?ixlib=rb-4.0.3&fit=crop&w=200&h=200",
-      details: ["Material: 14K Gold", "Diameter: 3cm", "Thickness: 2mm"],
-    },
-    {
-      id: "e3",
-      name: "Diamond Stud Earrings",
-      category: "Earrings",
-      description: "Sparkling diamond studs for everyday wear.",
-      price: 99.99,
-      image:
-        "https://images.unsplash.com/photo-1608042314473-ec68cdcf2fe0?ixlib=rb-4.0.3&fit=crop&w=200&h=200",
-      details: [
-        "Material: 14K White Gold",
-        "Stones: 0.3ct Diamonds",
-        "Post Back",
-      ],
-    },
-    // Bracelets
-    {
-      id: "b1",
-      name: "Silver Charm Bracelet",
-      category: "Bracelets",
-      description: "A customizable silver bracelet with charm slots.",
-      price: 69.99,
-      image:
-        "https://images.unsplash.com/photo-1606760227091-3dd44d7e6723?ixlib=rb-4.0.3&fit=crop&w=200&h=200",
-      details: ["Material: Sterling Silver", "Length: 20cm", "Charm Slots: 5"],
-    },
-    {
-      id: "b2",
-      name: "Beaded Cuff",
-      category: "Bracelets",
-      description: "A vibrant beaded cuff with colorful patterns.",
-      price: 59.99,
-      image:
-        "https://images.unsplash.com/photo-1611652351235-7a78d8c68eb4?ixlib=rb-4.0.3&fit=crop&w=200&h=200",
-      details: ["Material: Glass Beads", "Width: 2cm", "Adjustable"],
-    },
-    {
-      id: "b3",
-      name: "Gold Bangle",
-      category: "Bracelets",
-      description: "A sleek gold bangle for understated luxury.",
-      price: 109.99,
-      image:
-        "https://images.unsplash.com/photo-1608043152295-203a036e503c?ixlib=rb-4.0.3&fit=crop&w=200&h=200",
-      details: ["Material: 14K Gold", "Diameter: 6.5cm", "Thickness: 1.5mm"],
-    },
-  ];
-
-  // Initialize state with sample products
-  const [products, setProducts] = useState(sampleProducts);
-  const [firestoreProducts, setFirestoreProducts] = useState([]);
-
-  // Fetch products from Firestore with real-time updates
-
-  // Update this section in your useEffect for Firestore
   useEffect(() => {
-    console.log("Setting up Firestore listener with db:", db);
     setLoading(true);
 
     try {
-      // Create a query with ordering to ensure consistent display
       const productsQuery = query(
         collection(db, "products"),
         orderBy("createdAt", "desc")
@@ -186,7 +30,8 @@ export default function Products() {
           setLoading(false);
 
           if (snapshot.empty) {
-            console.log("No products found in Firestore");
+            setError("No products found in the database.");
+            setProducts([]);
             return;
           }
 
@@ -195,55 +40,40 @@ export default function Products() {
             return {
               id: doc.id,
               ...data,
-              // Ensure description is a string
               description:
                 typeof data.description === "string"
                   ? data.description
                   : Array.isArray(data.description)
                   ? data.description.join(", ")
                   : "No description available",
-              // Ensure details is an array
               details: Array.isArray(data.details)
                 ? data.details
                 : data.details
                 ? [data.details]
                 : [],
+              image: data.image || "/images/fallback-product.jpg",
             };
           });
 
-          console.log("Firestore products loaded:", fetchedProducts.length);
-
-          // Store Firestore products separately
-          setFirestoreProducts(fetchedProducts);
-
-          // Combine sample and Firestore products
-          setProducts([...sampleProducts, ...fetchedProducts]);
+          setProducts(fetchedProducts);
         },
         (err) => {
           console.error("Error fetching products:", err);
-          setError(
-            "Failed to load Firestore products. Using sample products only."
-          );
+          setError("Failed to load products. Please try again later.");
           setLoading(false);
-
-          // Fall back to sample products on error
-          setProducts(sampleProducts);
+          setProducts([]);
         }
       );
 
-      // Clean up listener on unmount
       return () => unsubscribe();
     } catch (err) {
       console.error("Error setting up Firestore listener:", err);
-      setError("Failed to connect to database. Using sample products only.");
+      setError("Failed to connect to database.");
       setLoading(false);
-
-      // Fall back to sample products on error
-      setProducts(sampleProducts);
+      setProducts([]);
     }
   }, []);
 
-  // Filter products by category and search query
   const filteredProducts = products.filter((product) => {
     const matchesCategory =
       selectedCategory === "All" || product.category === selectedCategory;
@@ -286,7 +116,6 @@ export default function Products() {
     <div className={styles.productsContainer}>
       <h1 className={styles.productsTitle}>Our Collections</h1>
 
-      {/* Search Bar */}
       <div className={styles.searchBar}>
         <input
           type="text"
@@ -297,7 +126,6 @@ export default function Products() {
         />
       </div>
 
-      {/* Category Filter */}
       <div className={styles.categoryFilter}>
         {categories.map((category) => (
           <button
@@ -312,13 +140,10 @@ export default function Products() {
         ))}
       </div>
 
-      {/* Loading State */}
       {loading && <p className={styles.loadingMessage}>Loading products...</p>}
 
-      {/* Error State */}
       {error && <p className={styles.errorMessage}>{error}</p>}
 
-      {/* Products Grid or No Results Message */}
       {!loading && (
         <>
           {filteredProducts.length > 0 ? (
@@ -339,7 +164,6 @@ export default function Products() {
         </>
       )}
 
-      {/* Floating Cart Button */}
       <button onClick={handleGoToCart} className={styles.floatingCartButton}>
         Go to Cart
       </button>

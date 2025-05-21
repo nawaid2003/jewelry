@@ -18,10 +18,11 @@ export default function Checkout() {
     pincode: "",
     paymentMethod: "card",
   });
-  const [step, setStep] = useState(1); // 1: Shipping, 2: Payment, 3: Review
+  const [step, setStep] = useState(1);
   const [isFormValid, setIsFormValid] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const fallbackImage = "/images/fallback-product.jpg"; // Add a fallback image
 
   useEffect(() => {
     const items = JSON.parse(localStorage.getItem("cartItems")) || [];
@@ -32,7 +33,6 @@ export default function Checkout() {
   }, [router]);
 
   useEffect(() => {
-    // Basic form validation - check if required fields are filled
     const { firstName, lastName, email, phone, address, city, state, pincode } =
       formData;
     if (step === 1) {
@@ -47,9 +47,9 @@ export default function Checkout() {
           pincode
       );
     } else if (step === 2) {
-      setIsFormValid(true); // Will be controlled by Razorpay form validation
+      setIsFormValid(true);
     } else if (step === 3) {
-      setIsFormValid(true); // Always allow confirmation
+      setIsFormValid(true);
     }
   }, [formData, step]);
 
@@ -78,7 +78,6 @@ export default function Checkout() {
   };
 
   const calculateShipping = () => {
-    // Simplified shipping calculation
     const subtotal = parseFloat(calculateSubtotal());
     return subtotal > 5000 ? 0 : 250;
   };
@@ -90,9 +89,7 @@ export default function Checkout() {
   };
 
   const handlePayment = () => {
-    // Placeholder for Razorpay integration
     alert("Razorpay integration will be implemented here!");
-    // When payment is successful, proceed to final confirmation
     setStep(3);
   };
 
@@ -101,10 +98,7 @@ export default function Checkout() {
     setError("");
 
     try {
-      // Generate a unique order ID (you can use your own format)
       const orderId = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
-
-      // Prepare order data for Firestore
       const orderData = {
         orderId,
         customerInfo: {
@@ -132,27 +126,17 @@ export default function Checkout() {
         },
         paymentInfo: {
           method: formData.paymentMethod,
-          status: "pending", // You can update this after actual payment
+          status: "pending",
         },
-        orderStatus: "pending", // pending, confirmed, shipped, delivered, cancelled
+        orderStatus: "pending",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
 
-      console.log("Storing order in Firestore:", orderData);
-
-      // Add order to Firestore
       const docRef = await addDoc(collection(db, "orders"), orderData);
-      console.log("Order stored with ID:", docRef.id);
-
-      // Clear cart after successful order storage
       localStorage.removeItem("cartItems");
-
-      // You can store the order ID to pass to confirmation page
       localStorage.setItem("lastOrderId", orderId);
       localStorage.setItem("firestoreOrderId", docRef.id);
-
-      // Navigate to order confirmation with the order ID
       router.push(`/order-confirmation?orderId=${orderId}`);
     } catch (err) {
       console.error("Error storing order:", err);
@@ -402,7 +386,7 @@ export default function Checkout() {
             {cartItems.map((item) => (
               <div key={item.id} className={styles.summaryItem}>
                 <div className={styles.itemImage}>
-                  <img src={item.image} alt={item.name} />
+                  <img src={item.image || fallbackImage} alt={item.name} />
                   <span className={styles.itemQuantity}>{item.quantity}</span>
                 </div>
                 <div className={styles.itemInfo}>
