@@ -13,8 +13,9 @@ export default function Footer() {
               <Image
                 src={logoSL}
                 alt="Silver Lining Logo"
-                width={60}
-                height={60}
+                width={65}
+                height={65}
+                priority
               />
             </div>
             <div className={styles.logoText}>
@@ -22,7 +23,12 @@ export default function Footer() {
               <p>Where Hope Meets Elegance.</p>
             </div>
           </div>
+          <p>
+            Discover exquisite jewelry pieces that celebrate life's precious
+            moments and milestones.
+          </p>
         </div>
+
         <div className={styles.footerSection}>
           <h3>Explore</h3>
           <ul>
@@ -43,11 +49,36 @@ export default function Footer() {
             </li>
           </ul>
         </div>
+
+        <div className={styles.footerSection}>
+          <h3>Size Guide</h3>
+          <p>
+            Find your perfect fit with our comprehensive sizing information.
+          </p>
+          <Link href="/size-guide" className={styles.sizeGuideButton}>
+            <svg
+              className={styles.buttonIcon}
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span className={styles.buttonText}>View Size Guide</span>
+          </Link>
+        </div>
+
         <div className={styles.footerSection}>
           <h3>Contact</h3>
           <p>Email: test@silverliningjewelry.com</p>
           <p>Phone: 123 456-7890</p>
+          <p>Address: Itwari , Nagpur</p>
         </div>
+
         <div className={styles.footerSection}>
           <h3>Follow Us</h3>
           <div className={styles.socialLinks}>
@@ -72,8 +103,9 @@ export default function Footer() {
           </div>
         </div>
       </div>
+
       <div className={styles.footerBottom}>
-        <p>© 2025 Silver Lining. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} Silver Lining. All rights reserved.</p>
       </div>
     </footer>
   );
