@@ -62,6 +62,21 @@ export default function Footer() {
             <li>
               <Link href="/RefundPolicy">Refund Policy</Link>
             </li>
+            <li>
+              <Link href="/DomesticShipping">Domestic Shipping</Link>
+            </li>
+            <li>
+              <Link href="/EasyExchange">Easy Exchange</Link>
+            </li>
+            <li>
+              <Link href="/RingResizingPolicy">Ring Resizing</Link>
+            </li>
+            <li>
+              <Link href="/LifetimeBuyBackPolicy">Lifetime Buy-Back</Link>
+            </li>
+            <li>
+              <Link href="/WarrantyPolicy">Warranty Policy</Link>
+            </li>
           </ul>
         </div>
 
