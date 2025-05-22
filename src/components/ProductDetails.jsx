@@ -107,7 +107,11 @@ export default function ProductDetails({ product, onClose, onCartUpdate }) {
   return (
     <>
       <div className={styles.overlay} onClick={onClose}></div>
-      <div className={styles.productDetails}>
+      <div
+        className={`${styles.productDetails} ${
+          showConfirmation ? styles.confirmationMode : ""
+        }`}
+      >
         <button
           className={styles.closeButton}
           onClick={onClose}

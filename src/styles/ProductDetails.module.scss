@@ -32,12 +32,22 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
   padding: 40px;
   max-width: 800px;
   width: 90%;
-  min-height: 400px; /* Ensure enough space for confirmation */
+  min-height: 400px; // Default size for product details
   max-height: 80vh;
   overflow-y: auto;
   z-index: 1000;
   font-family: 'The Seasons', serif;
   animation: slideIn 0.5s ease-in-out;
+  transition: all 0.3s ease; // Smooth transition when switching modes
+
+  // When showing confirmation, make the modal much smaller
+  &.confirmationMode {
+    min-height: auto;
+    height: auto;
+    padding: 20px;
+    max-width: 400px;
+    width: 80%;
+  }
 }
 
 .contentWrapper {
@@ -240,25 +250,17 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
   display: flex;
   align-items: center;
   justify-content: center;
-  height: auto;
-  min-height: 100px;
-  width: 100%;
-  background: $background-offwhite;
-  border-radius: 16px;
-  padding: 60px 40px;
   text-align: center;
   animation: fadeIn 0.5s ease-in-out;
-  // Ensure confirmation is always visible
-  opacity: 1 !important;
-
+  padding: 30px 20px; // Compact padding
+  
   p {
     color: $primary-blue;
     font-family: 'Cinzel', serif;
-    font-size: 1.8rem;
+    font-size: 1.4rem;
     font-weight: 700;
     margin: 0;
     text-shadow: 0 1px 2px rgba($primary-blue, 0.1);
-    opacity: 1 !important; /* Ensure text is fully visible */
   }
 }
 
@@ -279,6 +281,16 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
 }
 
 @media (max-width: 600px) {
+  .productDetails {
+    width: 95%;
+    padding: 20px;
+    
+    &.confirmationMode {
+      width: 90%;
+      padding: 15px;
+    }
+  }
+
   .contentWrapper {
     flex-direction: column;
   }
@@ -308,10 +320,10 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
   }
 
   .confirmation {
-    padding: 10px;
+    padding: 20px 15px;
 
     p {
-      font-size: 1.4rem;
+      font-size: 1.2rem;
     }
   }
 }
