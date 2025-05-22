@@ -11,7 +11,7 @@ export default function Design() {
     email: "",
     message: "",
     selectedDesign: "",
-    image: "", // Store Cloudinary URL for custom designs
+    image: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -22,7 +22,7 @@ export default function Design() {
     {
       id: "design1",
       name: "Eternal Elegance",
-      image: "/designs/design1.jpg", // Replace with Cloudinary URL
+      image: "/designs/design1.jpg",
       description: "A timeless silver pendant with delicate floral elements.",
     },
     {
@@ -116,6 +116,7 @@ export default function Design() {
     setSuccess("");
 
     try {
+      // Store in Firestore
       const designData = {
         designType: "custom",
         name: formData.name,
@@ -124,8 +125,20 @@ export default function Design() {
         image: formData.image,
         createdAt: new Date().toISOString(),
       };
-
       await addDoc(collection(db, "designs"), designData);
+
+      // Send email notification
+      const response = await fetch("/api/send-design-notification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(designData),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send notification");
+      }
+
       setSuccess("Custom design request submitted! We'll contact you soon.");
       setFormData({
         name: "",
@@ -155,6 +168,7 @@ export default function Design() {
       const selectedDesign = premadeDesigns.find(
         (d) => d.id === formData.selectedDesign
       );
+      // Store in Firestore
       const designData = {
         designType: "premade",
         name: formData.name,
@@ -168,8 +182,20 @@ export default function Design() {
         },
         createdAt: new Date().toISOString(),
       };
-
       await addDoc(collection(db, "designs"), designData);
+
+      // Send email notification
+      const response = await fetch("/api/send-design-notification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(designData),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send notification");
+      }
+
       setSuccess(
         `Thank you for selecting "${selectedDesign.name}"! We'll contact you soon.`
       );
@@ -240,6 +266,7 @@ export default function Design() {
                     value={formData.name}
                     onChange={handleChange}
                     required
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -252,6 +279,7 @@ export default function Design() {
                     value={formData.email}
                     onChange={handleChange}
                     required
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -262,6 +290,7 @@ export default function Design() {
                       type="button"
                       className={styles.uploadButton}
                       onClick={openUploadWidget}
+                      disabled={isSubmitting}
                     >
                       Select File
                     </button>
@@ -273,6 +302,7 @@ export default function Design() {
                         type="button"
                         className={styles.clearButton}
                         onClick={() => setFormData({ ...formData, image: "" })}
+                        disabled={isSubmitting}
                       >
                         ✕
                       </button>
@@ -303,6 +333,7 @@ export default function Design() {
                     onChange={handleChange}
                     placeholder="Describe your design ideas, materials preferences, and any special details..."
                     required
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -367,6 +398,7 @@ export default function Design() {
                         value={formData.name}
                         onChange={handleChange}
                         required
+                        disabled={isSubmitting}
                       />
                     </div>
 
@@ -379,6 +411,7 @@ export default function Design() {
                         value={formData.email}
                         onChange={handleChange}
                         required
+                        disabled={isSubmitting}
                       />
                     </div>
 
@@ -392,6 +425,7 @@ export default function Design() {
                         value={formData.message}
                         onChange={handleChange}
                         placeholder="Any specific customizations or questions about the selected design..."
+                        disabled={isSubmitting}
                       />
                     </div>
 
