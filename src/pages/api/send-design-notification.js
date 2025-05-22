@@ -1,5 +1,4 @@
 import nodemailer from "nodemailer";
-import logo from "../public/logo.png";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
