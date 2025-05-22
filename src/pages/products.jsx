@@ -14,7 +14,9 @@ export default function Products() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [products, setProducts] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
 
+  // Load products from Firestore
   useEffect(() => {
     setLoading(true);
 
@@ -73,6 +75,21 @@ export default function Products() {
       setProducts([]);
     }
   }, []);
+
+  // Sync cartItems with localStorage on mount
+  useEffect(() => {
+    const items = JSON.parse(localStorage.getItem("cartItems")) || [];
+    setCartItems(items);
+  }, []);
+
+  // Callback to update cartItems state
+  const updateCartItems = () => {
+    const items = JSON.parse(localStorage.getItem("cartItems")) || [];
+    setCartItems(items);
+  };
+
+  // Calculate total number of items in cart
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const filteredProducts = products.filter((product) => {
     const matchesCategory =
@@ -164,14 +181,17 @@ export default function Products() {
         </>
       )}
 
-      <button onClick={handleGoToCart} className={styles.floatingCartButton}>
-        Go to Cart
-      </button>
+      {cartItems.length > 0 && (
+        <button onClick={handleGoToCart} className={styles.floatingCartButton}>
+          Go to Cart ({totalItems})
+        </button>
+      )}
 
       {selectedProduct && (
         <ProductDetails
           product={selectedProduct}
           onClose={closeProductDetails}
+          onCartUpdate={updateCartItems}
         />
       )}
     </div>

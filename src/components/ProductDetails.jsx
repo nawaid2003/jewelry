@@ -2,11 +2,11 @@ import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import styles from "../styles/ProductDetails.module.scss";
 
-export default function ProductDetails({ product, onClose }) {
+export default function ProductDetails({ product, onClose, onCartUpdate }) {
   const router = useRouter();
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const fallbackImage = "/images/fallback-product.jpg"; // Add a fallback image
+  const fallbackImage = "/images/fallback-product.jpg";
 
   if (!product) {
     return null;
@@ -28,6 +28,11 @@ export default function ProductDetails({ product, onClose }) {
     }
 
     localStorage.setItem("cartItems", JSON.stringify(updatedCart));
+
+    // Update parent component's cartItems state
+    if (onCartUpdate) {
+      onCartUpdate();
+    }
 
     requestAnimationFrame(() => {
       setShowConfirmation(true);
