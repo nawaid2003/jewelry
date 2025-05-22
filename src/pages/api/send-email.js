@@ -41,9 +41,13 @@ export default async function handler(req, res) {
 
     // Email options
     const mailOptions = {
-      from: `"Silver Lining Contact" <${process.env.GMAIL_USER}>`,
+      from: `"${name}" <${email}>`, // Display sender's name and email
+      envelope: {
+        from: process.env.GMAIL_USER, // Actual SMTP sender
+        to: process.env.RECEIVER_EMAIL,
+      },
       to: process.env.RECEIVER_EMAIL,
-      replyTo: email,
+      replyTo: email, // Replies go to sender's email
       subject: `New Contact Message from ${name}`,
       text: `
         Name: ${name}
