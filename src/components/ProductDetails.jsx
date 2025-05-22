@@ -6,6 +6,7 @@ export default function ProductDetails({ product, onClose, onCartUpdate }) {
   const router = useRouter();
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFadingOut, setIsFadingOut] = useState(false);
   const fallbackImage = "/images/fallback-product.jpg";
 
   if (!product) {
@@ -14,6 +15,7 @@ export default function ProductDetails({ product, onClose, onCartUpdate }) {
 
   const handleAddToCart = () => {
     setIsLoading(true);
+    console.log("Add to Cart clicked, starting fade-out");
 
     const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
     const existingItem = cartItems.find((item) => item.id === product.id);
@@ -29,24 +31,33 @@ export default function ProductDetails({ product, onClose, onCartUpdate }) {
 
     localStorage.setItem("cartItems", JSON.stringify(updatedCart));
 
-    // Update parent component's cartItems state
     if (onCartUpdate) {
       onCartUpdate();
     }
 
-    requestAnimationFrame(() => {
-      setShowConfirmation(true);
+    // Start fade-out animation for content only
+    setIsFadingOut(true);
+
+    // Show confirmation after fade-out
+    setTimeout(() => {
       setIsLoading(false);
-    });
+      setShowConfirmation(true);
+    }, 300);
   };
 
   useEffect(() => {
     if (showConfirmation) {
+      console.log("Confirmation state active, setting timeout to close");
       const timer = setTimeout(() => {
+        console.log("Closing modal");
         setShowConfirmation(false);
+        setIsFadingOut(false);
         onClose();
-      }, 3000);
-      return () => clearTimeout(timer);
+      }, 2000); // Show confirmation for 2 seconds
+      return () => {
+        console.log("Cleaning up timer");
+        clearTimeout(timer);
+      };
     }
   }, [showConfirmation, onClose]);
 
@@ -97,43 +108,52 @@ export default function ProductDetails({ product, onClose, onCartUpdate }) {
     <>
       <div className={styles.overlay} onClick={onClose}></div>
       <div className={styles.productDetails}>
-        <button className={styles.closeButton} onClick={onClose}>
+        <button
+          className={styles.closeButton}
+          onClick={onClose}
+          style={{ display: showConfirmation ? "none" : "block" }}
+        >
           ×
         </button>
-        <div className={styles.contentWrapper}>
-          <div className={styles.imageContainer}>
-            <img src={product.image || fallbackImage} alt={product.name} />
+        {showConfirmation ? (
+          <div className={styles.confirmation}>
+            <p>Product Added to Cart!</p>
           </div>
-          <div className={styles.detailsContainer}>
-            <h2>{product.name}</h2>
-            <div className={styles.descriptionSection}>
-              <h3>Description</h3>
-              {renderDescription()}
+        ) : (
+          <div
+            className={`${styles.contentWrapper} ${
+              isFadingOut ? styles.fadeOut : ""
+            }`}
+          >
+            <div className={styles.imageContainer}>
+              <img src={product.image || fallbackImage} alt={product.name} />
             </div>
-            <div className={styles.detailsSection}>
-              <h3>Details</h3>
-              {renderDetails()}
-            </div>
-            <div className={styles.priceContainer}>
-              <span className={styles.priceLabel}>Price</span>
-              <span className={styles.priceAmount}>
-                ₹{product.price.toFixed(2)}
-              </span>
-            </div>
-            <button
-              onClick={handleAddToCart}
-              className={styles.addToCartButton}
-              disabled={isLoading}
-            >
-              {isLoading ? "Adding..." : "Add to Cart"}
-            </button>
-            {showConfirmation && (
-              <div className={styles.confirmation}>
-                <p>Product Added to Cart!</p>
+            <div className={styles.detailsContainer}>
+              <h2>{product.name}</h2>
+              <div className={styles.descriptionSection}>
+                <h3>Description</h3>
+                {renderDescription()}
               </div>
-            )}
+              <div className={styles.detailsSection}>
+                <h3>Details</h3>
+                {renderDetails()}
+              </div>
+              <div className={styles.priceContainer}>
+                <span className={styles.priceLabel}>Price</span>
+                <span className={styles.priceAmount}>
+                  ₹{product.price.toFixed(2)}
+                </span>
+              </div>
+              <button
+                onClick={handleAddToCart}
+                className={styles.addToCartButton}
+                disabled={isLoading}
+              >
+                {isLoading ? "Adding..." : "Add to Cart"}
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </>
   );
