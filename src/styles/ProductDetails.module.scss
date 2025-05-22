@@ -240,11 +240,12 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  height: auto;
+  min-height: 100px;
   width: 100%;
   background: $background-offwhite;
   border-radius: 16px;
-  padding: 40px;
+  padding: 60px 40px;
   text-align: center;
   animation: fadeIn 0.5s ease-in-out;
   // Ensure confirmation is always visible
@@ -307,7 +308,7 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
   }
 
   .confirmation {
-    padding: 20px;
+    padding: 10px;
 
     p {
       font-size: 1.4rem;

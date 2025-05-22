@@ -53,7 +53,7 @@ export default function ProductDetails({ product, onClose, onCartUpdate }) {
         setShowConfirmation(false);
         setIsFadingOut(false);
         onClose();
-      }, 2000); // Show confirmation for 2 seconds
+      }, 1500);
       return () => {
         console.log("Cleaning up timer");
         clearTimeout(timer);
