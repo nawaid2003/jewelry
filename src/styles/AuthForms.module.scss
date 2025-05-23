@@ -137,6 +137,45 @@ $error-red: #d64545;
   }
 }
 
+.googleButtonContainer {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.googleButton {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid lighten($primary-blue, 40%);
+  border-radius: 12px;
+  background: $white;
+  color: $text-dark;
+  font-size: 1.1rem;
+  font-family: 'The Seasons', serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 2px 8px rgba($primary-blue, 0.1);
+
+  &:hover:not(:disabled) {
+    border-color: $primary-blue;
+    box-shadow: 0 4px 12px rgba($primary-blue, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.googleIcon {
+  width: 24px;
+  height: 24px;
+}
+
 .error {
   color: $error-red;
   font-size: 0.9rem;

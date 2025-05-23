@@ -1,7 +1,7 @@
 // src/lib/firebase.js
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 // Firebase configuration using environment variables
 const firebaseConfig = {
@@ -34,5 +34,6 @@ console.log("Firebase initialization check:", {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
 
-export { db, auth };
+export { db, auth, googleProvider };

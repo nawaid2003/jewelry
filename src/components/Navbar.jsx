@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useAuth } from "../context/AuthContext";
 import { SignupForm, LoginForm } from "./AuthForms";
 import logoSL from "../images/logoSL.png";
-import styles from "../styles/navbar.module.scss";
+import styles from "../styles/Navbar.module.scss";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -18,6 +18,15 @@ export default function Navbar() {
 
   const closeMenu = () => {
     setIsOpen(false);
+  };
+
+  // Get user's initials for the avatar
+  const getInitials = () => {
+    if (!user?.displayName) return "U";
+    const names = user.displayName.split(" ");
+    return names.length > 1
+      ? `${names[0][0]}${names[1][0]}`.toUpperCase()
+      : names[0][0].toUpperCase();
   };
 
   return (
@@ -79,7 +88,10 @@ export default function Navbar() {
           <>
             <li>
               <Link href="/profile" onClick={closeMenu}>
-                <span className={styles.profileIcon}>👤</span> Profile
+                <div className={styles.profileContainer}>
+                  <span className={styles.profileAvatar}>{getInitials()}</span>
+                  <span className={styles.profileText}>Profile</span>
+                </div>
               </Link>
             </li>
             <li>
