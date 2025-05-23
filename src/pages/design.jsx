@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import Script from "next/script";
@@ -16,8 +16,21 @@ export default function Design() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [cloudinaryLoaded, setCloudinaryLoaded] = useState(false);
 
-  // Sample pre-made designs (images should be Cloudinary URLs in production)
+  // Check if Cloudinary is loaded
+  useEffect(() => {
+    const checkCloudinary = () => {
+      if (window.cloudinary) {
+        setCloudinaryLoaded(true);
+      } else {
+        setTimeout(checkCloudinary, 100);
+      }
+    };
+    checkCloudinary();
+  }, []);
+
+  // Sample pre-made designs
   const premadeDesigns = [
     {
       id: "design1",
@@ -77,9 +90,16 @@ export default function Design() {
     }
   };
 
-  // Open Cloudinary Upload Widget
+  // Open Cloudinary Upload Widget with better error handling
   const openUploadWidget = () => {
-    if (window.cloudinary) {
+    if (!cloudinaryLoaded || !window.cloudinary) {
+      setError(
+        "Image upload service is still loading. Please wait a moment and try again."
+      );
+      return;
+    }
+
+    try {
       window.cloudinary
         .createUploadWidget(
           {
@@ -89,19 +109,30 @@ export default function Design() {
             multiple: false,
             resourceType: "image",
             clientAllowedFormats: ["jpg", "png", "jpeg", "pdf"],
+            maxFileSize: 5000000, // 5MB
+            sources: ["local", "url", "camera"],
+            showAdvancedOptions: false,
+            cropping: false,
+            theme: "minimal",
           },
           (error, result) => {
             if (error) {
-              setError("Image upload failed. Please try again.");
               console.error("Cloudinary error:", error);
+              setError(
+                `Image upload failed: ${error.message || "Please try again."}`
+              );
             } else {
               handleImageUpload(result);
+              setError(""); // Clear any previous errors
             }
           }
         )
         .open();
-    } else {
-      setError("Cloudinary widget not loaded. Please try again.");
+    } catch (err) {
+      console.error("Widget creation error:", err);
+      setError(
+        "Failed to open upload dialog. Please refresh the page and try again."
+      );
     }
   };
 
@@ -217,7 +248,13 @@ export default function Design() {
     <>
       <Script
         src="https://widget.cloudinary.com/v2.0/global/all.js"
-        strategy="lazyOnload"
+        strategy="beforeInteractive"
+        onLoad={() => setCloudinaryLoaded(true)}
+        onError={() =>
+          setError(
+            "Failed to load image upload service. Please refresh the page."
+          )
+        }
       />
       <div className={styles.designContainer}>
         <section className={styles.designHero}>
@@ -290,9 +327,9 @@ export default function Design() {
                       type="button"
                       className={styles.uploadButton}
                       onClick={openUploadWidget}
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !cloudinaryLoaded}
                     >
-                      Select File
+                      {!cloudinaryLoaded ? "Loading..." : "Select File"}
                     </button>
                     <span className={styles.fileName}>
                       {formData.image ? "Image uploaded" : "No file selected"}
