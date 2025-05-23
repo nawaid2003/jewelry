@@ -1,12 +1,16 @@
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import { LoginForm } from "./AuthForms";
 import styles from "../styles/ProductDetails.module.scss";
 
 export default function ProductDetails({ product, onClose, onCartUpdate }) {
   const router = useRouter();
+  const { user } = useAuth();
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
   const fallbackImage = "/images/fallback-product.jpg";
 
   if (!product) {
@@ -14,9 +18,12 @@ export default function ProductDetails({ product, onClose, onCartUpdate }) {
   }
 
   const handleAddToCart = () => {
-    setIsLoading(true);
-    console.log("Add to Cart clicked, starting fade-out");
+    if (!user) {
+      setShowLogin(true);
+      return;
+    }
 
+    setIsLoading(true);
     const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
     const existingItem = cartItems.find((item) => item.id === product.id);
     let updatedCart;
@@ -35,10 +42,8 @@ export default function ProductDetails({ product, onClose, onCartUpdate }) {
       onCartUpdate();
     }
 
-    // Start fade-out animation for content only
     setIsFadingOut(true);
 
-    // Show confirmation after fade-out
     setTimeout(() => {
       setIsLoading(false);
       setShowConfirmation(true);
@@ -47,17 +52,12 @@ export default function ProductDetails({ product, onClose, onCartUpdate }) {
 
   useEffect(() => {
     if (showConfirmation) {
-      console.log("Confirmation state active, setting timeout to close");
       const timer = setTimeout(() => {
-        console.log("Closing modal");
         setShowConfirmation(false);
         setIsFadingOut(false);
         onClose();
       }, 1500);
-      return () => {
-        console.log("Cleaning up timer");
-        clearTimeout(timer);
-      };
+      return () => clearTimeout(timer);
     }
   }, [showConfirmation, onClose]);
 
@@ -159,6 +159,7 @@ export default function ProductDetails({ product, onClose, onCartUpdate }) {
           </div>
         )}
       </div>
+      {showLogin && <LoginForm onClose={() => setShowLogin(false)} />}
     </>
   );
 }

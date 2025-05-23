@@ -1,11 +1,16 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useAuth } from "../context/AuthContext";
+import { SignupForm, LoginForm } from "./AuthForms";
 import logoSL from "../images/logoSL.png";
 import styles from "../styles/navbar.module.scss";
 
 export default function Navbar() {
+  const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [showSignup, setShowSignup] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -70,7 +75,42 @@ export default function Navbar() {
             Contact
           </Link>
         </li>
+        {user ? (
+          <>
+            <li>
+              <Link href="/profile" onClick={closeMenu}>
+                <span className={styles.profileIcon}>👤</span> Profile
+              </Link>
+            </li>
+            <li>
+              <button onClick={logout} className={styles.authButton}>
+                Logout
+              </button>
+            </li>
+          </>
+        ) : (
+          <>
+            <li>
+              <button
+                onClick={() => setShowSignup(true)}
+                className={styles.authButton}
+              >
+                Sign Up
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => setShowLogin(true)}
+                className={styles.authButton}
+              >
+                Login
+              </button>
+            </li>
+          </>
+        )}
       </ul>
+      {showSignup && <SignupForm onClose={() => setShowSignup(false)} />}
+      {showLogin && <LoginForm onClose={() => setShowLogin(false)} />}
     </nav>
   );
 }

@@ -1,6 +1,7 @@
 // src/lib/firebase.js
-import { initializeApp, getApps } from "firebase/app";
+import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 // Firebase configuration using environment variables
 const firebaseConfig = {
@@ -19,17 +20,19 @@ console.log("Firebase initialization check:", {
   authDomain: firebaseConfig.authDomain,
 });
 
-// Initialize Firebase only if it hasn't been initialized already
-let app;
-if (!getApps().length) {
-  console.log("Initializing new Firebase instance");
-  app = initializeApp(firebaseConfig);
-} else {
-  console.log("Using existing Firebase instance");
-  app = getApps()[0];
-}
+// // Initialize Firebase only if it hasn't been initialized already
+// let app;
+// if (!getApps().length) {
+//   console.log("Initializing new Firebase instance");
+//   app = initializeApp(firebaseConfig);
+// } else {
+//   console.log("Using existing Firebase instance");
+//   app = getApps()[0];
+// }
 
 // Initialize Firestore
+const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
-export { db };
+export { db, auth };

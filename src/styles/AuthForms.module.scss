@@ -1,0 +1,150 @@
+@import url('https://fonts.cdnfonts.com/css/cinzel');
+@import url('https://fonts.cdnfonts.com/css/the-seasons');
+@import url('https://fonts.cdnfonts.com/css/hello-paris');
+
+$primary-blue: #1c365d;
+$white: #ffffff;
+$background-offwhite: #eeeeee;
+$text-dark: #2a2a2a;
+$shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+$gradient: linear-gradient(135deg, lighten($primary-blue, 20%), $primary-blue);
+$gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($primary-blue, 10%));
+$error-red: #d64545;
+
+.authOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba($primary-blue, 0.6);
+  z-index: 999;
+  backdrop-filter: blur(4px);
+}
+
+.authForm {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: $background-offwhite;
+  border-radius: 16px;
+  box-shadow: $shadow;
+  padding: 40px;
+  max-width: 400px;
+  width: 90%;
+  z-index: 1000;
+  font-family: 'The Seasons', serif;
+  animation: slideIn 0.5s ease-in-out;
+
+  h2 {
+    color: $primary-blue;
+    font-family: 'Cinzel', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+}
+
+.closeButton {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: $text-dark;
+  cursor: pointer;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: $primary-blue;
+  }
+}
+
+.formGroup {
+  margin-bottom: 20px;
+
+  label {
+    display: block;
+    color: $text-dark;
+    font-family: 'The Seasons', serif;
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+
+  input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid lighten($primary-blue, 40%);
+    border-radius: 8px;
+    font-family: 'The Seasons', serif;
+    font-size: 1rem;
+    color: $text-dark;
+    background: $white;
+    transition: all 0.3s ease;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-blue;
+      box-shadow: 0 0 0 3px rgba($primary-blue, 0.1);
+    }
+  }
+}
+
+.submitButton {
+  width: 100%;
+  padding: 14px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: $gradient;
+  color: $white;
+  font-size: 1.2rem;
+  font-family: 'Hello Paris', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba($primary-blue, 0.2);
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 10px;
+    padding: 2px;
+    background: $gradient-border;
+    -webkit-mask: 
+      linear-gradient($white 0 0) content-box, 
+      linear-gradient($white 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  &:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba($primary-blue, 0.4);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.error {
+  color: $error-red;
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translate(-50%, -60%); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
+}

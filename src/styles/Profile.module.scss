@@ -1,0 +1,194 @@
+@import url('https://fonts.cdnfonts.com/css/cinzel');
+@import url('https://fonts.cdnfonts.com/css/the-seasons');
+@import url('https://fonts.cdnfonts.com/css/hello-paris');
+
+$background-offwhite: #eeeeee;
+$primary-blue: #1c365d;
+$white: #ffffff;
+$text-dark: #2a2a2a;
+$shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+$gradient: linear-gradient(135deg, lighten($primary-blue, 20%), $primary-blue);
+$gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($primary-blue, 10%));
+
+.profileContainer {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 40px;
+  font-family: 'The Seasons', serif;
+  background: $background-offwhite;
+  border-radius: 20px;
+  box-shadow: $shadow;
+  min-height: 80vh;
+  position: relative;
+  overflow: hidden;
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: $gradient;
+  }
+}
+
+.profileTitle {
+  color: $primary-blue;
+  font-family: 'Cinzel', serif;
+  font-size: 2.8rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 40px;
+  text-shadow: 0 1px 2px rgba($primary-blue, 0.1);
+  position: relative;
+
+  &:after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 2px;
+    background: $primary-blue;
+    margin: 12px auto;
+  }
+}
+
+.profileContent {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 40px;
+}
+
+.accountInfo,
+.orderHistory,
+.additionalInfo {
+  background: $white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 12px rgba($primary-blue, 0.1);
+
+  h2 {
+    color: $primary-blue;
+    font-family: 'Cinzel', serif;
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 24px;
+    border-bottom: 1px solid lighten($primary-blue, 40%);
+    padding-bottom: 8px;
+  }
+}
+
+.infoCard {
+  p {
+    color: $text-dark;
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+
+    strong {
+      color: $primary-blue;
+      margin-right: 8px;
+    }
+  }
+}
+
+.ordersList {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-height: 600px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $background-offwhite;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: lighten($primary-blue, 40%);
+    border-radius: 10px;
+  }
+}
+
+.orderCard {
+  background: lighten($background-offwhite, 2%);
+  border-radius: 12px;
+  padding: 20px;
+  border-left: 4px solid $primary-blue;
+
+  h3 {
+    color: $primary-blue;
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+  }
+
+  p {
+    color: $text-dark;
+    font-size: 1rem;
+    margin-bottom: 8px;
+
+    strong {
+      color: $primary-blue;
+    }
+  }
+
+  h4 {
+    color: $primary-blue;
+    font-family: 'The Seasons', serif;
+    font-size: 1.2rem;
+    margin: 16px 0 8px;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .orderItem {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 12px;
+    align-items: center;
+
+    img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    div {
+      p {
+        margin: 4px 0;
+        font-size: 0.95rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .profileContent {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .profileContainer {
+    margin: 20px;
+    padding: 20px;
+  }
+
+  .profileTitle {
+    font-size: 2.2rem;
+  }
+
+  .accountInfo,
+  .orderHistory,
+  .additionalInfo {
+    padding: 20px;
+  }
+}

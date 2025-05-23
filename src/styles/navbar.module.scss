@@ -167,3 +167,36 @@
     }
   }
 }
+
+// Add to existing SCSS
+.authButton {
+  background: rgba(238, 238, 238, 0.95); /* #eeeeee */
+  color: #1c365d;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-family: 'Hello Paris', sans-serif;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(#1c365d, 0.2);
+  }
+}
+
+.profileIcon {
+  margin-right: 8px;
+}
+
+@media (max-width: 768px) {
+  .navLinks {
+    li .authButton {
+      width: 100%;
+      margin: 0.5rem 0;
+      padding: 0.75rem;
+      text-align: center;
+    }
+  }
+}

@@ -2,10 +2,12 @@ import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
+import { useAuth } from "../context/AuthContext";
 import styles from "../styles/Checkout.module.scss";
 
 export default function Checkout() {
   const router = useRouter();
+  const { user } = useAuth();
   const [cartItems, setCartItems] = useState([]);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -22,7 +24,7 @@ export default function Checkout() {
   const [isFormValid, setIsFormValid] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const fallbackImage = "/images/fallback-product.jpg"; // Add a fallback image
+  const fallbackImage = "/images/fallback-product.jpg";
 
   useEffect(() => {
     const items = JSON.parse(localStorage.getItem("cartItems")) || [];
@@ -30,7 +32,16 @@ export default function Checkout() {
       router.push("/cart");
     }
     setCartItems(items);
-  }, [router]);
+
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        email: user.email || "",
+        firstName: user.displayName?.split(" ")[0] || "",
+        lastName: user.displayName?.split(" ")[1] || "",
+      }));
+    }
+  }, [router, user]);
 
   useEffect(() => {
     const { firstName, lastName, email, phone, address, city, state, pincode } =
