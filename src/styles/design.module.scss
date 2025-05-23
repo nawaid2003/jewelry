@@ -335,6 +335,23 @@
     margin: 1rem 0;
     font-family: 'Lora', serif;
   }
+  
+  .loadingNotice {
+  background: #f0f8ff;
+  border: 1px solid #d1e7ff;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #1c365d;
+  font-size: 14px;
+  
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
 
   .success {
     color: #388e3c;

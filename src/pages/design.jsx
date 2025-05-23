@@ -266,6 +266,12 @@ export default function Design() {
         </section>
 
         <div className={styles.designOptions}>
+          {!cloudinaryLoaded && (
+            <div className={styles.loadingNotice}>
+              <span>🔄 Loading upload service, please wait...</span>
+            </div>
+          )}
+
           <div className={styles.tabsContainer}>
             <button
               className={`${styles.tabButton} ${
@@ -329,7 +335,9 @@ export default function Design() {
                       onClick={openUploadWidget}
                       disabled={isSubmitting || !cloudinaryLoaded}
                     >
-                      {!cloudinaryLoaded ? "Loading..." : "Select File"}
+                      {!cloudinaryLoaded
+                        ? "Please wait, loading upload service..."
+                        : "Select File"}
                     </button>
                     <span className={styles.fileName}>
                       {formData.image ? "Image uploaded" : "No file selected"}
