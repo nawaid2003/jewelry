@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useAuth } from "../context/AuthContext";
 import { SignupForm, LoginForm } from "./AuthForms";
 import logoSL from "../images/logoSL.png";
-import styles from "../styles/Navbar.module.scss";
+import styles from "../styles/navbar.module.scss";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
