@@ -8,7 +8,7 @@ $background-offwhite: #eeeeee;
 $text-dark: #2a2a2a;
 $shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 $gradient: linear-gradient(135deg, lighten($primary-blue, 20%), $primary-blue);
-$gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($primary-blue, 10%));
+$gradient-hover: linear-gradient(135deg, lighten($primary-blue, 30%), lighten($primary-blue, 10%));
 
 .navbar {
   display: flex;
@@ -18,6 +18,7 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
   background: $background-offwhite;
   box-shadow: $shadow;
   position: relative;
+  z-index: 100;
 }
 
 .logoContainer {
@@ -50,6 +51,234 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
   opacity: 0.8;
 }
 
+// Desktop Profile Section
+.desktopProfileSection {
+  display: flex;
+  align-items: center;
+}
+
+.profileIconContainer {
+  position: relative;
+}
+
+.profileIconButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &:focus {
+    outline: 2px solid $primary-blue;
+    outline-offset: 2px;
+  }
+}
+
+.profileIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: $gradient;
+  border-radius: 50%;
+  color: $white;
+  font-family: 'The Seasons', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: 3px solid $white;
+  box-shadow: 0 4px 12px rgba($primary-blue, 0.3);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: $gradient-hover;
+    box-shadow: 0 6px 20px rgba($primary-blue, 0.4);
+  }
+}
+
+.profileIconMobile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: $gradient;
+  border-radius: 50%;
+  color: $white;
+  font-family: 'The Seasons', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  border: 2px solid $white;
+  box-shadow: 0 4px 12px rgba($primary-blue, 0.3);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: $gradient-hover;
+    box-shadow: 0 6px 20px rgba($primary-blue, 0.4);
+  }
+}
+
+.profileIconLarge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background: $gradient;
+  border-radius: 50%;
+  color: $white;
+  font-family: 'The Seasons', serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border: 3px solid $white;
+  box-shadow: 0 4px 12px rgba($primary-blue, 0.3);
+}
+
+// Profile Dropdown
+.profileDropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: $white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba($primary-blue, 0.15);
+  padding: 0;
+  min-width: 280px;
+  z-index: 1000;
+  border: 1px solid rgba($primary-blue, 0.1);
+  overflow: hidden;
+  animation: fadeInDown 0.3s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: 20px;
+    width: 16px;
+    height: 16px;
+    background: $white;
+    border: 1px solid rgba($primary-blue, 0.1);
+    border-bottom: none;
+    border-right: none;
+    transform: rotate(45deg);
+  }
+}
+
+.profileDropdownMobile {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: $white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba($primary-blue, 0.15);
+  padding: 0;
+  min-width: 260px;
+  z-index: 1000;
+  border: 1px solid rgba($primary-blue, 0.1);
+  overflow: hidden;
+  animation: fadeInDown 0.3s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: 20px;
+    width: 16px;
+    height: 16px;
+    background: $white;
+    border: 1px solid rgba($primary-blue, 0.1);
+    border-bottom: none;
+    border-right: none;
+    transform: rotate(45deg);
+  }
+}
+
+.dropdownHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  background: linear-gradient(135deg, lighten($background-offwhite, 3%), $background-offwhite);
+  border-bottom: 1px solid rgba($primary-blue, 0.1);
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.userName {
+  font-family: 'The Seasons', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: $primary-blue;
+  margin-bottom: 2px;
+}
+
+.userEmail {
+  font-family: 'The Seasons', serif;
+  font-size: 0.9rem;
+  color: lighten($text-dark, 20%);
+}
+
+.dropdownDivider {
+  height: 1px;
+  background: rgba($primary-blue, 0.1);
+  margin: 0;
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: 'The Seasons', serif;
+  font-size: 1rem;
+  color: $text-dark;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: lighten($background-offwhite, 2%);
+    color: $primary-blue;
+  }
+
+  &:last-child {
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+  }
+}
+
+.dropdownIcon {
+  font-size: 1.1rem;
+  width: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+// Mobile Controls
+.mobileControls {
+  display: none;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mobileProfileSection {
+  display: flex;
+  align-items: center;
+}
+
 .menuToggle {
   display: none;
   background: none;
@@ -57,6 +286,13 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
   font-size: 1.8rem;
   color: $primary-blue;
   cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba($primary-blue, 0.1);
+  }
 }
 
 .navLinks {
@@ -72,60 +308,43 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
       color: $text-dark;
       text-decoration: none;
       transition: color 0.3s ease;
+      padding: 8px 16px;
+      border-radius: 8px;
 
       &:hover {
         color: $primary-blue;
+        background: rgba($primary-blue, 0.05);
       }
     }
   }
 }
 
-.authButton {
-  background: $gradient;
-  color: $white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-family: 'Hello Paris', sans-serif;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 8px rgba($primary-blue, 0.2);
+// Animations
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-.profileContainer {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.profileAvatar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: $gradient;
-  border-radius: 50%;
-  color: $white;
-  font-family: 'The Seasons', serif;
-  font-size: 0.9rem;
-  font-weight: 600;
-  border: 2px solid $white;
-  box-shadow: 0 2px 4px rgba($primary-blue, 0.2);
-}
-
-.profileText {
-  font-family: 'The Seasons', serif;
-  font-size: 1.1rem;
-  color: $text-dark;
-}
-
+// Media Queries
 @media (max-width: 768px) {
+  .navbar {
+    padding: 1rem 1.5rem;
+  }
+
+  .desktopProfileSection {
+    display: none;
+  }
+
+  .mobileControls {
+    display: flex;
+  }
+
   .menuToggle {
     display: block;
   }
@@ -141,6 +360,7 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
     padding: 1rem;
     box-shadow: $shadow;
     z-index: 1000;
+    border-radius: 0 0 16px 16px;
 
     &.open {
       display: flex;
@@ -149,15 +369,58 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
     li {
       margin: 0.5rem 0;
 
-      a, .authButton {
+      a {
         width: 100%;
         text-align: center;
         padding: 0.75rem;
+        display: block;
       }
     }
+  }
 
-    .profileContainer {
-      justify-content: center;
+  .logoText {
+    .brandName {
+      font-size: 1.3rem;
     }
+
+    .tagline {
+      font-size: 0.7rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.75rem 1rem;
+  }
+
+  .logoContainer {
+    gap: 0.3rem;
+  }
+
+  .logoImage {
+    width: 40px;
+    height: 40px;
+  }
+
+  .logoText {
+    .brandName {
+      font-size: 1.1rem;
+    }
+
+    .tagline {
+      font-size: 0.65rem;
+    }
+  }
+
+  .profileIconMobile {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+  }
+
+  .profileDropdownMobile {
+    min-width: 240px;
+    right: -10px;
   }
 }
