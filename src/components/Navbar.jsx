@@ -13,6 +13,7 @@ export default function Navbar() {
   const [showLogin, setShowLogin] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const dropdownRef = useRef(null);
+  const mobileDropdownRef = useRef(null);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -30,6 +31,12 @@ export default function Navbar() {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowProfileDropdown(false);
+      }
+      if (
+        mobileDropdownRef.current &&
+        !mobileDropdownRef.current.contains(event.target)
+      ) {
         setShowProfileDropdown(false);
       }
     };
@@ -70,6 +77,28 @@ export default function Navbar() {
           </div>
         </Link>
       </div>
+
+      {/* Desktop Navigation Links */}
+      <ul className={styles.desktopNavLinks}>
+        <li>
+          <Link href="/">Home</Link>
+        </li>
+        <li>
+          <Link href="/about">About</Link>
+        </li>
+        <li>
+          <Link href="/products">Products</Link>
+        </li>
+        <li>
+          <Link href="/design">Design</Link>
+        </li>
+        <li>
+          <Link href="/faq">FAQ</Link>
+        </li>
+        <li>
+          <Link href="/contact">Contact</Link>
+        </li>
+      </ul>
 
       {/* Desktop Profile Icon */}
       <div className={styles.desktopProfileSection}>
@@ -138,10 +167,10 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Layout */}
+      {/* Mobile Layout - Profile icon first, then hamburger */}
       <div className={styles.mobileControls}>
         <div className={styles.mobileProfileSection}>
-          <div className={styles.profileIconContainer} ref={dropdownRef}>
+          <div className={styles.profileIconContainer} ref={mobileDropdownRef}>
             <button
               className={styles.profileIconButton}
               onClick={toggleProfileDropdown}
@@ -211,6 +240,7 @@ export default function Navbar() {
         </button>
       </div>
 
+      {/* Mobile Navigation Menu */}
       <ul className={`${styles.navLinks} ${isOpen ? styles.open : ""}`}>
         <li>
           <Link href="/" onClick={closeMenu}>
