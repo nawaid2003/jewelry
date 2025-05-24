@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import Image from "next/image";
 import { useAuth } from "../context/AuthContext";
 import { SignupForm, LoginForm } from "./AuthForms";
@@ -8,6 +9,7 @@ import styles from "../styles/navbar.module.scss";
 
 export default function Navbar() {
   const { user } = useAuth();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
@@ -23,11 +25,15 @@ export default function Navbar() {
     setIsOpen(false);
   };
 
-  const toggleProfileDropdown = () => {
-    setShowProfileDropdown(!showProfileDropdown);
+  const handleProfileClick = () => {
+    if (user) {
+      router.push("/profile"); // Direct navigation for logged-in users
+    } else {
+      setShowProfileDropdown(!showProfileDropdown); // Show dropdown for non-logged-in users
+    }
   };
 
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside (only for non-logged-in users)
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -105,7 +111,7 @@ export default function Navbar() {
         <div className={styles.profileIconContainer} ref={dropdownRef}>
           <button
             className={styles.profileIconButton}
-            onClick={toggleProfileDropdown}
+            onClick={handleProfileClick}
             aria-label="Profile menu"
           >
             <div className={styles.profileIcon}>
@@ -113,55 +119,28 @@ export default function Navbar() {
             </div>
           </button>
 
-          {showProfileDropdown && (
+          {showProfileDropdown && !user && (
             <div className={styles.profileDropdown}>
-              {user ? (
-                <>
-                  <div className={styles.dropdownHeader}>
-                    <div className={styles.profileIconLarge}>
-                      {getInitials()}
-                    </div>
-                    <div className={styles.userInfo}>
-                      <span className={styles.userName}>
-                        {user.displayName || "User"}
-                      </span>
-                      <span className={styles.userEmail}>{user.email}</span>
-                    </div>
-                  </div>
-                  <div className={styles.dropdownDivider}></div>
-                  <Link
-                    href="/profile"
-                    className={styles.dropdownItem}
-                    onClick={() => setShowProfileDropdown(false)}
-                  >
-                    <span className={styles.dropdownIcon}>👤</span>
-                    View Profile
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={() => {
-                      setShowLogin(true);
-                      setShowProfileDropdown(false);
-                    }}
-                    className={styles.dropdownItem}
-                  >
-                    <span className={styles.dropdownIcon}>🔐</span>
-                    Login
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowSignup(true);
-                      setShowProfileDropdown(false);
-                    }}
-                    className={styles.dropdownItem}
-                  >
-                    <span className={styles.dropdownIcon}>✨</span>
-                    Sign Up
-                  </button>
-                </>
-              )}
+              <button
+                onClick={() => {
+                  setShowLogin(true);
+                  setShowProfileDropdown(false);
+                }}
+                className={styles.dropdownItem}
+              >
+                <span className={styles.dropdownIcon}>🔐</span>
+                Login
+              </button>
+              <button
+                onClick={() => {
+                  setShowSignup(true);
+                  setShowProfileDropdown(false);
+                }}
+                className={styles.dropdownItem}
+              >
+                <span className={styles.dropdownIcon}>✨</span>
+                Sign Up
+              </button>
             </div>
           )}
         </div>
@@ -173,7 +152,7 @@ export default function Navbar() {
           <div className={styles.profileIconContainer} ref={mobileDropdownRef}>
             <button
               className={styles.profileIconButton}
-              onClick={toggleProfileDropdown}
+              onClick={handleProfileClick}
               aria-label="Profile menu"
             >
               <div className={styles.profileIconMobile}>
@@ -181,55 +160,28 @@ export default function Navbar() {
               </div>
             </button>
 
-            {showProfileDropdown && (
+            {showProfileDropdown && !user && (
               <div className={styles.profileDropdownMobile}>
-                {user ? (
-                  <>
-                    <div className={styles.dropdownHeader}>
-                      <div className={styles.profileIconLarge}>
-                        {getInitials()}
-                      </div>
-                      <div className={styles.userInfo}>
-                        <span className={styles.userName}>
-                          {user.displayName || "User"}
-                        </span>
-                        <span className={styles.userEmail}>{user.email}</span>
-                      </div>
-                    </div>
-                    <div className={styles.dropdownDivider}></div>
-                    <Link
-                      href="/profile"
-                      className={styles.dropdownItem}
-                      onClick={() => setShowProfileDropdown(false)}
-                    >
-                      <span className={styles.dropdownIcon}>👤</span>
-                      View Profile
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      onClick={() => {
-                        setShowLogin(true);
-                        setShowProfileDropdown(false);
-                      }}
-                      className={styles.dropdownItem}
-                    >
-                      <span className={styles.dropdownIcon}>🔐</span>
-                      Login
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowSignup(true);
-                        setShowProfileDropdown(false);
-                      }}
-                      className={styles.dropdownItem}
-                    >
-                      <span className={styles.dropdownIcon}>✨</span>
-                      Sign Up
-                    </button>
-                  </>
-                )}
+                <button
+                  onClick={() => {
+                    setShowLogin(true);
+                    setShowProfileDropdown(false);
+                  }}
+                  className={styles.dropdownItem}
+                >
+                  <span className={styles.dropdownIcon}>🔐</span>
+                  Login
+                </button>
+                <button
+                  onClick={() => {
+                    setShowSignup(true);
+                    setShowProfileDropdown(false);
+                  }}
+                  className={styles.dropdownItem}
+                >
+                  <span className={styles.dropdownIcon}>✨</span>
+                  Sign Up
+                </button>
               </div>
             )}
           </div>
