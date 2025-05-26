@@ -4,8 +4,8 @@ import { LoginForm } from "./AuthForms";
 import { SignupForm } from "./AuthForms";
 import styles from "../styles/AuthForms.module.scss";
 
-export function AuthModal({ onClose, onAuthSuccess }) {
-  const [activeTab, setActiveTab] = useState("login");
+export function AuthModal({ onClose, onAuthSuccess, initialTab = "login" }) {
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   const handleAuthSuccess = () => {
     onClose();

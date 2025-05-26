@@ -1,3 +1,4 @@
+// components/Navbar.jsx
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -26,23 +27,41 @@ export default function Navbar() {
   };
 
   const handleProfileClick = () => {
+    console.log("Profile icon clicked, user:", user);
     if (user) {
-      router.push("/profile"); // Direct navigation for logged-in users
+      router.push("/profile");
     } else {
-      setShowProfileDropdown(!showProfileDropdown); // Show dropdown for non-logged-in users
+      setShowProfileDropdown(!showProfileDropdown);
     }
   };
 
-  // Close dropdown when clicking outside (only for non-logged-in users)
+  const handleLoginClick = (e) => {
+    e.stopPropagation();
+    console.log("Login button clicked");
+    setShowLogin(true);
+    setShowSignup(false);
+    setShowProfileDropdown(false);
+  };
+
+  const handleSignupClick = (e) => {
+    e.stopPropagation();
+    console.log("Sign Up button clicked");
+    setShowSignup(true);
+    setShowLogin(false);
+    setShowProfileDropdown(false);
+  };
+
+  // Close dropdown when clicking outside, but not on dropdown buttons
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowProfileDropdown(false);
-      }
-      if (
-        mobileDropdownRef.current &&
-        !mobileDropdownRef.current.contains(event.target)
-      ) {
+      const isDropdownClick =
+        (dropdownRef.current && dropdownRef.current.contains(event.target)) ||
+        (mobileDropdownRef.current &&
+          mobileDropdownRef.current.contains(event.target));
+      const isButtonClick = event.target.closest(`.${styles.dropdownItem}`);
+
+      if (!isDropdownClick && !isButtonClick) {
+        console.log("Clicked outside dropdown, closing");
         setShowProfileDropdown(false);
       }
     };
@@ -62,18 +81,20 @@ export default function Navbar() {
       : names[0][0].toUpperCase();
   };
 
+  // Debug rendering
+  console.log("Navbar render:", { showLogin, showSignup, showProfileDropdown });
+
   return (
     <nav className={styles.navbar}>
-      <div className={styles.logo}>
+      <div className={styles.logoContainer}>
         <Link href="/">
           <div className={styles.logoContainer}>
             <div className={styles.logoImage}>
-              <Image
-                src={logoSL}
+              <img
+                src={logoSL.src}
                 alt="Silver Lining Logo"
                 width={50}
                 height={50}
-                priority
               />
             </div>
             <div className={styles.logoText}>
@@ -122,20 +143,14 @@ export default function Navbar() {
           {showProfileDropdown && !user && (
             <div className={styles.profileDropdown}>
               <button
-                onClick={() => {
-                  setShowLogin(true);
-                  setShowProfileDropdown(false);
-                }}
+                onClick={handleLoginClick}
                 className={styles.dropdownItem}
               >
                 <span className={styles.dropdownIcon}>🔐</span>
                 Login
               </button>
               <button
-                onClick={() => {
-                  setShowSignup(true);
-                  setShowProfileDropdown(false);
-                }}
+                onClick={handleSignupClick}
                 className={styles.dropdownItem}
               >
                 <span className={styles.dropdownIcon}>✨</span>
@@ -163,20 +178,14 @@ export default function Navbar() {
             {showProfileDropdown && !user && (
               <div className={styles.profileDropdownMobile}>
                 <button
-                  onClick={() => {
-                    setShowLogin(true);
-                    setShowProfileDropdown(false);
-                  }}
+                  onClick={handleLoginClick}
                   className={styles.dropdownItem}
                 >
                   <span className={styles.dropdownIcon}>🔐</span>
                   Login
                 </button>
                 <button
-                  onClick={() => {
-                    setShowSignup(true);
-                    setShowProfileDropdown(false);
-                  }}
+                  onClick={handleSignupClick}
                   className={styles.dropdownItem}
                 >
                   <span className={styles.dropdownIcon}>✨</span>
@@ -226,8 +235,22 @@ export default function Navbar() {
         </li>
       </ul>
 
-      {showSignup && <SignupForm onClose={() => setShowSignup(false)} />}
-      {showLogin && <LoginForm onClose={() => setShowLogin(false)} />}
+      {showLogin && (
+        <LoginForm
+          onClose={() => {
+            console.log("Closing LoginForm");
+            setShowLogin(false);
+          }}
+        />
+      )}
+      {showSignup && (
+        <SignupForm
+          onClose={() => {
+            console.log("Closing SignupForm");
+            setShowSignup(false);
+          }}
+        />
+      )}
     </nav>
   );
 }

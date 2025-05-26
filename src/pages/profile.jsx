@@ -14,7 +14,7 @@ export default function Profile() {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/products");
+      router.push("/");
     }
   }, [user, loading, router]);
 

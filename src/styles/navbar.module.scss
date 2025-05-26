@@ -18,7 +18,7 @@ $gradient-hover: linear-gradient(135deg, lighten($primary-blue, 30%), lighten($p
   background: $background-offwhite;
   box-shadow: $shadow;
   position: relative;
-  z-index: 100;
+  z-index: 1000;
 }
 
 .logoContainer {
