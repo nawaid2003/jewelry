@@ -1,3 +1,4 @@
+// pages/design.jsx
 import { useState, useEffect } from "react";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
@@ -9,6 +10,7 @@ export default function Design() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "", // New phone field
     message: "",
     selectedDesign: "",
     image: "",
@@ -142,6 +144,11 @@ export default function Design() {
       setError("Please upload a design image.");
       return;
     }
+    // Basic phone number validation (10 digits)
+    if (!/^\d{10}$/.test(formData.phone)) {
+      setError("Please enter a valid 10-digit phone number.");
+      return;
+    }
     setIsSubmitting(true);
     setError("");
     setSuccess("");
@@ -152,6 +159,7 @@ export default function Design() {
         designType: "custom",
         name: formData.name,
         email: formData.email,
+        phone: formData.phone, // Include phone
         message: formData.message,
         image: formData.image,
         createdAt: new Date().toISOString(),
@@ -174,6 +182,7 @@ export default function Design() {
       setFormData({
         name: "",
         email: "",
+        phone: "", // Reset phone
         message: "",
         selectedDesign: "",
         image: "",
@@ -191,6 +200,11 @@ export default function Design() {
       setError("Please select a design.");
       return;
     }
+    // Basic phone number validation (10 digits)
+    if (!/^\d{10}$/.test(formData.phone)) {
+      setError("Please enter a valid 10-digit phone number.");
+      return;
+    }
     setIsSubmitting(true);
     setError("");
     setSuccess("");
@@ -204,6 +218,7 @@ export default function Design() {
         designType: "premade",
         name: formData.name,
         email: formData.email,
+        phone: formData.phone, // Include phone
         message: formData.message,
         selectedDesign: {
           id: selectedDesign.id,
@@ -233,6 +248,7 @@ export default function Design() {
       setFormData({
         name: "",
         email: "",
+        phone: "", // Reset phone
         message: "",
         selectedDesign: "",
         image: "",
@@ -321,6 +337,21 @@ export default function Design() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="phone">Phone Number</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    pattern="[0-9]{10}"
+                    placeholder="1234567890"
                     required
                     disabled={isSubmitting}
                   />
@@ -455,6 +486,21 @@ export default function Design() {
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
+                        required
+                        disabled={isSubmitting}
+                      />
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label htmlFor="premade-phone">Phone Number</label>
+                      <input
+                        type="tel"
+                        id="premade-phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        pattern="[0-9]{10}"
+                        placeholder="1234567890"
                         required
                         disabled={isSubmitting}
                       />

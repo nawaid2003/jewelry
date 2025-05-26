@@ -1,3 +1,4 @@
+// pages/api/send-design-notification.js
 import nodemailer from "nodemailer";
 
 export default async function handler(req, res) {
@@ -5,16 +6,27 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { name, email, message, designType, image, selectedDesign } = req.body;
+  const { name, email, phone, message, designType, image, selectedDesign } =
+    req.body;
 
   // Server-side validation
-  if (!name || !email || !message || !designType) {
+  if (!name || !email || !phone || !message || !designType) {
     return res.status(400).json({ error: "Required fields are missing" });
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res.status(400).json({ error: "Invalid email format" });
   }
-  if (name.length > 100 || email.length > 100 || message.length > 1000) {
+  if (!/^\d{10}$/.test(phone)) {
+    return res
+      .status(400)
+      .json({ error: "Invalid phone number format (must be 10 digits)" });
+  }
+  if (
+    name.length > 100 ||
+    email.length > 100 ||
+    phone.length > 15 ||
+    message.length > 1000
+  ) {
     return res.status(400).json({ error: "Input exceeds maximum length" });
   }
   if (designType === "custom" && !image) {
@@ -43,6 +55,7 @@ export default async function handler(req, res) {
       <h2>New Design Submission</h2>
       <p><strong>Name:</strong> ${name}</p>
       <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Phone:</strong> ${phone}</p>
       <p><strong>Design Type:</strong> ${designType}</p>
       <p><strong>Message:</strong> ${message}</p>
     `;
@@ -69,6 +82,7 @@ export default async function handler(req, res) {
       text: `
         Name: ${name}
         Email: ${email}
+        Phone: ${phone}
         Design Type: ${designType}
         Message: ${message}
         ${designType === "custom" ? `Image: ${image}` : ""}
@@ -93,15 +107,23 @@ export default async function handler(req, res) {
       from: `"Silver Lining" <${process.env.GMAIL_USER}>`,
       to: email,
       subject: "Thank You for Your Design Submission",
-      text: `Dear ${name},\n\nThank you for your ${designType} design submission. We'll review it and get back to you soon!\n\nBest,\nSilver Lining Team`,
+      text: `Dear ${name},\n\nThank you for your ${designType} design submission.\n\nDetails:\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nMessage: ${message}\n\nWe'll review it and get back to you soon!\n\nBest,\nSilver Lining Team`,
       html: `
-        <div style="font-family: 'Lora', serif; color: #333; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #1c365d;">Thank You, ${name}!</h1>
-          <p><h2 Thank you for your ${designType} design submission. We'll review it and get back to you soon! ></h2></p>
-          <p style="margin-top: 20px;">Best,<br>Silver Lining Team</p>
-          <img src="images/logoSL.png" alt="Silver Lining Logo" style="max-width: 150px; margin-top: 20px;">
-        </div>
-      `,
+    <div style="font-family: 'Lora', serif; color: #333; max-width: 600px; margin: 0 auto;">
+      <h1 style="color: #1c365d;">Thank You, ${name}!</h1>
+      <h2>Thank you for your ${designType} design submission.</h2>
+      <p><strong>Details:</strong></p>
+      <ul>
+        <li><strong>Name:</strong> ${name}</li>
+        <li><strong>Email:</strong> ${email}</li>
+        <li><strong>Phone:</strong> ${phone}</li>
+        <li><strong>Message:</strong> ${message}</li>
+      </ul>
+      <p>We'll review it and get back to you soon!</p>
+      <p style="margin-top: 20px;">Best,<br>Silver Lining Team</p>
+      <img src="${process.env.NEXT_PUBLIC_BASE_URL}/images/logoSL.png" alt="Silver Lining Logo" style="max-width: 150px; margin-top: 20px;">
+    </div>
+  `,
     };
 
     // Send confirmation email to the user
