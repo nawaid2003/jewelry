@@ -6,7 +6,7 @@ export default function FAQ() {
     {
       question: "What materials does Silver Lining use?",
       answer:
-        "We use high-quality gold, silver, and ethically sourced gemstones to ensure lasting beauty and sustainability.",
+        "We use high-quality 9 to 5 Sterling Silver and ethically sourced gemstones to ensure lasting beauty and sustainability.",
     },
     {
       question: "How long does shipping take?",
@@ -16,7 +16,7 @@ export default function FAQ() {
     {
       question: "Can I return or exchange a purchase?",
       answer:
-        "Yes, we offer a 30-day return or exchange policy for unworn items in their original condition.",
+        "We dont offer return poicy on the products we only offer exchange policy for unworn items in their original condition.",
     },
     {
       question: "Do you offer custom jewelry designs?",
