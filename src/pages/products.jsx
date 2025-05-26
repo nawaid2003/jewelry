@@ -1,9 +1,11 @@
+// pages/products.jsx
 import { useState, useEffect } from "react";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { useRouter } from "next/router";
 import { db } from "../lib/firebase";
 import ProductCard from "../components/ProductCard";
 import ProductDetails from "../components/ProductDetails";
+import { Toast } from "../components/Toast"; // Import Toast
 import styles from "../styles/products.module.scss";
 
 export default function Products() {
@@ -15,6 +17,10 @@ export default function Products() {
   const [error, setError] = useState(null);
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState([]);
+  const [showLoginMessage, setShowLoginMessage] = useState(false);
+
+  const handleShowLoginMessage = () => setShowLoginMessage(true);
+  const handleCloseLoginMessage = () => setShowLoginMessage(false);
 
   // Load products from Firestore
   useEffect(() => {
@@ -192,8 +198,15 @@ export default function Products() {
           product={selectedProduct}
           onClose={closeProductDetails}
           onCartUpdate={updateCartItems}
+          onShowLoginMessage={handleShowLoginMessage} // Pass the handler
         />
       )}
+
+      <Toast
+        message="Please log in to continue shopping"
+        show={showLoginMessage}
+        onClose={handleCloseLoginMessage}
+      />
     </div>
   );
 }

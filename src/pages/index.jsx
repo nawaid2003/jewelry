@@ -1,8 +1,21 @@
+// pages/index.jsx
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Toast } from "../components/Toast";
 import styles from "../styles/home.module.scss";
 
 export default function Home() {
+  const [showLoginMessage, setShowLoginMessage] = useState(false);
+
+  const handleShowLoginMessage = () => {
+    setShowLoginMessage(true);
+  };
+
+  const handleCloseLoginMessage = () => {
+    setShowLoginMessage(false);
+  };
+
   return (
     <div className={styles.homeContainer}>
       <section className={styles.hero}>
@@ -93,6 +106,11 @@ export default function Home() {
           />
         </div>
       </section>
+      <Toast
+        message="Please log in to continue shopping"
+        show={showLoginMessage}
+        onClose={handleCloseLoginMessage}
+      />
     </div>
   );
 }

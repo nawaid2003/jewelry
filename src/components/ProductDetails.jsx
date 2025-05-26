@@ -1,16 +1,22 @@
+// components/ProductDetails.js
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { LoginForm } from "./AuthForms";
+import { AuthModal } from "./AuthModal";
 import styles from "../styles/ProductDetails.module.scss";
 
-export default function ProductDetails({ product, onClose, onCartUpdate }) {
+export default function ProductDetails({
+  product,
+  onClose,
+  onCartUpdate,
+  onShowLoginMessage,
+}) {
   const router = useRouter();
   const { user } = useAuth();
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const fallbackImage = "/images/fallback-product.jpg";
 
   if (!product) {
@@ -19,10 +25,13 @@ export default function ProductDetails({ product, onClose, onCartUpdate }) {
 
   const handleAddToCart = () => {
     if (!user) {
-      setShowLogin(true);
+      setShowAuthModal(true);
+      onShowLoginMessage(); // Trigger login message in parent
+      onClose(); // Close ProductDetails immediately
       return;
     }
 
+    // Normal cart addition flow for authenticated users
     setIsLoading(true);
     const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
     const existingItem = cartItems.find((item) => item.id === product.id);
@@ -104,6 +113,11 @@ export default function ProductDetails({ product, onClose, onCartUpdate }) {
     return <p>{JSON.stringify(product.details)}</p>;
   };
 
+  // Prevent clicks inside the modal from closing it
+  const handleModalClick = (e) => {
+    e.stopPropagation();
+  };
+
   return (
     <>
       <div className={styles.overlay} onClick={onClose}></div>
@@ -111,6 +125,7 @@ export default function ProductDetails({ product, onClose, onCartUpdate }) {
         className={`${styles.productDetails} ${
           showConfirmation ? styles.confirmationMode : ""
         }`}
+        onClick={handleModalClick}
       >
         <button
           className={styles.closeButton}
@@ -159,7 +174,7 @@ export default function ProductDetails({ product, onClose, onCartUpdate }) {
           </div>
         )}
       </div>
-      {showLogin && <LoginForm onClose={() => setShowLogin(false)} />}
+      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
     </>
   );
 }

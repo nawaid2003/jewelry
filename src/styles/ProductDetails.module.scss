@@ -19,6 +19,7 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
   background: rgba($primary-blue, 0.6);
   z-index: 999;
   backdrop-filter: blur(4px);
+  cursor: pointer;
 }
 
 .productDetails {
@@ -35,18 +36,62 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
   min-height: 400px; // Default size for product details
   max-height: 80vh;
   overflow-y: auto;
-  z-index: 1000;
+  z-index: 1001;
   font-family: 'The Seasons', serif;
   animation: slideIn 0.5s ease-in-out;
   transition: all 0.3s ease; // Smooth transition when switching modes
 
-  // When showing confirmation, make the modal much smaller
   &.confirmationMode {
     min-height: auto;
     height: auto;
     padding: 20px;
     max-width: 400px;
     width: 80%;
+  }
+}
+
+.loginMessage {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: $background-offwhite;
+  color: $primary-blue;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: $shadow;
+  z-index: 1002; // Above ProductDetails and AuthModal
+  font-family: 'The Seasons', serif;
+  font-size: 1rem;
+  animation: fadeInOut 3s ease-in-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
   }
 }
 
