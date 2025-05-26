@@ -33,13 +33,13 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
   padding: 40px;
   max-width: 800px;
   width: 90%;
-  min-height: 400px; // Default size for product details
+  min-height: 400px;
   max-height: 80vh;
   overflow-y: auto;
   z-index: 1001;
   font-family: 'The Seasons', serif;
   animation: slideIn 0.5s ease-in-out;
-  transition: all 0.3s ease; // Smooth transition when switching modes
+  transition: all 0.3s ease;
 
   &.confirmationMode {
     min-height: auto;
@@ -59,7 +59,7 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
   padding: 15px 20px;
   border-radius: 8px;
   box-shadow: $shadow;
-  z-index: 1002; // Above ProductDetails and AuthModal
+  z-index: 1002;
   font-family: 'The Seasons', serif;
   font-size: 1rem;
   animation: fadeInOut 3s ease-in-out;
@@ -136,7 +136,7 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
     text-shadow: 0 1px 2px rgba($primary-blue, 0.1);
   }
 
-  .descriptionSection, .detailsSection {
+  .descriptionSection, .detailsSection, .sizeSection {
     margin-bottom: 20px;
     width: 100%;
 
@@ -217,6 +217,183 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
     }
   }
 
+  // Ring Size Section Styles
+  .sizeSection {
+    .sizeSelector {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .sizeDropdown {
+      background: $white;
+      border: 2px solid lighten($primary-blue, 30%);
+      border-radius: 12px;
+      padding: 14px 20px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba($primary-blue, 0.08);
+      font-family: 'The Seasons', serif;
+      font-size: 1.1rem;
+      min-height: 50px;
+
+      &:hover {
+        border-color: $primary-blue;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba($primary-blue, 0.15);
+      }
+
+      &.open {
+        border-color: $primary-blue;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+        box-shadow: 0 6px 16px rgba($primary-blue, 0.15);
+
+        .dropdownArrow {
+          transform: rotate(180deg);
+        }
+      }
+
+      .sizeDisplay {
+        color: $text-dark;
+        font-weight: 500;
+      }
+
+      .dropdownArrow {
+        color: $primary-blue;
+        font-size: 0.9rem;
+        transition: transform 0.3s ease;
+        font-weight: bold;
+      }
+    }
+
+    .sizeOptions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: $white;
+      border: 2px solid $primary-blue;
+      border-top: none;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+      box-shadow: 0 8px 20px rgba($primary-blue, 0.2);
+      z-index: 1000;
+      animation: dropdownSlide 0.3s ease-out;
+      overflow: hidden;
+
+      .sizeOptionsScroll {
+        max-height: 200px;
+        overflow-y: auto;
+        
+        // Custom scrollbar
+        &::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        &::-webkit-scrollbar-track {
+          background: lighten($primary-blue, 45%);
+          border-radius: 4px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: $primary-blue;
+          border-radius: 4px;
+          
+          &:hover {
+            background: darken($primary-blue, 10%);
+          }
+        }
+      }
+
+      .sizeOption {
+        padding: 12px 20px;
+        cursor: pointer;
+        font-family: 'The Seasons', serif;
+        font-size: 1rem;
+        color: $text-dark;
+        transition: all 0.2s ease;
+        border-bottom: 1px solid lighten($primary-blue, 40%);
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        &:hover {
+          background: lighten($primary-blue, 45%);
+          color: $primary-blue;
+          padding-left: 24px;
+        }
+
+        &.selected {
+          background: lighten($primary-blue, 40%);
+          color: $primary-blue;
+          font-weight: 600;
+          position: relative;
+
+          &:after {
+            content: '✓';
+            position: absolute;
+            right: 20px;
+            color: $primary-blue;
+            font-weight: bold;
+          }
+        }
+
+        &.customOption {
+          background: lighten($primary-blue, 48%);
+          font-weight: 500;
+          color: $primary-blue;
+          border-top: 2px solid lighten($primary-blue, 35%);
+
+          &:hover {
+            background: lighten($primary-blue, 42%);
+          }
+        }
+      }
+    }
+
+    .customSizeInput {
+      margin-top: 12px;
+      animation: slideDown 0.3s ease-out;
+
+      .customInput {
+        width: 100%;
+        padding: 14px 20px;
+        border: 2px solid lighten($primary-blue, 30%);
+        border-radius: 12px;
+        font-family: 'The Seasons', serif;
+        font-size: 1.1rem;
+        color: $text-dark;
+        background: $white;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba($primary-blue, 0.08);
+
+        &:focus {
+          outline: none;
+          border-color: $primary-blue;
+          box-shadow: 0 0 0 3px rgba($primary-blue, 0.1);
+          transform: translateY(-2px);
+        }
+
+        &::placeholder {
+          color: lighten($text-dark, 30%);
+        }
+      }
+
+      .sizeHint {
+        display: block;
+        margin-top: 8px;
+        color: lighten($text-dark, 20%);
+        font-family: 'The Seasons', serif;
+        font-size: 0.9rem;
+        font-style: italic;
+      }
+    }
+  }
+
   .priceContainer {
     display: flex;
     align-items: center;
@@ -288,6 +465,13 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
       box-shadow: 0 6px 16px rgba($primary-blue, 0.4);
       animation: none;
     }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+      animation: none;
+    }
   }
 }
 
@@ -297,7 +481,7 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
   justify-content: center;
   text-align: center;
   animation: fadeIn 0.5s ease-in-out;
-  padding: 30px 20px; // Compact padding
+  padding: 30px 20px;
   
   p {
     color: $primary-blue;
@@ -325,6 +509,54 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
   }
 }
 
+// Animations
+@keyframes dropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 100px;
+  }
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 4px 12px rgba($primary-blue, 0.2); }
+  50% { box-shadow: 0 6px 16px rgba($primary-blue, 0.3); }
+  100% { box-shadow: 0 4px 12px rgba($primary-blue, 0.2); }
+}
+
+// Mobile Responsive
 @media (max-width: 600px) {
   .productDetails {
     width: 95%;
@@ -354,13 +586,36 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
     align-items: center;
     text-align: center;
 
-    .descriptionSection, .detailsSection {
+    .descriptionSection, .detailsSection, .sizeSection {
       text-align: left;
+    }
+
+    .sizeSection {
+      .sizeDropdown {
+        font-size: 1rem;
+        padding: 12px 16px;
+      }
+
+      .sizeOptions {
+        .sizeOption {
+          padding: 10px 16px;
+          font-size: 0.95rem;
+        }
+      }
+
+      .customSizeInput {
+        .customInput {
+          padding: 12px 16px;
+          font-size: 1rem;
+        }
+      }
     }
 
     .addToCartButton {
       width: 100%;
       max-width: 300px;
+      font-size: 1.2rem;
+      padding: 14px 24px;
     }
   }
 
@@ -371,25 +626,4 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
       font-size: 1.2rem;
     }
   }
-}
-
-@keyframes slideIn {
-  from { opacity: 0; transform: translate(-50%, -60%); }
-  to { opacity: 1; transform: translate(-50%, -50%); }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-
-@keyframes pulse {
-  0% { box-shadow: 0 4px 12px rgba($primary-blue, 0.2); }
-  50% { box-shadow: 0 6px 16px rgba($primary-blue, 0.3); }
-  100% { box-shadow: 0 4px 12px rgba($primary-blue, 0.2); }
 }

@@ -192,7 +192,7 @@ export function LoginForm({ onClose }) {
           >
             {loading ? "Logging In..." : "Login"}
           </button>
-        </form>np
+        </form>
         <div className={styles.googleButtonContainer}>
           <button
             onClick={handleGoogleLogin}

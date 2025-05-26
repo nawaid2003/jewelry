@@ -26,6 +26,29 @@ export default function Checkout() {
   const [error, setError] = useState("");
   const fallbackImage = "/images/fallback-product.jpg";
 
+  // Helper function to check if an item is a ring
+  const isRingItem = (item) => {
+    return (
+      item?.category?.toLowerCase().includes("ring") ||
+      item?.name?.toLowerCase().includes("ring") ||
+      item?.type?.toLowerCase().includes("ring") ||
+      item?.ringSize // Check if ring size data exists
+    );
+  };
+
+  // Helper function to get ring size display text
+  const getRingSizeDisplay = (item) => {
+    if (!isRingItem(item)) return "";
+
+    // Check new structure first, then fall back to legacy
+    const ringSize = item.ringSize?.value || item.selectedSize;
+    const isCustom = item.ringSize?.isCustom || item.sizeType === "custom";
+
+    if (!ringSize) return "";
+
+    return isCustom ? `Custom Size: ${ringSize}` : `Size ${ringSize}`;
+  };
+
   useEffect(() => {
     const items = JSON.parse(localStorage.getItem("cartItems")) || [];
     if (items.length === 0) {
@@ -112,6 +135,7 @@ export default function Checkout() {
       const orderId = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
       const orderData = {
         orderId,
+        userId: user?.uid || null, // Add user ID for better tracking
         customerInfo: {
           firstName: formData.firstName,
           lastName: formData.lastName,
@@ -122,27 +146,76 @@ export default function Checkout() {
           state: formData.state,
           pincode: formData.pincode,
         },
-        items: cartItems.map((item) => ({
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          image: item.image,
-          total: (item.price * item.quantity).toFixed(2),
-        })),
+        items: cartItems.map((item) => {
+          const baseItem = {
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            image: item.image,
+            total: (item.price * item.quantity).toFixed(2),
+            category: item.category || "",
+            type: item.type || "",
+          };
+
+          // Add ring-specific information if it's a ring
+          if (isRingItem(item)) {
+            const ringSize = item.ringSize?.value || item.selectedSize;
+            const isCustomSize =
+              item.ringSize?.isCustom || item.sizeType === "custom";
+
+            baseItem.ringDetails = {
+              isRing: true,
+              size: ringSize,
+              sizeType: isCustomSize ? "custom" : "standard",
+              isCustomSize: isCustomSize,
+              sizeDisplay: getRingSizeDisplay(item),
+            };
+
+            // Also add to main level for easy access
+            baseItem.ringSize = ringSize;
+            baseItem.isCustomRingSize = isCustomSize;
+          }
+
+          return baseItem;
+        }),
         orderSummary: {
           subtotal: parseFloat(calculateSubtotal()),
           shipping: calculateShipping(),
           total: parseFloat(calculateTotal()),
+          itemCount: cartItems.reduce(
+            (total, item) => total + item.quantity,
+            0
+          ),
         },
         paymentInfo: {
           method: formData.paymentMethod,
           status: "pending",
         },
         orderStatus: "pending",
+        // Add metadata for better tracking
+        metadata: {
+          hasRings: cartItems.some((item) => isRingItem(item)),
+          ringItems: cartItems
+            .filter((item) => isRingItem(item))
+            .map((item) => ({
+              productId: item.id,
+              name: item.name,
+              size: item.ringSize?.value || item.selectedSize,
+              isCustomSize:
+                item.ringSize?.isCustom || item.sizeType === "custom",
+            })),
+          totalItems: cartItems.length,
+          browserInfo: {
+            userAgent: navigator.userAgent,
+            timestamp: Date.now(),
+          },
+        },
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
+
+      console.log("Order data being submitted:", orderData); // For debugging
 
       const docRef = await addDoc(collection(db, "orders"), orderData);
       localStorage.removeItem("cartItems");
@@ -386,6 +459,23 @@ export default function Checkout() {
                 </div>
               </div>
 
+              {/* Show ring size details in review */}
+              {cartItems.some((item) => isRingItem(item)) && (
+                <div className={styles.reviewSection}>
+                  <h3>Ring Size Details</h3>
+                  <div className={styles.reviewInfo}>
+                    {cartItems
+                      .filter((item) => isRingItem(item))
+                      .map((item, index) => (
+                        <p key={index}>
+                          <strong>{item.name}</strong>:{" "}
+                          {getRingSizeDisplay(item)}
+                        </p>
+                      ))}
+                  </div>
+                </div>
+              )}
+
               {error && <div className={styles.error}>{error}</div>}
             </div>
           )}
@@ -394,14 +484,19 @@ export default function Checkout() {
         <div className={styles.orderSummary}>
           <h2>Order Summary</h2>
           <div className={styles.summaryItems}>
-            {cartItems.map((item) => (
-              <div key={item.id} className={styles.summaryItem}>
+            {cartItems.map((item, index) => (
+              <div key={`${item.id}-${index}`} className={styles.summaryItem}>
                 <div className={styles.itemImage}>
                   <img src={item.image || fallbackImage} alt={item.name} />
                   <span className={styles.itemQuantity}>{item.quantity}</span>
                 </div>
                 <div className={styles.itemInfo}>
                   <h4>{item.name}</h4>
+                  {isRingItem(item) && (
+                    <p className={styles.ringSize}>
+                      {getRingSizeDisplay(item)}
+                    </p>
+                  )}
                   <p className={styles.itemPrice}>₹{item.price.toFixed(2)}</p>
                 </div>
               </div>

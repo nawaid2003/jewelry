@@ -17,32 +17,118 @@ export default function ProductDetails({
   const [isLoading, setIsLoading] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [selectedSize, setSelectedSize] = useState("");
+  const [customSize, setCustomSize] = useState("");
+  const [showCustomInput, setShowCustomInput] = useState(false);
+  const [sizeDropdownOpen, setSizeDropdownOpen] = useState(false);
   const fallbackImage = "/images/fallback-product.jpg";
+
+  // Check if product is a ring (you can adjust this logic based on your product categorization)
+  const isRing =
+    product?.category?.toLowerCase().includes("ring") ||
+    product?.name?.toLowerCase().includes("ring") ||
+    product?.type?.toLowerCase().includes("ring");
+
+  // Generate size options from 4 to 25
+  const sizeOptions = Array.from({ length: 22 }, (_, i) => i + 4);
 
   if (!product) {
     return null;
   }
 
+  const handleSizeSelect = (size) => {
+    if (size === "custom") {
+      setShowCustomInput(true);
+      setSelectedSize("custom");
+    } else {
+      setSelectedSize(size.toString());
+      setShowCustomInput(false);
+      setCustomSize("");
+    }
+    setSizeDropdownOpen(false);
+  };
+
+  const handleCustomSizeChange = (e) => {
+    setCustomSize(e.target.value);
+  };
+
+  const getSelectedSizeDisplay = () => {
+    if (showCustomInput) {
+      return customSize || "Enter custom size";
+    }
+    return selectedSize || "Select Size";
+  };
+
   const handleAddToCart = () => {
     if (!user) {
       setShowAuthModal(true);
-      onShowLoginMessage(); // Trigger login message in parent
-      onClose(); // Close ProductDetails immediately
+      onShowLoginMessage();
+      onClose();
       return;
     }
 
-    // Normal cart addition flow for authenticated users
+    // Check if ring requires size selection
+    if (isRing && !selectedSize && !customSize) {
+      alert("Please select a ring size before adding to cart.");
+      return;
+    }
+
+    // Check if custom size is selected but no value is entered
+    if (isRing && showCustomInput && !customSize.trim()) {
+      alert("Please enter your custom ring size.");
+      return;
+    }
+
     setIsLoading(true);
     const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
-    const existingItem = cartItems.find((item) => item.id === product.id);
+
+    // Get the final size value
+    const finalSize = showCustomInput ? customSize.trim() : selectedSize;
+
+    // Create product with size information - Enhanced structure
+    const productWithSize = {
+      ...product,
+      // Add unique identifier for cart item (important for rings with different sizes)
+      cartItemId: isRing ? `${product.id}-${finalSize}` : product.id,
+      // Ring-specific properties
+      ...(isRing && {
+        ringSize: {
+          value: finalSize,
+          type: showCustomInput ? "custom" : "standard",
+          isCustom: showCustomInput,
+        },
+        // Legacy properties for backward compatibility
+        selectedSize: finalSize,
+        sizeType: showCustomInput ? "custom" : "standard",
+      }),
+    };
+
+    // For rings, treat different sizes as different items
+    const existingItem = cartItems.find((item) => {
+      if (isRing) {
+        // Check both new and legacy structure for compatibility
+        const itemSize = item.ringSize?.value || item.selectedSize;
+        return item.id === product.id && itemSize === finalSize;
+      }
+      return item.id === product.id;
+    });
+
     let updatedCart;
 
     if (existingItem) {
-      updatedCart = cartItems.map((item) =>
-        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-      );
+      updatedCart = cartItems.map((item) => {
+        if (isRing) {
+          const itemSize = item.ringSize?.value || item.selectedSize;
+          return item.id === product.id && itemSize === finalSize
+            ? { ...item, quantity: item.quantity + 1 }
+            : item;
+        }
+        return item.id === product.id
+          ? { ...item, quantity: item.quantity + 1 }
+          : item;
+      });
     } else {
-      updatedCart = [...cartItems, { ...product, quantity: 1 }];
+      updatedCart = [...cartItems, { ...productWithSize, quantity: 1 }];
     }
 
     localStorage.setItem("cartItems", JSON.stringify(updatedCart));
@@ -113,7 +199,6 @@ export default function ProductDetails({
     return <p>{JSON.stringify(product.details)}</p>;
   };
 
-  // Prevent clicks inside the modal from closing it
   const handleModalClick = (e) => {
     e.stopPropagation();
   };
@@ -157,6 +242,72 @@ export default function ProductDetails({
                 <h3>Details</h3>
                 {renderDetails()}
               </div>
+
+              {/* Ring Size Selection */}
+              {isRing && (
+                <div className={styles.sizeSection}>
+                  <h3>Ring Size</h3>
+                  <div className={styles.sizeSelector}>
+                    <div
+                      className={`${styles.sizeDropdown} ${
+                        sizeDropdownOpen ? styles.open : ""
+                      }`}
+                      onClick={() => setSizeDropdownOpen(!sizeDropdownOpen)}
+                    >
+                      <span className={styles.sizeDisplay}>
+                        {getSelectedSizeDisplay()}
+                      </span>
+                      <span className={styles.dropdownArrow}>▼</span>
+                    </div>
+
+                    {sizeDropdownOpen && (
+                      <div className={styles.sizeOptions}>
+                        <div className={styles.sizeOptionsScroll}>
+                          {sizeOptions.map((size) => (
+                            <div
+                              key={size}
+                              className={`${styles.sizeOption} ${
+                                selectedSize === size.toString()
+                                  ? styles.selected
+                                  : ""
+                              }`}
+                              onClick={() => handleSizeSelect(size)}
+                            >
+                              Size {size}
+                            </div>
+                          ))}
+                          <div
+                            className={`${styles.sizeOption} ${
+                              styles.customOption
+                            } ${
+                              selectedSize === "custom" ? styles.selected : ""
+                            }`}
+                            onClick={() => handleSizeSelect("custom")}
+                          >
+                            Custom Size (25+)
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {showCustomInput && (
+                    <div className={styles.customSizeInput}>
+                      <input
+                        type="text"
+                        placeholder="Enter your ring size"
+                        value={customSize}
+                        onChange={handleCustomSizeChange}
+                        className={styles.customInput}
+                      />
+                      <small className={styles.sizeHint}>
+                        Enter your exact ring size (e.g., 25.5, 26, etc.)
+                      </small>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className={styles.priceContainer}>
                 <span className={styles.priceLabel}>Price</span>
                 <span className={styles.priceAmount}>
