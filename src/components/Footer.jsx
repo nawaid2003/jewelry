@@ -104,16 +104,16 @@ export default function Footer() {
 
         <div className={styles.footerSection}>
           <h3>Contact</h3>
-          <p>Email: test@silverliningjewelry.com</p>
-          <p>Phone: 123 456-7890</p>
-          <p>Address: Itwari, Nagpur</p>
+          <p>Email: silverlining4622@gmail.com</p>
+          <p>Phone: +91 9370664930</p>
+          <p>Address: 60, Bapurao Lane, Itwari, Nagpur</p>
         </div>
 
         <div className={styles.footerSection}>
           <h3>Follow Us</h3>
           <div className={styles.socialLinks}>
             <a
-              href="https://instagram.com/silverliningjewelry"
+              href="https://www.instagram.com/silver.lining_store?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
               target="_blank"
               rel="noopener noreferrer"
               className={styles.socialLink}
