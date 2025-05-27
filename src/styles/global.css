@@ -1,4 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lora:wght@400;500;italic&family=Cinzel:wght@400;700&display=swap");
+/* global.css or global.scss */
+@import url("https://fonts.cdnfonts.com/css/cinzel");
+@import url("https://fonts.cdnfonts.com/css/the-seasons");
+@import url("https://fonts.cdnfonts.com/css/hello-paris");
 
 * {
   margin: 0;
@@ -7,7 +11,7 @@
 }
 
 body {
-  font-family: "Lora", serif;
+  font-family: "Cinzel", serif;
   background-color: #edeef2;
   color: #333333;
   line-height: 1.6;
@@ -37,7 +41,7 @@ main {
 }
 
 button {
-  font-family: "Lora", serif;
+  font-family: "Ciznel", serif;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.3s ease;
   min-width: 44px;

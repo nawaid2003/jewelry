@@ -47,7 +47,7 @@ export default function Home() {
           <div className={styles.heroTextInner}>
             <h1>
               <span className={styles.mainTitle}>Silver Lining</span>
-              <span className={styles.subtitle}>Jewelry</span>
+              <span className={styles.subtitle}>Where Hope Meets Elegance</span>
             </h1>
             <p>
               Handcrafted jewelry that weaves your moments into timeless

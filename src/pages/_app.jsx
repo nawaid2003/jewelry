@@ -1,4 +1,5 @@
 import "../styles/global.css";
+import "../styles/global.module.scss";
 import { AuthProvider } from "../context/AuthContext";
 import styles from "../styles/global.module.scss";
 import Navbar from "../components/Navbar";
