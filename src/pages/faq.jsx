@@ -6,7 +6,7 @@ export default function FAQ() {
     {
       question: "What materials does Silver Lining use?",
       answer:
-        "We use high-quality 9 to 5 Sterling Silver and ethically sourced gemstones to ensure lasting beauty and sustainability.",
+        "We use high-quality 925 Sterling Silver and ethically sourced gemstones to ensure lasting beauty and sustainability.",
     },
     {
       question: "How long does shipping take?",
