@@ -81,6 +81,25 @@ export default function Navbar() {
       : names[0][0].toUpperCase();
   };
 
+  // Profile icon content - elegant icon for non-authenticated users
+  const getProfileIcon = () => {
+    if (user) {
+      return getInitials();
+    }
+    // Elegant user silhouette icon using CSS
+    return (
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        className={styles.profileSvgIcon}
+      >
+        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+      </svg>
+    );
+  };
+
   // Debug rendering
   console.log("Navbar render:", { showLogin, showSignup, showProfileDropdown });
 
@@ -135,9 +154,7 @@ export default function Navbar() {
             onClick={handleProfileClick}
             aria-label="Profile menu"
           >
-            <div className={styles.profileIcon}>
-              {user ? getInitials() : "?"}
-            </div>
+            <div className={styles.profileIcon}>{getProfileIcon()}</div>
           </button>
 
           {showProfileDropdown && !user && (
@@ -170,9 +187,7 @@ export default function Navbar() {
               onClick={handleProfileClick}
               aria-label="Profile menu"
             >
-              <div className={styles.profileIconMobile}>
-                {user ? getInitials() : "?"}
-              </div>
+              <div className={styles.profileIconMobile}>{getProfileIcon()}</div>
             </button>
 
             {showProfileDropdown && !user && (
