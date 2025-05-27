@@ -1,3 +1,23 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
 .aboutContainer {
   max-width: 1280px;
   margin: 0 auto;
@@ -6,60 +26,157 @@
 
   .aboutHero {
     text-align: center;
-    padding: 3rem 0;
+    padding: 4rem 0;
+    margin-bottom: 3rem;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(90deg, #1c365d, #D4A373);
+      border-radius: 2px;
+    }
 
     h1 {
       font-family: 'Cinzel', serif;
-      font-size: 3rem;
-      margin-bottom: 1rem;
+      font-size: 3.5rem;
+      margin-bottom: 1.5rem;
       color: #1c365d;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      position: relative;
     }
 
     p {
-      font-size: 1.2rem;
-      color: #333333;
-      max-width: 600px;
+      font-size: 1.3rem;
+      color: #666;
+      max-width: 650px;
       margin: 0 auto;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      line-height: 1.6;
     }
   }
 
-  .aboutContent {
+  .aboutMainSection {
     display: flex;
-    align-items: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-    padding: 2rem 0;
+    align-items: flex-start;
+    gap: 4rem;
+    padding: 4rem 0;
+    min-height: 80vh;
 
-    .aboutText {
-      flex: 1;
-      min-width: 280px;
+    .imageContainer {
+      flex: 0 0 45%;
+      position: sticky;
+      top: 2rem;
 
-      h2 {
-        font-family: 'Cinzel', serif;
-        font-size: 2.2rem;
-        margin-bottom: 1rem;
-        color: #1c365d;
+      &::before {
+        content: '';
+        position: absolute;
+        top: -15px;
+        left: -15px;
+        right: 15px;
+        bottom: 15px;
+        background: linear-gradient(135deg, #1c365d08, #D4A37308);
+        border-radius: 20px;
+        z-index: -1;
       }
 
-      p {
-        font-size: 1.1rem;
-        line-height: 1.8;
-        color: #333333;
+      &::after {
+        content: '';
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        right: -15px;
+        bottom: -15px;
+        background: linear-gradient(315deg, #1c365d05, #D4A37305);
+        border-radius: 20px;
+        z-index: -2;
       }
     }
 
     .aboutImage {
-      flex: 1;
-      min-width: 280px;
-      border-radius: 12px;
-      object-fit: cover;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease;
       width: 100%;
-      max-width: 500px;
+      height: auto;
+      border-radius: 16px;
+      object-fit: cover;
+      box-shadow: 0 20px 60px rgba(28, 54, 93, 0.15);
+      transition: all 0.5s ease;
 
       &:hover {
-        transform: scale(1.02);
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 30px 80px rgba(28, 54, 93, 0.2);
+      }
+    }
+
+    .textContainer {
+      flex: 1;
+      padding-left: 2rem;
+    }
+
+    .aboutText {
+      margin-bottom: 4rem;
+      position: relative;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: -2rem;
+        top: 0;
+        width: 3px;
+        height: 60px;
+        background: linear-gradient(180deg, #D4A373, transparent);
+        border-radius: 2px;
+        opacity: 0.6;
+      }
+
+      h2 {
+        font-family: 'Cinzel', serif;
+        font-size: 2.4rem;
+        margin-bottom: 2rem;
+        color: #1c365d;
+        font-weight: 600;
+        position: relative;
+        padding-bottom: 0.8rem;
+
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 80px;
+          height: 3px;
+          background: linear-gradient(90deg, #D4A373, #1c365d);
+          border-radius: 2px;
+        }
+      }
+
+      p {
+        font-size: 1.1rem;
+        line-height: 1.9;
+        color: #444;
+        margin-bottom: 1.5rem;
+        font-weight: 400;
+        letter-spacing: 0.01em;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        &:first-of-type {
+          font-size: 1.15rem;
+          color: #333;
+          font-weight: 500;
+        }
       }
     }
   }
@@ -68,35 +185,70 @@
     padding: 1.5rem 1rem;
 
     .aboutHero {
-      padding: 2rem 0;
+      padding: 2.5rem 0;
+      margin-bottom: 2rem;
 
       h1 {
-        font-size: 2.5rem;
+        font-size: 2.8rem;
       }
 
       p {
-        font-size: 1rem;
+        font-size: 1.1rem;
         max-width: 90%;
       }
     }
 
-    .aboutContent {
+    .aboutMainSection {
       flex-direction: column;
-      align-items: center;
-      gap: 1.5rem;
+      gap: 3rem;
+      padding: 3rem 0;
+      min-height: auto;
 
-      .aboutText {
-        h2 {
-          font-size: 2rem;
-        }
-
-        p {
-          font-size: 1rem;
+      .imageContainer {
+        flex: none;
+        position: relative;
+        top: auto;
+        max-width: 100%;
+        
+        &::before, &::after {
+          display: none;
         }
       }
 
       .aboutImage {
         max-width: 100%;
+        border-radius: 12px;
+        
+        &:hover {
+          transform: translateY(-5px) scale(1.01);
+        }
+      }
+
+      .textContainer {
+        padding-left: 0;
+      }
+
+      .aboutText {
+        margin-bottom: 3rem;
+
+        &::before {
+          display: none;
+        }
+
+        h2 {
+          font-size: 2.2rem;
+          text-align: center;
+
+          &::after {
+            left: 50%;
+            transform: translateX(-50%);
+          }
+        }
+
+        p {
+          font-size: 1.05rem;
+          text-align: left;
+        }
       }
     }
   }
@@ -104,8 +256,34 @@
   @media (max-width: 480px) {
     padding: 1rem 0.8rem;
 
-    .aboutHero h1 {
-      font-size: 2rem;
+    .aboutHero {
+      padding: 2rem 0;
+
+      h1 {
+        font-size: 2.2rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+    }
+
+    .aboutMainSection {
+      gap: 2rem;
+      padding: 2rem 0;
+
+      .aboutText {
+        margin-bottom: 2.5rem;
+
+        h2 {
+          font-size: 1.9rem;
+        }
+
+        p {
+          font-size: 1rem;
+          line-height: 1.8;
+        }
+      }
     }
   }
 }
