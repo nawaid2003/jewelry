@@ -15,12 +15,11 @@ export default function RefundPolicy() {
 
       <h2>2. Refund Process</h2>
       <p>
-        To initiate a return, contact us at{" "}
-        <a href="mailto:test@silverliningjewelry.com">
-          test@silverliningjewelry.com
+        We offer no refund as of now, still you can contact us at{" "}
+        <a href="mailto:silverlining4622@gmail.com">
+          silverlining4622@gmail.com
         </a>{" "}
-        with your order number and reason for return. We will provide a return
-        authorization and shipping instructions.
+        .
       </p>
 
       <h2>3. Refund Conditions</h2>
@@ -47,10 +46,10 @@ export default function RefundPolicy() {
       <h2>6. Contact Us</h2>
       <p>
         For questions about our Refund Policy, please contact us at{" "}
-        <a href="mailto:test@silverliningjewelry.com">
-          test@silverliningjewelry.com
+        <a href="mailto:silverlining4622@gmail.com">
+          silverlining4622@gmail.com
         </a>{" "}
-        or call 123 456-7890.
+        or call +91 9370664930.
       </p>
     </div>
   );

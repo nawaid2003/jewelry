@@ -50,17 +50,21 @@ export default function DomesticShipping() {
       <p>
         If you need to change your shipping address, please contact us
         immediately at{" "}
-        <a href="mailto:saidcad4622@gmail.com">saidcad4622@gmail.com</a>. We can
-        only modify addresses before the order has been shipped.
+        <a href="mailto:silverlining4622@gmail.com">
+          silverlining4622@gmail.com
+        </a>
+        . We can only modify addresses before the order has been shipped.
       </p>
 
       <h2>7. Contact Us</h2>
       <p>
         For any shipping-related questions or concerns, please don't hesitate to
         contact us at{" "}
-        <a href="mailto:saidcad4622@gmail.com">saidcad4622@gmail.com</a> or call
-        us at +91 9370664930. Our customer service team is here to help ensure
-        your Silver Lining jewelry reaches you safely and on time.
+        <a href="mailto:silverlining4622@gmail.com">
+          silverlining4622@gmail.com
+        </a>{" "}
+        or call us at +91 9370664930. Our customer service team is here to help
+        ensure your Silver Lining jewelry reaches you safely and on time.
       </p>
     </div>
   );
