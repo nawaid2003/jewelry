@@ -69,8 +69,8 @@ export default function PrivacyPolicy() {
       <p>
         You may request access, correction, or deletion of your personal
         information by contacting us at{" "}
-        <a href="mailto:test@silverliningjewelry.com">
-          test@silverliningjewelry.com
+        <a href="mailto:silverlining4622@gmail.com">
+          silverlining4622@gmail.com
         </a>
         .
       </p>
@@ -78,10 +78,10 @@ export default function PrivacyPolicy() {
       <h2>8. Contact Us</h2>
       <p>
         For questions about this Privacy Policy, please contact us at{" "}
-        <a href="mailto:test@silverliningjewelry.com">
-          test@silverliningjewelry.com
+        <a href="mailto:silverlining4622@gmail.com">
+          silverlining4622@gmail.com
         </a>{" "}
-        or call 123 456-7890.
+        or call +91 9370664930.
       </p>
     </div>
   );

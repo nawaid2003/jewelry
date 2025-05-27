@@ -67,10 +67,10 @@ export default function TermsAndConditions() {
       <h2>9. Contact Us</h2>
       <p>
         For questions about these Terms and Conditions, please contact us at{" "}
-        <a href="mailto:test@silverliningjewelry.com">
-          test@silverliningjewelry.com
+        <a href="mailto:silverlining4622@gmail.com">
+          silverlining4622@gmail.com
         </a>{" "}
-        or call 123 456-7890.
+        or call +91 9370664930.
       </p>
     </div>
   );

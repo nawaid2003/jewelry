@@ -17,10 +17,10 @@ export default function WarrantyPolicy() {
       <h2>2. How to Claim Warranty</h2>
       <p>
         To initiate a warranty claim, contact us at{" "}
-        <a href="mailto:test@silverliningjewelry.com">
-          test@silverliningjewelry.com
+        <a href="mailto:silverlining4622@gmail.com">
+          silverlining4622@gmail.com
         </a>{" "}
-        or call 123 456-7890. Please provide:
+        or call +91 9370664930. Please provide:
       </p>
       <p>
         • Your name, phone number, and email address
@@ -131,12 +131,12 @@ export default function WarrantyPolicy() {
       <h2>11. Contact Information</h2>
       <p>
         For warranty claims or questions about coverage, please contact us at{" "}
-        <a href="mailto:test@silverliningjewelry.com">
-          test@silverliningjewelry.com
+        <a href="mailto:silverlining4622@gmail.com">
+          silverlining4622@gmail.com
         </a>{" "}
-        or call 123 456-7890. Our customer service team is here to help resolve
-        any issues and ensure your complete satisfaction with your Silver Lining
-        jewelry.
+        or call +91 9370664930. Our customer service team is here to help
+        resolve any issues and ensure your complete satisfaction with your
+        Silver Lining jewelry.
       </p>
     </div>
   );

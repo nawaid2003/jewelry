@@ -22,28 +22,19 @@ export default function RefundPolicy() {
         .
       </p>
 
-      <h2>3. Refund Conditions</h2>
-      <p>
-        Refunds will be issued to the original payment method within [insert
-        timeframe, e.g., 7-10 business days] after we receive and inspect the
-        returned item. Shipping costs are non-refundable unless the item is
-        defective or incorrect.
-      </p>
-
-      <h2>4. Defective or Incorrect Items</h2>
+      <h2>3. Defective or Incorrect Items</h2>
       <p>
         If you receive a defective or incorrect item, please contact us
-        immediately. We will provide a prepaid return label and issue a full
-        refund or replacement upon receipt of the item.
+        immediately.
       </p>
 
-      <h2>5. Non-Returnable Items</h2>
+      <h2>4. Non-Returnable Items</h2>
       <p>
         Custom orders, engraved items, and gift cards are non-returnable unless
         defective.
       </p>
 
-      <h2>6. Contact Us</h2>
+      <h2>5. Contact Us</h2>
       <p>
         For questions about our Refund Policy, please contact us at{" "}
         <a href="mailto:silverlining4622@gmail.com">

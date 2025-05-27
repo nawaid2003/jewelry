@@ -28,8 +28,8 @@ export default function EasyExchange() {
       </p>
       <p>
         Contact us immediately at{" "}
-        <a href="mailto:test@silverliningjewelry.com">
-          test@silverliningjewelry.com
+        <a href="mailto:silverlining4622@gmail.com">
+          silverlining4622@gmail.com
         </a>{" "}
         or call us at 123 456-7890. Please provide clear images or videos of the
         damaged product along with your order number, name, and contact
@@ -69,11 +69,11 @@ export default function EasyExchange() {
       <h2>8. Contact Information</h2>
       <p>
         For any exchange requests or questions, please reach out to us at{" "}
-        <a href="mailto:test@silverliningjewelry.com">
-          test@silverliningjewelry.com
+        <a href="mailto:silverlining4622@gmail.com">
+          silverlining4622@gmail.com
         </a>{" "}
-        or call 123 456-7890. Our customer service team is dedicated to ensuring
-        your complete satisfaction with every Silver Lining purchase.
+        or call +91 9370664930. Our customer service team is dedicated to
+        ensuring your complete satisfaction with every Silver Lining purchase.
       </p>
     </div>
   );

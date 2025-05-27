@@ -17,11 +17,11 @@ export default function RingResizingPolicy() {
       <p>
         To qualify for free resizing, please contact us within{" "}
         <strong>4 days of receiving your order</strong>. You can reach us at{" "}
-        <a href="mailto:test@silverliningjewelry.com">
-          test@silverliningjewelry.com
+        <a href="mailto:silverlining4622@gmail.com">
+          silverlining4622@gmail.com
         </a>{" "}
-        or call 123 456-7890 with your name, order details, and photos/videos of
-        you wearing the ring.
+        or call +91 9370664930 with your name, order details, and photos/videos
+        of you wearing the ring.
       </p>
 
       <h2>3. Size Determination Process</h2>
@@ -88,10 +88,10 @@ export default function RingResizingPolicy() {
       <p>If you're unsure about your ring size, we strongly recommend:</p>
       <p>
         • Contacting us via{" "}
-        <a href="mailto:test@silverliningjewelry.com">
-          test@silverliningjewelry.com
+        <a href="mailto:silverlining4622@gmail.com">
+          silverlining4622@gmail.com
         </a>{" "}
-        or 123 456-7890 before placing your order
+        or +91 9370664930 before placing your order
         <br />
         • Selecting the "Don't know my ring size" option from the dropdown
         during checkout
@@ -102,11 +102,11 @@ export default function RingResizingPolicy() {
       <p>
         For any questions about ring sizing or our resizing policy, please don't
         hesitate to contact us at{" "}
-        <a href="mailto:test@silverliningjewelry.com">
-          test@silverliningjewelry.com
+        <a href="mailto:silverlining4622@gmail.com">
+          silverlining4622@gmail.com
         </a>{" "}
-        or call 123 456-7890. We're here to ensure your Silver Lining ring fits
-        perfectly.
+        or call +91 9370664930. We're here to ensure your Silver Lining ring
+        fits perfectly.
       </p>
     </div>
   );

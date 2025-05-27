@@ -17,10 +17,10 @@ export default function LifetimeBuyBackPolicy() {
       <h2>2. How to Initiate Buy-Back</h2>
       <p>
         To request a buy-back, please contact us at{" "}
-        <a href="mailto:test@silverliningjewelry.com">
-          test@silverliningjewelry.com
+        <a href="mailto:silverlining4622@gmail.com">
+          silverlining4622@gmail.com
         </a>{" "}
-        or call 123 456-7890. Please provide your name, phone number, email
+        or call +91 9370664930. Please provide your name, phone number, email
         address, and original order number for processing.
       </p>
 
@@ -113,10 +113,10 @@ export default function LifetimeBuyBackPolicy() {
       <p>
         For questions about our Lifetime Buy-Back Policy or to initiate a
         buy-back request, please contact us at{" "}
-        <a href="mailto:test@silverliningjewelry.com">
-          test@silverliningjewelry.com
+        <a href="mailto:silverlining4622@gmail.com">
+          silverlining4622@gmail.com
         </a>{" "}
-        or call 123 456-7890. Our customer service team will guide you through
+        or call +91 9370664930. Our customer service team will guide you through
         the entire process.
       </p>
     </div>
