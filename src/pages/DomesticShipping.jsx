@@ -17,8 +17,8 @@ export default function DomesticShipping() {
       <h2>2. Shipping Fees</h2>
       <p>
         We are pleased to offer{" "}
-        <strong>FREE shipping on all domestic orders</strong> within the United
-        States. There are no minimum order requirements - every Silver Lining
+        <strong>FREE shipping on all domestic orders</strong> within India over
+        ₹2499. There are no minimum order requirements - every Silver Lining
         purchase qualifies for complimentary shipping.
       </p>
 
@@ -50,21 +50,17 @@ export default function DomesticShipping() {
       <p>
         If you need to change your shipping address, please contact us
         immediately at{" "}
-        <a href="mailto:test@silverliningjewelry.com">
-          test@silverliningjewelry.com
-        </a>
-        . We can only modify addresses before the order has been shipped.
+        <a href="mailto:saidcad4622@gmail.com">saidcad4622@gmail.com</a>. We can
+        only modify addresses before the order has been shipped.
       </p>
 
       <h2>7. Contact Us</h2>
       <p>
         For any shipping-related questions or concerns, please don't hesitate to
         contact us at{" "}
-        <a href="mailto:test@silverliningjewelry.com">
-          test@silverliningjewelry.com
-        </a>{" "}
-        or call us at 123 456-7890. Our customer service team is here to help
-        ensure your Silver Lining jewelry reaches you safely and on time.
+        <a href="mailto:saidcad4622@gmail.com">saidcad4622@gmail.com</a> or call
+        us at +91 9370664930. Our customer service team is here to help ensure
+        your Silver Lining jewelry reaches you safely and on time.
       </p>
     </div>
   );
