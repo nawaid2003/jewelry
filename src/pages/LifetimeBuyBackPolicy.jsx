@@ -105,8 +105,8 @@ export default function LifetimeBuyBackPolicy() {
       <h2>10. Geographic Limitations</h2>
       <p>
         This Lifetime Buy-Back Policy is currently available only for purchases
-        made within the United States. International customers should contact us
-        for information about available options in their region.
+        made within India. International customers should contact us for
+        information about available options in their region.
       </p>
 
       <h2>11. Contact Information</h2>

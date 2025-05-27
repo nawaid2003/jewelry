@@ -25,7 +25,7 @@ export default function TermsAndConditions() {
       <p>
         By placing an order, you agree to pay the total amount, including
         shipping and applicable taxes. We accept payments via [list accepted
-        payment methods, e.g., credit/debit cards, PayPal]. Orders are processed
+        payment methods, e.g., credit/debit cards, UPI]. Orders are processed
         upon successful payment verification.
       </p>
 
@@ -59,9 +59,8 @@ export default function TermsAndConditions() {
 
       <h2>8. Governing Law</h2>
       <p>
-        These Terms and Conditions are governed by the laws of [insert
-        jurisdiction, e.g., India]. Any disputes will be resolved in the courts
-        of [insert city, e.g., Nagpur].
+        These Terms and Conditions are governed by the laws of India. Any
+        disputes will be resolved in the courts of Nagpur.
       </p>
 
       <h2>9. Contact Us</h2>

@@ -4,6 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { Toast } from "../components/Toast";
 import styles from "../styles/home.module.scss";
+import Image1 from "../images/home.jpg";
+import Image2 from "../images/necklace.jpg";
+import Image3 from "../images/ring.jpg";
+import Image4 from "../images/earring.jpg";
+import Image5 from "../images/craftsmanship.jpg";
 
 export default function Home() {
   const [showLoginMessage, setShowLoginMessage] = useState(false);
@@ -18,10 +23,17 @@ export default function Home() {
 
   return (
     <div className={styles.homeContainer}>
+      {/* Floating Elements for Visual Enhancement */}
+      <div className={styles.floatingElements}>
+        <div className={styles.floatingGem}></div>
+        <div className={styles.floatingGem}></div>
+        <div className={styles.floatingGem}></div>
+      </div>
+
       <section className={styles.hero}>
         <div className={styles.heroImageWrapper}>
           <Image
-            src="https://placehold.co/1920x900/1C365D/EDEEF2?text=Silver+Lining+Hero"
+            src={Image1}
             alt="Silver Lining Jewelry Hero"
             width={1920}
             height={900}
@@ -29,83 +41,150 @@ export default function Home() {
             priority
           />
           <div className={styles.heroGradient}></div>
+          <div className={styles.heroPattern}></div>
         </div>
         <div className={styles.heroText}>
-          <h1>Silver Lining</h1>
-          <p>
-            Handcrafted jewelry that weaves your moments into timeless stories.
-          </p>
-          <Link href="/products">
-            <button className={styles.ctaButton}>Explore Collections</button>
-          </Link>
+          <div className={styles.heroTextInner}>
+            <h1>
+              <span className={styles.mainTitle}>Silver Lining</span>
+              <span className={styles.subtitle}>Jewelry</span>
+            </h1>
+            <p>
+              Handcrafted jewelry that weaves your moments into timeless
+              stories. Each piece is a masterpiece of elegance and
+              sophistication.
+            </p>
+            <Link href="/products">
+              <button className={styles.ctaButton}>
+                <span>Explore Collections</span>
+                <div className={styles.buttonShine}></div>
+              </button>
+            </Link>
+          </div>
         </div>
       </section>
+
       <section className={styles.featured}>
-        <h2>Our Signature Collections</h2>
+        <div className={styles.sectionHeader}>
+          <h2>Our Signature Collections</h2>
+          <p>Discover the perfect piece that speaks to your soul</p>
+        </div>
         <div className={styles.featuredGrid}>
           <div className={styles.featuredItem}>
-            <Image
-              src="https://placehold.co/400x400/EDEEF2/1C365D?text=Necklaces"
-              alt="Necklaces Collection"
-              width={400}
-              height={400}
-              className={styles.featuredImage}
-            />
-            <h3>Necklaces</h3>
-            <Link href="/products" className={styles.featuredLink}>
-              Shop Now
-            </Link>
+            <div className={styles.featuredImageWrapper}>
+              <Image
+                src={Image2}
+                alt="Necklaces Collection"
+                width={400}
+                height={400}
+                className={styles.featuredImage}
+              />
+              <div className={styles.featuredOverlay}>
+                <div className={styles.featuredIcon}>✨</div>
+              </div>
+            </div>
+            <div className={styles.featuredContent}>
+              <h3>Necklaces</h3>
+              <p>Elegant chains and pendants</p>
+              <Link href="/products" className={styles.featuredLink}>
+                <span>Shop Now</span>
+                <div className={styles.linkArrow}>→</div>
+              </Link>
+            </div>
           </div>
+
           <div className={styles.featuredItem}>
-            <Image
-              src="https://placehold.co/400x400/EDEEF2/1C365D?text=Rings"
-              alt="Rings Collection"
-              width={400}
-              height={400}
-              className={styles.featuredImage}
-            />
-            <h3>Rings</h3>
-            <Link href="/products" className={styles.featuredLink}>
-              Shop Now
-            </Link>
+            <div className={styles.featuredImageWrapper}>
+              <Image
+                src={Image3}
+                alt="Rings Collection"
+                width={400}
+                height={400}
+                className={styles.featuredImage}
+              />
+              <div className={styles.featuredOverlay}>
+                <div className={styles.featuredIcon}>💎</div>
+              </div>
+            </div>
+            <div className={styles.featuredContent}>
+              <h3>Rings</h3>
+              <p>Timeless bands and statement pieces</p>
+              <Link href="/products" className={styles.featuredLink}>
+                <span>Shop Now</span>
+                <div className={styles.linkArrow}>→</div>
+              </Link>
+            </div>
           </div>
+
           <div className={styles.featuredItem}>
-            <Image
-              src="https://placehold.co/400x400/EDEEF2/1C365D?text=Bracelets"
-              alt="Bracelets Collection"
-              width={400}
-              height={400}
-              className={styles.featuredImage}
-            />
-            <h3>Bracelets</h3>
-            <Link href="/products" className={styles.featuredLink}>
-              Shop Now
-            </Link>
+            <div className={styles.featuredImageWrapper}>
+              <Image
+                src={Image4}
+                alt="Earrings Collection"
+                width={400}
+                height={400}
+                className={styles.featuredImage}
+              />
+              <div className={styles.featuredOverlay}>
+                <div className={styles.featuredIcon}>🌟</div>
+              </div>
+            </div>
+            <div className={styles.featuredContent}>
+              <h3>Earrings</h3>
+              <p>Delicate studs and bold drops</p>
+              <Link href="/products" className={styles.featuredLink}>
+                <span>Shop Now</span>
+                <div className={styles.linkArrow}>→</div>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
+
       <section className={styles.story}>
         <div className={styles.storyContent}>
-          <h2>Crafted with Soul</h2>
-          <p>
-            Every piece in our collection is a testament to artistry, blending
-            tradition with modern elegance to create jewelry that resonates with
-            your story.
-          </p>
-          <Link href="/about" className={styles.storyLink}>
-            Our Journey
-          </Link>
+          <div className={styles.storyText}>
+            <h2>Crafted with Soul</h2>
+            <p>
+              Every piece in our collection is a testament to artistry, blending
+              tradition with modern elegance to create jewelry that resonates
+              with your story. Our master craftsmen pour decades of experience
+              into each creation.
+            </p>
+            <div className={styles.storyFeatures}>
+              <div className={styles.storyFeature}>
+                <span className={styles.featureIcon}>🎨</span>
+                <span>Handcrafted Excellence</span>
+              </div>
+              <div className={styles.storyFeature}>
+                <span className={styles.featureIcon}>💫</span>
+                <span>Premium Materials</span>
+              </div>
+              <div className={styles.storyFeature}>
+                <span className={styles.featureIcon}>❤️</span>
+                <span>Made with Love</span>
+              </div>
+            </div>
+            <Link href="/about" className={styles.storyLink}>
+              <span>Our Journey</span>
+              <div className={styles.linkArrow}>→</div>
+            </Link>
+          </div>
         </div>
         <div className={styles.storyImageWrapper}>
-          <Image
-            src="https://placehold.co/600x500/EDEEF2/1C365D?text=Craftsmanship"
-            alt="Craftsmanship"
-            width={600}
-            height={500}
-            className={styles.storyImage}
-          />
+          <div className={styles.storyImageContainer}>
+            <Image
+              src={Image5}
+              alt="Craftsmanship"
+              width={600}
+              height={500}
+              className={styles.storyImage}
+            />
+            <div className={styles.storyImageOverlay}></div>
+          </div>
         </div>
       </section>
+
       <Toast
         message="Please log in to continue shopping"
         show={showLoginMessage}
