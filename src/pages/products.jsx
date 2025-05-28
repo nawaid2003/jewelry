@@ -1,11 +1,10 @@
-// pages/products.jsx
 import { useState, useEffect } from "react";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { useRouter } from "next/router";
 import { db } from "../lib/firebase";
 import ProductCard from "../components/ProductCard";
 import ProductDetails from "../components/ProductDetails";
-import { Toast } from "../components/Toast"; // Import Toast
+import { Toast } from "../components/Toast";
 import styles from "../styles/products.module.scss";
 
 export default function Products() {
@@ -59,7 +58,17 @@ export default function Products() {
                 : data.details
                 ? [data.details]
                 : [],
-              image: data.image || "/images/fallback-product.jpg",
+              // Use the first image from the `images` array or fall back to `image` or default
+              image:
+                data.images?.[0] ||
+                data.image ||
+                "/images/fallback-product.jpg",
+              // Ensure `images` is always an array for ProductDetails
+              images: Array.isArray(data.images)
+                ? data.images
+                : data.image
+                ? [data.image]
+                : ["/images/fallback-product.jpg"],
             };
           });
 
@@ -198,7 +207,7 @@ export default function Products() {
           product={selectedProduct}
           onClose={closeProductDetails}
           onCartUpdate={updateCartItems}
-          onShowLoginMessage={handleShowLoginMessage} // Pass the handler
+          onShowLoginMessage={handleShowLoginMessage}
         />
       )}
 

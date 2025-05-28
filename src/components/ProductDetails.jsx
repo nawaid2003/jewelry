@@ -1,4 +1,3 @@
-// components/ProductDetails.js
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
@@ -21,9 +20,10 @@ export default function ProductDetails({
   const [customSize, setCustomSize] = useState("");
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [sizeDropdownOpen, setSizeDropdownOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0); // For slideshow
   const fallbackImage = "/images/fallback-product.jpg";
 
-  // Check if product is a ring (you can adjust this logic based on your product categorization)
+  // Check if product is a ring
   const isRing =
     product?.category?.toLowerCase().includes("ring") ||
     product?.name?.toLowerCase().includes("ring") ||
@@ -31,6 +31,23 @@ export default function ProductDetails({
 
   // Generate size options from 4 to 25
   const sizeOptions = Array.from({ length: 22 }, (_, i) => i + 4);
+
+  // Handle slideshow navigation
+  const handlePrevImage = () => {
+    setCurrentImageIndex((prev) =>
+      prev === 0 ? product.images.length - 1 : prev - 1
+    );
+  };
+
+  const handleNextImage = () => {
+    setCurrentImageIndex((prev) =>
+      prev === product.images.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  const handleDotClick = (index) => {
+    setCurrentImageIndex(index);
+  };
 
   if (!product) {
     return null;
@@ -67,13 +84,11 @@ export default function ProductDetails({
       return;
     }
 
-    // Check if ring requires size selection
     if (isRing && !selectedSize && !customSize) {
       alert("Please select a ring size before adding to cart.");
       return;
     }
 
-    // Check if custom size is selected but no value is entered
     if (isRing && showCustomInput && !customSize.trim()) {
       alert("Please enter your custom ring size.");
       return;
@@ -82,31 +97,24 @@ export default function ProductDetails({
     setIsLoading(true);
     const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
 
-    // Get the final size value
     const finalSize = showCustomInput ? customSize.trim() : selectedSize;
 
-    // Create product with size information - Enhanced structure
     const productWithSize = {
       ...product,
-      // Add unique identifier for cart item (important for rings with different sizes)
       cartItemId: isRing ? `${product.id}-${finalSize}` : product.id,
-      // Ring-specific properties
       ...(isRing && {
         ringSize: {
           value: finalSize,
           type: showCustomInput ? "custom" : "standard",
           isCustom: showCustomInput,
         },
-        // Legacy properties for backward compatibility
         selectedSize: finalSize,
         sizeType: showCustomInput ? "custom" : "standard",
       }),
     };
 
-    // For rings, treat different sizes as different items
     const existingItem = cartItems.find((item) => {
       if (isRing) {
-        // Check both new and legacy structure for compatibility
         const itemSize = item.ringSize?.value || item.selectedSize;
         return item.id === product.id && itemSize === finalSize;
       }
@@ -230,7 +238,46 @@ export default function ProductDetails({
             }`}
           >
             <div className={styles.imageContainer}>
-              <img src={product.image || fallbackImage} alt={product.name} />
+              <div className={styles.slideshow}>
+                <img
+                  src={
+                    product.images?.[currentImageIndex] ||
+                    product.image ||
+                    fallbackImage
+                  }
+                  alt={`${product.name} - Image ${currentImageIndex + 1}`}
+                />
+                {product.images?.length > 1 && (
+                  <>
+                    <button
+                      className={styles.prevButton}
+                      onClick={handlePrevImage}
+                      aria-label="Previous image"
+                    >
+                      ‹
+                    </button>
+                    <button
+                      className={styles.nextButton}
+                      onClick={handleNextImage}
+                      aria-label="Next image"
+                    >
+                      ›
+                    </button>
+                    <div className={styles.dots}>
+                      {product.images.map((_, index) => (
+                        <span
+                          key={index}
+                          className={`${styles.dot} ${
+                            index === currentImageIndex ? styles.active : ""
+                          }`}
+                          onClick={() => handleDotClick(index)}
+                          aria-label={`Go to image ${index + 1}`}
+                        ></span>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
             <div className={styles.detailsContainer}>
               <h2>{product.name}</h2>
@@ -243,7 +290,6 @@ export default function ProductDetails({
                 {renderDetails()}
               </div>
 
-              {/* Ring Size Selection */}
               {isRing && (
                 <div className={styles.sizeSection}>
                   <h3>Ring Size</h3>

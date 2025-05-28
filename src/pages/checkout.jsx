@@ -32,20 +32,16 @@ export default function Checkout() {
       item?.category?.toLowerCase().includes("ring") ||
       item?.name?.toLowerCase().includes("ring") ||
       item?.type?.toLowerCase().includes("ring") ||
-      item?.ringSize // Check if ring size data exists
+      item?.ringSize
     );
   };
 
   // Helper function to get ring size display text
   const getRingSizeDisplay = (item) => {
     if (!isRingItem(item)) return "";
-
-    // Check new structure first, then fall back to legacy
     const ringSize = item.ringSize?.value || item.selectedSize;
     const isCustom = item.ringSize?.isCustom || item.sizeType === "custom";
-
     if (!ringSize) return "";
-
     return isCustom ? `Custom Size: ${ringSize}` : `Size ${ringSize}`;
   };
 
@@ -54,7 +50,12 @@ export default function Checkout() {
     if (items.length === 0) {
       router.push("/cart");
     }
-    setCartItems(items);
+    // Normalize cart items to ensure `image` field
+    const normalizedItems = items.map((item) => ({
+      ...item,
+      image: item.images?.[0] || item.image || fallbackImage,
+    }));
+    setCartItems(normalizedItems);
 
     if (user) {
       setFormData((prev) => ({
@@ -135,7 +136,7 @@ export default function Checkout() {
       const orderId = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
       const orderData = {
         orderId,
-        userId: user?.uid || null, // Add user ID for better tracking
+        userId: user?.uid || null,
         customerInfo: {
           firstName: formData.firstName,
           lastName: formData.lastName,
@@ -149,16 +150,17 @@ export default function Checkout() {
         items: cartItems.map((item) => {
           const baseItem = {
             id: item.id,
+            cartItemId: item.cartItemId,
             name: item.name,
             price: item.price,
             quantity: item.quantity,
-            image: item.image,
+            image: item.image, // Use normalized single image
+            images: Array.isArray(item.images) ? item.images : [item.image], // Include full images array
             total: (item.price * item.quantity).toFixed(2),
             category: item.category || "",
             type: item.type || "",
           };
 
-          // Add ring-specific information if it's a ring
           if (isRingItem(item)) {
             const ringSize = item.ringSize?.value || item.selectedSize;
             const isCustomSize =
@@ -171,8 +173,6 @@ export default function Checkout() {
               isCustomSize: isCustomSize,
               sizeDisplay: getRingSizeDisplay(item),
             };
-
-            // Also add to main level for easy access
             baseItem.ringSize = ringSize;
             baseItem.isCustomRingSize = isCustomSize;
           }
@@ -193,13 +193,13 @@ export default function Checkout() {
           status: "pending",
         },
         orderStatus: "pending",
-        // Add metadata for better tracking
         metadata: {
           hasRings: cartItems.some((item) => isRingItem(item)),
           ringItems: cartItems
             .filter((item) => isRingItem(item))
             .map((item) => ({
               productId: item.id,
+              cartItemId: item.cartItemId,
               name: item.name,
               size: item.ringSize?.value || item.selectedSize,
               isCustomSize:
@@ -215,7 +215,7 @@ export default function Checkout() {
         updatedAt: new Date().toISOString(),
       };
 
-      console.log("Order data being submitted:", orderData); // For debugging
+      console.log("Order data being submitted:", orderData);
 
       const docRef = await addDoc(collection(db, "orders"), orderData);
       localStorage.removeItem("cartItems");
@@ -459,7 +459,6 @@ export default function Checkout() {
                 </div>
               </div>
 
-              {/* Show ring size details in review */}
               {cartItems.some((item) => isRingItem(item)) && (
                 <div className={styles.reviewSection}>
                   <h3>Ring Size Details</h3>
@@ -485,7 +484,10 @@ export default function Checkout() {
           <h2>Order Summary</h2>
           <div className={styles.summaryItems}>
             {cartItems.map((item, index) => (
-              <div key={`${item.id}-${index}`} className={styles.summaryItem}>
+              <div
+                key={`${item.cartItemId}-${index}`}
+                className={styles.summaryItem}
+              >
                 <div className={styles.itemImage}>
                   <img src={item.image || fallbackImage} alt={item.name} />
                   <span className={styles.itemQuantity}>{item.quantity}</span>

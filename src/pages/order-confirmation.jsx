@@ -29,7 +29,16 @@ export default function OrderConfirmation() {
         const orderSnap = await getDoc(orderRef);
 
         if (orderSnap.exists()) {
-          setOrderDetails(orderSnap.data());
+          const data = orderSnap.data();
+          // Normalize items to ensure `image` field
+          const normalizedData = {
+            ...data,
+            items: data.items.map((item) => ({
+              ...item,
+              image: item.image || item.images?.[0] || fallbackImage,
+            })),
+          };
+          setOrderDetails(normalizedData);
         } else {
           setError("Order not found. Please contact support.");
         }
@@ -45,7 +54,7 @@ export default function OrderConfirmation() {
   }, [orderId]);
 
   const handleContinueShopping = () => {
-    localStorage.removeItem("firestoreOrderId"); // Clean up
+    localStorage.removeItem("firestoreOrderId");
     router.push("/products");
   };
 
@@ -157,7 +166,7 @@ export default function OrderConfirmation() {
           <h3>Items in Your Order</h3>
           <div className={styles.itemsList}>
             {orderDetails.items.map((item) => (
-              <div key={item.id} className={styles.orderItem}>
+              <div key={item.cartItemId} className={styles.orderItem}>
                 <div className={styles.itemImage}>
                   <img src={item.image || fallbackImage} alt={item.name} />
                 </div>
@@ -170,6 +179,11 @@ export default function OrderConfirmation() {
                     <span className={styles.itemPrice}>
                       ₹{item.price.toFixed(2)}
                     </span>
+                    {item.ringDetails && (
+                      <span className={styles.itemRingSize}>
+                        {item.ringDetails.sizeDisplay}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

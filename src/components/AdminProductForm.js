@@ -11,7 +11,7 @@ export default function AdminProductForm() {
     description: "",
     price: "",
     details: [],
-    image: "",
+    images: [], // Changed from `image` to `images` array
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -61,12 +61,20 @@ export default function AdminProductForm() {
     }));
   };
 
+  // Handle removing an image
+  const handleRemoveImage = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
+  };
+
   // Handle Cloudinary upload success
   const handleImageUpload = (result) => {
     if (result.event === "success") {
       setFormData((prev) => ({
         ...prev,
-        image: result.info.secure_url,
+        images: [...prev.images, result.info.secure_url],
       }));
     }
   };
@@ -80,9 +88,10 @@ export default function AdminProductForm() {
             cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
             uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
             folder: "products",
-            multiple: false,
+            multiple: true, // Enable multiple file uploads
             resourceType: "image",
             clientAllowedFormats: ["jpg", "png", "jpeg"],
+            maxFiles: 5, // Limit to 5 images (adjust as needed)
           },
           (error, result) => {
             if (error) {
@@ -106,6 +115,10 @@ export default function AdminProductForm() {
       setError("Please select a category.");
       return;
     }
+    if (formData.images.length === 0) {
+      setError("Please upload at least one image.");
+      return;
+    }
     setIsSubmitting(true);
     setError("");
     setSuccess("");
@@ -125,7 +138,7 @@ export default function AdminProductForm() {
         description: "",
         price: "",
         details: [],
-        image: "",
+        images: [],
       });
     } catch (err) {
       setError(`Failed to add product: ${err.message}`);
@@ -167,7 +180,7 @@ export default function AdminProductForm() {
       />
       <div className={styles.productsContainer}>
         <h1>Add New Product</h1>
-        <p>Create a new product listing with details and image.</p>
+        <p>Create a new product listing with details and images.</p>
         <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
             <label htmlFor="name">Product Name*</label>
@@ -299,7 +312,7 @@ export default function AdminProductForm() {
           </div>
 
           <div className={styles.formGroup}>
-            <label>Product Image*</label>
+            <label>Product Images* (up to 5)</label>
             <button
               type="button"
               onClick={openUploadWidget}
@@ -328,14 +341,26 @@ export default function AdminProductForm() {
                 <polyline points="17 8 12 3 7 8"></polyline>
                 <line x1="12" y1="3" x2="12" y2="15"></line>
               </svg>
-              {formData.image ? "Change Image" : "Upload Image"}
+              {formData.images.length > 0 ? "Add More Images" : "Upload Images"}
             </button>
             <p className={styles.uploadHint}>
-              Drag and drop or click to upload
+              Drag and drop or click to upload (max 5 images)
             </p>
-            {formData.image && (
-              <div className={styles.imagePreview}>
-                <img src={formData.image} alt="Product preview" />
+            {formData.images.length > 0 && (
+              <div className={styles.imagePreviewContainer}>
+                {formData.images.map((image, index) => (
+                  <div key={index} className={styles.imagePreview}>
+                    <img src={image} alt={`Product preview ${index + 1}`} />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage(index)}
+                      className={styles.removeImageButton}
+                      aria-label="Remove image"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -346,7 +371,7 @@ export default function AdminProductForm() {
           <button
             type="submit"
             className={styles.submitButton}
-            disabled={isSubmitting || !formData.image}
+            disabled={isSubmitting || formData.images.length === 0}
           >
             {isSubmitting ? "Adding Product..." : "Add Product"}
           </button>

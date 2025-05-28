@@ -5,10 +5,16 @@ import styles from "../styles/Cart.module.scss";
 export default function Cart() {
   const router = useRouter();
   const [cartItems, setCartItems] = useState([]);
+  const fallbackImage = "/images/fallback-product.jpg"; // Add fallback image
 
   useEffect(() => {
     const items = JSON.parse(localStorage.getItem("cartItems")) || [];
-    setCartItems(items);
+    // Ensure each item has a single `image` field for display
+    const normalizedItems = items.map((item) => ({
+      ...item,
+      image: item.images?.[0] || item.image || fallbackImage, // Prioritize first image from `images`
+    }));
+    setCartItems(normalizedItems);
   }, []);
 
   const updateCart = (updatedItems) => {
@@ -16,10 +22,10 @@ export default function Cart() {
     localStorage.setItem("cartItems", JSON.stringify(updatedItems));
   };
 
-  const handleQuantityChange = (id, delta) => {
+  const handleQuantityChange = (cartItemId, delta) => {
     const updatedItems = cartItems
       .map((item) =>
-        item.id === id
+        item.cartItemId === cartItemId
           ? { ...item, quantity: Math.max(1, item.quantity + delta) }
           : item
       )
@@ -27,8 +33,10 @@ export default function Cart() {
     updateCart(updatedItems);
   };
 
-  const handleRemoveItem = (id) => {
-    const updatedItems = cartItems.filter((item) => item.id !== id);
+  const handleRemoveItem = (cartItemId) => {
+    const updatedItems = cartItems.filter(
+      (item) => item.cartItemId !== cartItemId
+    );
     updateCart(updatedItems);
   };
 
@@ -39,7 +47,6 @@ export default function Cart() {
   };
 
   const handleCheckout = () => {
-    // Navigate to checkout page instead of showing alert
     router.push("/checkout");
   };
 
@@ -49,7 +56,6 @@ export default function Cart() {
       {cartItems.length === 0 ? (
         <div className={styles.emptyCart}>
           <div className={styles.emptyCartIcon}>
-            {/* Placeholder for an icon or SVG */}
             <svg
               width="100"
               height="100"
@@ -77,23 +83,23 @@ export default function Cart() {
         <>
           <div className={styles.cartItems}>
             {cartItems.map((item) => (
-              <div key={item.id} className={styles.cartItem}>
+              <div key={item.cartItemId} className={styles.cartItem}>
                 <div className={styles.itemImage}>
-                  <img src={item.image} alt={item.name} />
+                  <img src={item.image || fallbackImage} alt={item.name} />
                 </div>
                 <div className={styles.itemDetails}>
                   <h3>{item.name}</h3>
                   <p className={styles.itemPrice}>₹{item.price.toFixed(2)}</p>
                   <div className={styles.quantityControl}>
                     <button
-                      onClick={() => handleQuantityChange(item.id, -1)}
+                      onClick={() => handleQuantityChange(item.cartItemId, -1)}
                       className={styles.quantityButton}
                     >
                       −
                     </button>
                     <span>{item.quantity}</span>
                     <button
-                      onClick={() => handleQuantityChange(item.id, 1)}
+                      onClick={() => handleQuantityChange(item.cartItemId, 1)}
                       className={styles.quantityButton}
                     >
                       +
@@ -101,7 +107,7 @@ export default function Cart() {
                   </div>
                 </div>
                 <button
-                  onClick={() => handleRemoveItem(item.id)}
+                  onClick={() => handleRemoveItem(item.cartItemId)}
                   className={styles.removeButton}
                 >
                   ×
