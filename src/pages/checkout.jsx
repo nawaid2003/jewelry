@@ -19,12 +19,14 @@ export default function Checkout() {
     state: "",
     pincode: "",
     paymentMethod: "card",
+    specialRequest: "", // New field for special request
   });
   const [step, setStep] = useState(1);
   const [isFormValid, setIsFormValid] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const fallbackImage = "/images/fallback-product.jpg";
+  const maxSpecialRequestLength = 500; // Character limit for special request
 
   // Helper function to check if an item is a ring
   const isRingItem = (item) => {
@@ -50,7 +52,6 @@ export default function Checkout() {
     if (items.length === 0) {
       router.push("/cart");
     }
-    // Normalize cart items to ensure `image` field
     const normalizedItems = items.map((item) => ({
       ...item,
       image: item.images?.[0] || item.image || fallbackImage,
@@ -90,6 +91,9 @@ export default function Checkout() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if (name === "specialRequest" && value.length > maxSpecialRequestLength) {
+      return; // Prevent exceeding character limit
+    }
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -147,6 +151,7 @@ export default function Checkout() {
           state: formData.state,
           pincode: formData.pincode,
         },
+        specialRequest: formData.specialRequest || null, // Store special request
         items: cartItems.map((item) => {
           const baseItem = {
             id: item.id,
@@ -154,8 +159,8 @@ export default function Checkout() {
             name: item.name,
             price: item.price,
             quantity: item.quantity,
-            image: item.image, // Use normalized single image
-            images: Array.isArray(item.images) ? item.images : [item.image], // Include full images array
+            image: item.image,
+            images: Array.isArray(item.images) ? item.images : [item.image],
             total: (item.price * item.quantity).toFixed(2),
             category: item.category || "",
             type: item.type || "",
@@ -206,6 +211,7 @@ export default function Checkout() {
                 item.ringSize?.isCustom || item.sizeType === "custom",
             })),
           totalItems: cartItems.length,
+          hasSpecialRequest: !!formData.specialRequest, // Flag for special request
           browserInfo: {
             userAgent: navigator.userAgent,
             timestamp: Date.now(),
@@ -353,6 +359,24 @@ export default function Checkout() {
                   />
                 </div>
               </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="specialRequest">
+                  Special Requests (e.g., gift message, engraving)
+                </label>
+                <textarea
+                  id="specialRequest"
+                  name="specialRequest"
+                  value={formData.specialRequest}
+                  onChange={handleChange}
+                  placeholder="E.g., Please engrave 'Love Always' on the ring or include a gift note saying 'Happy Birthday!'"
+                  maxLength={maxSpecialRequestLength}
+                  className={styles.specialRequest}
+                />
+                <div className={styles.charCount}>
+                  {formData.specialRequest.length}/{maxSpecialRequestLength}
+                </div>
+              </div>
             </div>
           )}
 
@@ -445,6 +469,15 @@ export default function Checkout() {
                   <p>Phone: {formData.phone}</p>
                 </div>
               </div>
+
+              {formData.specialRequest && (
+                <div className={styles.reviewSection}>
+                  <h3>Special Request</h3>
+                  <div className={styles.reviewInfo}>
+                    <p>{formData.specialRequest}</p>
+                  </div>
+                </div>
+              )}
 
               <div className={styles.reviewSection}>
                 <h3>Payment Method</h3>

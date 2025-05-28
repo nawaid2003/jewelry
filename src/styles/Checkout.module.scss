@@ -566,3 +566,41 @@ $success-green: #3bb75e;
   border-radius: 4px;
   margin: 10px 0;
 }
+
+.specialRequest {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  font-family: 'The Seasons', serif;
+  font-size: 1rem;
+  color: $text-dark;
+  background: lighten($background-offwhite, 2%);
+  resize: vertical;
+  min-height: 100px;
+  transition: all 0.3s ease;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-blue;
+    box-shadow: 0 0 0 3px rgba($primary-blue, 0.1);
+  }
+
+  &::placeholder {
+    color: lighten($text-dark, 30%);
+    font-style: italic;
+  }
+}
+
+.charCount {
+  font-family: 'The Seasons', serif;
+  font-size: 0.9rem;
+  color: lighten($text-dark, 20%);
+  text-align: right;
+  margin-top: 8px;
+  transition: color 0.3s ease;
+
+  &.nearLimit {
+    color: $error-red;
+  }
+}

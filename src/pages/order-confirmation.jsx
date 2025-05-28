@@ -30,7 +30,6 @@ export default function OrderConfirmation() {
 
         if (orderSnap.exists()) {
           const data = orderSnap.data();
-          // Normalize items to ensure `image` field
           const normalizedData = {
             ...data,
             items: data.items.map((item) => ({
@@ -161,6 +160,15 @@ export default function OrderConfirmation() {
             </div>
           </div>
         </div>
+
+        {orderDetails.specialRequest && (
+          <div className={styles.specialRequestSection}>
+            <h3>Special Request</h3>
+            <div className={styles.specialRequestContent}>
+              <p>{orderDetails.specialRequest}</p>
+            </div>
+          </div>
+        )}
 
         <div className={styles.orderItems}>
           <h3>Items in Your Order</h3>
