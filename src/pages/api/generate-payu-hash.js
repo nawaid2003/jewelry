@@ -1,3 +1,4 @@
+// pages/api/generate-payu-hash.js
 import crypto from "crypto";
 
 export default async function handler(req, res) {
@@ -16,15 +17,23 @@ export default async function handler(req, res) {
   const MERCHANT_SALT = process.env.PAYU_MERCHANT_SALT;
   const PAYU_BASE_URL = process.env.PAYU_BASE_URL;
 
+  // Ensure amount is formatted with two decimal places
+  const formattedAmount = parseFloat(amount).toFixed(2);
   const productInfo = "Jewelry Order";
-  const hashString = `${MERCHANT_KEY}|${orderId}|${amount}|${productInfo}|${firstName}|${email}||||||||||${MERCHANT_SALT}`;
+
+  // Exact hash string format as per PayU
+  const hashString = `${MERCHANT_KEY}|${orderId}|${formattedAmount}|${productInfo}|${firstName}|${email}||||||||||${MERCHANT_SALT}`;
+
+  // Log hash string for debugging (remove in production)
+  console.log("Hash String:", hashString);
+
   const hash = crypto.createHash("sha512").update(hashString).digest("hex");
 
   res.status(200).json({
     hash,
     txnid: orderId,
     key: MERCHANT_KEY,
-    amount,
+    amount: formattedAmount,
     productinfo: productInfo,
     firstname: firstName,
     email,

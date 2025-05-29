@@ -1,8 +1,8 @@
+// pages/api/payment-success.js
 import { initializeApp, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import crypto from "crypto";
 
-// Initialize Firebase Admin SDK
 if (!process.env.FIREBASE_PROJECT_ID) {
   throw new Error("Firebase environment variables are missing");
 }
@@ -33,8 +33,13 @@ export default async function handler(req, res) {
   } = req.body;
   const MERCHANT_SALT = process.env.PAYU_MERCHANT_SALT;
 
-  // Verify hash
-  const hashString = `${MERCHANT_SALT}|${status}||||||||||${email}|${firstname}|${productinfo}|${amount}|${txnid}|${process.env.PAYU_MERCHANT_KEY}`;
+  // Format amount to match hash calculation
+  const formattedAmount = parseFloat(amount).toFixed(2);
+  const hashString = `${MERCHANT_SALT}|${status}||||||||||${email}|${firstname}|${productinfo}|${formattedAmount}|${txnid}|${process.env.PAYU_MERCHANT_KEY}`;
+
+  // Log hash string for debugging (remove in production)
+  console.log("Success Hash String:", hashString);
+
   const calculatedHash = crypto
     .createHash("sha512")
     .update(hashString)
@@ -42,7 +47,6 @@ export default async function handler(req, res) {
 
   if (calculatedHash === hash && status === "success") {
     try {
-      // Find and update order in Firestore
       const ordersRef = db.collection("orders");
       const query = ordersRef.where("orderId", "==", txnid).limit(1);
       const querySnapshot = await query.get();
@@ -63,20 +67,20 @@ export default async function handler(req, res) {
       }
       res.redirect(
         301,
-        `https://jewelry-gules.vercel.app/order-confirmation?orderId=${txnid}`
+        `https://yourdomain.com/order-confirmation?orderId=${txnid}`
       );
     } catch (err) {
       console.error("Error updating Firestore:", err);
       res.redirect(
         301,
-        `https://jewelry-gules.vercel.app/payment-failure?orderId=${txnid}`
+        `https://yourdomain.com/payment-failure?orderId=${txnid}`
       );
     }
   } else {
     console.error("Hash verification failed or payment failed");
     res.redirect(
       301,
-      `https://jewelry-gules.vercel.app/payment-failure?orderId=${txnid}`
+      `https://yourdomain.com/payment-failure?orderId=${txnid}`
     );
   }
 }

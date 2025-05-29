@@ -130,12 +130,23 @@ export default function Checkout() {
     setError("");
     try {
       const orderId = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
-      localStorage.setItem("lastOrderId", orderId); // Store orderId early
+      localStorage.setItem("lastOrderId", orderId);
+
+      // Ensure amount is formatted to two decimal places
+      const formattedAmount = parseFloat(calculateTotal()).toFixed(2);
+
+      // Sanitize inputs to avoid special characters
+      const sanitizedFirstName = formData.firstName.replace(
+        /[^a-zA-Z0-9 ]/g,
+        ""
+      );
+      const sanitizedEmail = formData.email.trim();
+
       const response = await axios.post("/api/generate-payu-hash", {
         orderId,
-        amount: calculateTotal(),
-        firstName: formData.firstName,
-        email: formData.email,
+        amount: formattedAmount,
+        firstName: sanitizedFirstName,
+        email: sanitizedEmail,
         phone: formData.phone,
       });
 
@@ -153,8 +164,8 @@ export default function Checkout() {
         action,
       } = response.data;
 
-      // Store order in Firestore with pending status before redirecting
-      await addDoc(collection(db, "orders"), {
+      // Store order in Firestore with pending status
+      const docRef = await addDoc(collection(db, "orders"), {
         orderId,
         userId: user?.uid || null,
         customerInfo: {
@@ -200,7 +211,7 @@ export default function Checkout() {
         orderSummary: {
           subtotal: parseFloat(calculateSubtotal()),
           shipping: calculateShipping(),
-          total: parseFloat(calculateTotal()),
+          total: parseFloat(formattedAmount),
           itemCount: cartItems.reduce(
             (total, item) => total + item.quantity,
             0
@@ -234,6 +245,8 @@ export default function Checkout() {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });
+
+      localStorage.setItem("firestoreOrderId", docRef.id);
 
       // Create PayU form
       const payuForm = document.createElement("form");
