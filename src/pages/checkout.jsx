@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import styles from "../styles/Checkout.module.scss";
 import { PAYU_CONFIG } from "../lib/config";
 import { initPayUPayment } from "../lib/payu";
+import axios from "axios";
 
 export default function Checkout() {
   const router = useRouter();
@@ -148,35 +149,49 @@ export default function Checkout() {
     return (subtotal + shipping).toFixed(2);
   };
 
+  // Update your hash generation function
   const generatePayUHash = async (paymentData) => {
     try {
-      const response = await axios.post("/api/generate-payu-hash", {
-        ...paymentData,
-        merchantSalt: process.env.NEXT_PUBLIC_PAYU_MERCHANT_SALT, // Use public salt
-      });
+      const response = await axios.post(
+        "/api/generate-payu-hash",
+        {
+          ...paymentData,
+          merchantSalt: process.env.NEXT_PUBLIC_PAYU_MERCHANT_SALT,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       return response.data.hash;
     } catch (error) {
-      console.error("Hash generation failed:", error);
-      throw new Error("Failed to generate payment hash");
+      console.error(
+        "Hash generation failed:",
+        error.response?.data || error.message
+      );
+      throw new Error(
+        error.response?.data?.error || "Failed to generate payment hash"
+      );
     }
   };
 
-  // Update handlePayment function
   const handlePayment = async () => {
     try {
       setIsSubmitting(true);
       setError("");
 
-      // Generate temporary order ID
+      // 1. Prepare payment data
       const tempOrderId = `TEMP${Date.now()}${Math.floor(
         Math.random() * 1000
       )}`;
-
-      // Prepare payment data
       const paymentData = {
         txnid: tempOrderId,
         amount: calculateTotal().toString(),
-        productinfo: `Order ${tempOrderId}`,
+        productinfo: cartItems
+          .map((item) => item.name)
+          .join(", ")
+          .substring(0, 100),
         firstname: formData.firstName,
         email: formData.email,
         phone: formData.phone,
@@ -184,10 +199,10 @@ export default function Checkout() {
         udf2: JSON.stringify(cartItems.map((item) => item.id)),
       };
 
-      // Generate hash via API
+      // 2. Generate hash
       const hash = await generatePayUHash(paymentData);
 
-      // Prepare PayU request
+      // 3. Prepare PayU form
       const payuParams = {
         key: process.env.NEXT_PUBLIC_PAYU_MERCHANT_KEY,
         ...paymentData,
@@ -195,12 +210,15 @@ export default function Checkout() {
         surl: `${window.location.origin}/checkout?step=3&payment=success`,
         furl: `${window.location.origin}/checkout?step=3&payment=failed`,
         service_provider: "payu_paisa",
+        curl: `${window.location.origin}/checkout?step=3`, // Cancel URL
       };
 
-      // Submit to PayU
+      // 4. Create and submit form
       const form = document.createElement("form");
       form.method = "POST";
-      form.action = "https://secure.payu.in/_payment";
+      form.action =
+        process.env.NEXT_PUBLIC_PAYU_BASE_URL ||
+        "https://secure.payu.in/_payment";
 
       Object.entries(payuParams).forEach(([key, value]) => {
         const input = document.createElement("input");
