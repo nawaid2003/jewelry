@@ -132,15 +132,11 @@ export default function Checkout() {
       const orderId = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
       localStorage.setItem("lastOrderId", orderId);
 
-      // Ensure amount is formatted to two decimal places
       const formattedAmount = parseFloat(calculateTotal()).toFixed(2);
-
-      // Sanitize inputs to avoid special characters
-      const sanitizedFirstName = formData.firstName.replace(
-        /[^a-zA-Z0-9 ]/g,
-        ""
-      );
-      const sanitizedEmail = formData.email.trim();
+      const sanitizedFirstName = formData.firstName
+        .replace(/[^a-zA-Z0-9 ]/g, "")
+        .trim();
+      const sanitizedEmail = formData.email.trim().toLowerCase();
 
       const response = await axios.post("/api/generate-payu-hash", {
         orderId,
@@ -164,7 +160,27 @@ export default function Checkout() {
         action,
       } = response.data;
 
-      // Store order in Firestore with pending status
+      // Log form data for debugging
+      console.log("PayU Form Data:", {
+        key,
+        txnid,
+        amount,
+        productinfo,
+        firstname,
+        email,
+        phone,
+        surl,
+        furl,
+        hash,
+        mode:
+          formData.paymentMethod === "card"
+            ? "CC"
+            : formData.paymentMethod === "upi"
+            ? "UPI"
+            : "NB",
+      });
+
+      // Store order in Firestore
       const docRef = await addDoc(collection(db, "orders"), {
         orderId,
         userId: user?.uid || null,
