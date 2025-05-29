@@ -148,6 +148,19 @@ export default function Checkout() {
     return (subtotal + shipping).toFixed(2);
   };
 
+  const generatePayUHash = async (paymentData) => {
+    try {
+      const response = await axios.post("/api/generate-payu-hash", {
+        ...paymentData,
+        merchantSalt: process.env.NEXT_PUBLIC_PAYU_MERCHANT_SALT, // Use public salt
+      });
+      return response.data.hash;
+    } catch (error) {
+      console.error("Hash generation failed:", error);
+      throw new Error("Failed to generate payment hash");
+    }
+  };
+
   // Update handlePayment function
   const handlePayment = async () => {
     try {
@@ -159,39 +172,35 @@ export default function Checkout() {
         Math.random() * 1000
       )}`;
 
-      // Prepare product info (simplified)
-      const productInfo =
-        cartItems.length === 1
-          ? cartItems[0].name
-          : `${cartItems.length} items`;
-
       // Prepare payment data
       const paymentData = {
         txnid: tempOrderId,
-        amount: calculateTotal(), // Ensure this returns a number
-        productinfo: productInfo,
+        amount: calculateTotal().toString(),
+        productinfo: `Order ${tempOrderId}`,
         firstname: formData.firstName,
         email: formData.email,
         phone: formData.phone,
-        address: formData.address,
-        city: formData.city,
-        state: formData.state,
-        zipcode: formData.pincode,
         udf1: user?.uid || "guest",
-        udf2: cartItems.map((item) => item.id).join(","),
-        udf3: formData.specialRequest?.substring(0, 50) || "", // Limited to 50 chars
+        udf2: JSON.stringify(cartItems.map((item) => item.id)),
       };
 
-      console.log("Payment Data:", paymentData); // For debugging
+      // Generate hash via API
+      const hash = await generatePayUHash(paymentData);
 
-      // Initialize PayU payment
-      const payuParams = await initPayUPayment(paymentData);
-      console.log("PayU Params:", payuParams); // For debugging
+      // Prepare PayU request
+      const payuParams = {
+        key: process.env.NEXT_PUBLIC_PAYU_MERCHANT_KEY,
+        ...paymentData,
+        hash,
+        surl: `${window.location.origin}/checkout?step=3&payment=success`,
+        furl: `${window.location.origin}/checkout?step=3&payment=failed`,
+        service_provider: "payu_paisa",
+      };
 
-      // Create and submit form
+      // Submit to PayU
       const form = document.createElement("form");
       form.method = "POST";
-      form.action = `${PAYU_CONFIG.baseUrl}/_payment`;
+      form.action = "https://secure.payu.in/_payment";
 
       Object.entries(payuParams).forEach(([key, value]) => {
         const input = document.createElement("input");
@@ -204,8 +213,8 @@ export default function Checkout() {
       document.body.appendChild(form);
       form.submit();
     } catch (err) {
-      console.error("Payment initialization failed:", err);
-      setError(`Payment failed: ${err.message || "Please try again"}`);
+      console.error("Payment error:", err);
+      setError(err.message || "Payment initialization failed");
       setIsSubmitting(false);
     }
   };
