@@ -162,16 +162,22 @@ export default function Checkout() {
           headers: {
             "Content-Type": "application/json",
           },
+          timeout: 5000, // 5 second timeout
         }
       );
+
+      if (!response.data.success) {
+        throw new Error(response.data.error || "Invalid hash response");
+      }
+
       return response.data.hash;
     } catch (error) {
-      console.error(
-        "Hash generation failed:",
-        error.response?.data || error.message
-      );
+      console.error("Hash generation failed:", {
+        error: error.response?.data || error.message,
+        requestData: paymentData,
+      });
       throw new Error(
-        error.response?.data?.error || "Failed to generate payment hash"
+        error.response?.data?.error || "Payment processing failed"
       );
     }
   };
@@ -181,28 +187,33 @@ export default function Checkout() {
       setIsSubmitting(true);
       setError("");
 
-      // 1. Prepare payment data
+      // 1. Prepare payment data with validation
       const tempOrderId = `TEMP${Date.now()}${Math.floor(
         Math.random() * 1000
       )}`;
+      const totalAmount = parseFloat(calculateTotal()).toFixed(2);
+
+      if (isNaN(totalAmount)) {
+        throw new Error("Invalid order total");
+      }
+
       const paymentData = {
         txnid: tempOrderId,
-        amount: calculateTotal().toString(),
-        productinfo: cartItems
-          .map((item) => item.name)
-          .join(", ")
-          .substring(0, 100),
-        firstname: formData.firstName,
-        email: formData.email,
-        phone: formData.phone,
+        amount: totalAmount,
+        productinfo: `Order ${tempOrderId} - ${cartItems.length} items`,
+        firstname: formData.firstName?.toString().trim(),
+        email: formData.email?.toString().trim(),
+        phone: formData.phone?.toString().trim() || "",
         udf1: user?.uid || "guest",
         udf2: JSON.stringify(cartItems.map((item) => item.id)),
       };
 
+      console.log("Submitting payment data:", paymentData); // Debug log
+
       // 2. Generate hash
       const hash = await generatePayUHash(paymentData);
 
-      // 3. Prepare PayU form
+      // 3. Prepare PayU request
       const payuParams = {
         key: process.env.NEXT_PUBLIC_PAYU_MERCHANT_KEY,
         ...paymentData,
@@ -210,29 +221,43 @@ export default function Checkout() {
         surl: `${window.location.origin}/checkout?step=3&payment=success`,
         furl: `${window.location.origin}/checkout?step=3&payment=failed`,
         service_provider: "payu_paisa",
-        curl: `${window.location.origin}/checkout?step=3`, // Cancel URL
+        curl: `${window.location.origin}/checkout?step=2`, // Cancel URL
+        // Additional required fields
+        address1: formData.address?.substring(0, 100) || "",
+        city: formData.city || "",
+        state: formData.state || "",
+        country: "India",
+        zipcode: formData.pincode || "",
+        phone: formData.phone || "",
       };
 
-      // 4. Create and submit form
+      // 4. Submit to PayU
       const form = document.createElement("form");
       form.method = "POST";
-      form.action =
-        process.env.NEXT_PUBLIC_PAYU_BASE_URL ||
-        "https://secure.payu.in/_payment";
+      form.action = `${
+        process.env.NEXT_PUBLIC_PAYU_BASE_URL || "https://secure.payu.in"
+      }/_payment`;
 
       Object.entries(payuParams).forEach(([key, value]) => {
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = key;
-        input.value = value;
-        form.appendChild(input);
+        if (value !== undefined && value !== null) {
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = key;
+          input.value = value;
+          form.appendChild(input);
+        }
       });
 
       document.body.appendChild(form);
       form.submit();
     } catch (err) {
-      console.error("Payment error:", err);
-      setError(err.message || "Payment initialization failed");
+      console.error("Payment error:", {
+        error: err,
+        time: new Date().toISOString(),
+        user: user?.uid || "guest",
+      });
+
+      setError(err.message || "Payment processing failed. Please try again.");
       setIsSubmitting(false);
     }
   };
