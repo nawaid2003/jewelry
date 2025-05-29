@@ -1,12 +1,5 @@
 import crypto from "crypto";
-
-const PAYU_CONFIG = {
-  merchantKey: process.env.NEXT_PUBLIC_PAYU_MERCHANT_KEY,
-  merchantSalt: process.env.PAYU_MERCHANT_SALT,
-  baseUrl: process.env.NEXT_PUBLIC_PAYU_BASE_URL || "https://secure.payu.in",
-  successUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout?step=3&payment=success`,
-  failureUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout?step=3&payment=failed`,
-};
+import { PAYU_CONFIG } from "./config";
 
 export const generatePayUHash = (params) => {
   const hashString = [
@@ -28,82 +21,39 @@ export const generatePayUHash = (params) => {
 };
 
 export const initPayUPayment = async (paymentData) => {
-  const {
-    txnid,
-    amount,
-    productinfo,
-    firstname,
-    email,
-    phone,
-    address,
-    city,
-    state,
-    country,
-    zipcode,
-    udf1 = "",
-    udf2 = "",
-    udf3 = "",
-    udf4 = "",
-    udf5 = "",
-  } = paymentData;
-
   const hash = generatePayUHash({
-    txnid,
-    amount,
-    productinfo,
-    firstname,
-    email,
-    udf1,
-    udf2,
-    udf3,
-    udf4,
-    udf5,
+    txnid: paymentData.txnid,
+    amount: paymentData.amount,
+    productinfo: paymentData.productinfo,
+    firstname: paymentData.firstname,
+    email: paymentData.email,
+    udf1: paymentData.udf1 || "",
+    udf2: paymentData.udf2 || "",
+    udf3: paymentData.udf3 || "",
+    udf4: paymentData.udf4 || "",
+    udf5: paymentData.udf5 || "",
   });
 
   return {
     key: PAYU_CONFIG.merchantKey,
-    txnid,
-    amount,
-    productinfo,
-    firstname,
-    email,
-    phone,
+    txnid: paymentData.txnid,
+    amount: paymentData.amount,
+    productinfo: paymentData.productinfo,
+    firstname: paymentData.firstname,
+    email: paymentData.email,
+    phone: paymentData.phone || "",
     surl: PAYU_CONFIG.successUrl,
     furl: PAYU_CONFIG.failureUrl,
     hash,
-    address1: address,
-    city,
-    state,
-    country,
-    zipcode,
-    udf1,
-    udf2,
-    udf3,
-    udf4,
-    udf5,
-  };
-};
-
-export const verifyPayUPayment = async (paymentResponse) => {
-  // This would typically be done on your server for security
-  const hashString = [
-    PAYU_CONFIG.merchantSalt,
-    paymentResponse.status,
-    ...Array(9).fill(""), // For other hash params
-    paymentResponse.email,
-    paymentResponse.firstname,
-    paymentResponse.productinfo,
-    paymentResponse.amount,
-    paymentResponse.txnid,
-  ].join("|");
-
-  const calculatedHash = crypto
-    .createHash("sha512")
-    .update(hashString)
-    .digest("hex");
-
-  return {
-    isValid: calculatedHash === paymentResponse.hash,
-    paymentResponse,
+    address1: paymentData.address || "",
+    city: paymentData.city || "",
+    state: paymentData.state || "",
+    country: paymentData.country || "India",
+    zipcode: paymentData.zipcode || "",
+    udf1: paymentData.udf1 || "",
+    udf2: paymentData.udf2 || "",
+    udf3: paymentData.udf3 || "",
+    udf4: paymentData.udf4 || "",
+    udf5: paymentData.udf5 || "",
   };
 };

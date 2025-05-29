@@ -5,8 +5,8 @@ import { collection, addDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { useAuth } from "../context/AuthContext";
 import styles from "../styles/Checkout.module.scss";
+import { PAYU_CONFIG } from "../lib/config";
 import { initPayUPayment } from "../lib/payu";
-import Script from "next/script";
 
 export default function Checkout() {
   const router = useRouter();
@@ -154,9 +154,22 @@ export default function Checkout() {
       setIsSubmitting(true);
       setError("");
 
-      // Generate temporary order data (not saved to Firestore yet)
+      // Generate temporary order ID
+      const tempOrderId = `TEMP${Date.now()}${Math.floor(
+        Math.random() * 1000
+      )}`;
+
+      // Prepare order summary
+      const orderSummary = {
+        subtotal: parseFloat(calculateSubtotal()),
+        shipping: calculateShipping(),
+        total: parseFloat(calculateTotal()),
+        itemCount: cartItems.reduce((total, item) => total + item.quantity, 0),
+      };
+
+      // Store temporary order data
       const tempOrderData = {
-        orderId: `TEMP${Date.now()}${Math.floor(Math.random() * 1000)}`,
+        tempOrderId,
         customerInfo: {
           firstName: formData.firstName,
           lastName: formData.lastName,
@@ -168,37 +181,39 @@ export default function Checkout() {
           pincode: formData.pincode,
         },
         items: cartItems,
-        totalAmount: calculateTotal(),
+        orderSummary,
         paymentMethod: formData.paymentMethod,
+        specialRequest: formData.specialRequest || null,
       };
 
-      // Store temp order data in localStorage
       localStorage.setItem("tempOrderData", JSON.stringify(tempOrderData));
 
       // Prepare PayU payment data
       const paymentData = {
-        txnid: tempOrderData.orderId,
-        amount: tempOrderData.totalAmount,
-        productinfo: `Purchase of ${cartItems.length} item(s)`,
-        firstname: tempOrderData.customerInfo.firstName,
-        email: tempOrderData.customerInfo.email,
-        phone: tempOrderData.customerInfo.phone,
-        address: tempOrderData.customerInfo.address,
-        city: tempOrderData.customerInfo.city,
-        state: tempOrderData.customerInfo.state,
+        txnid: tempOrderId,
+        amount: orderSummary.total,
+        productinfo: `Order ${tempOrderId} - ${cartItems.length} item(s)`,
+        firstname: formData.firstName,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
         country: "India",
-        zipcode: tempOrderData.customerInfo.pincode,
-        udf1: user?.uid || "guest",
-        udf2: JSON.stringify(cartItems.map((item) => item.id)),
+        zipcode: formData.pincode,
+        udf1: user?.uid || "guest", // User ID
+        udf2: JSON.stringify(cartItems.map((item) => item.id)), // Product IDs
+        udf3: formData.specialRequest || "", // Special request
       };
 
       // Initialize PayU payment
       const payuParams = await initPayUPayment(paymentData);
 
-      // Create and submit form to PayU
+      // Create and submit payment form
       const form = document.createElement("form");
       form.method = "POST";
       form.action = `${PAYU_CONFIG.baseUrl}/_payment`;
+      form.style.display = "none";
 
       Object.entries(payuParams).forEach(([key, value]) => {
         const input = document.createElement("input");
