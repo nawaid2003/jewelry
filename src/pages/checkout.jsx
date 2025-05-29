@@ -138,6 +138,14 @@ export default function Checkout() {
         .trim();
       const sanitizedEmail = formData.email.trim().toLowerCase();
 
+      console.log("Sending to /api/generate-payu-hash:", {
+        orderId,
+        amount: formattedAmount,
+        firstName: sanitizedFirstName,
+        email: sanitizedEmail,
+        phone: formData.phone,
+      });
+
       const response = await axios.post("/api/generate-payu-hash", {
         orderId,
         amount: formattedAmount,
@@ -160,7 +168,6 @@ export default function Checkout() {
         action,
       } = response.data;
 
-      // Log form data for debugging
       console.log("PayU Form Data:", {
         key,
         txnid,
@@ -297,6 +304,7 @@ export default function Checkout() {
       }
 
       document.body.appendChild(payuForm);
+      console.log("Submitting PayU form to:", action);
       payuForm.submit();
     } catch (err) {
       console.error("Error initiating payment:", err);

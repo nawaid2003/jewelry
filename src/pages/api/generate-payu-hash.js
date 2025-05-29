@@ -13,19 +13,32 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
+  // Sanitize inputs
+  const sanitizedFirstName = firstName.replace(/[^a-zA-Z0-9 ]/g, "").trim();
+  const sanitizedEmail = email.trim().toLowerCase();
+  const formattedAmount = parseFloat(amount).toFixed(2);
+
   const MERCHANT_KEY = process.env.PAYU_MERCHANT_KEY;
   const MERCHANT_SALT = process.env.PAYU_MERCHANT_SALT;
   const PAYU_BASE_URL = process.env.PAYU_BASE_URL;
 
-  // Ensure amount is formatted with two decimal places
-  const formattedAmount = parseFloat(amount).toFixed(2);
+  if (!MERCHANT_KEY || !MERCHANT_SALT || !PAYU_BASE_URL) {
+    console.error("Missing PayU configuration:", {
+      MERCHANT_KEY: !!MERCHANT_KEY,
+      MERCHANT_SALT: !!MERCHANT_SALT,
+      PAYU_BASE_URL: !!PAYU_BASE_URL,
+    });
+    return res.status(500).json({ error: "Server configuration error" });
+  }
+
   const productInfo = "Jewelry Order";
+  const hashString = `${MERCHANT_KEY}|${orderId}|${formattedAmount}|${productInfo}|${sanitizedFirstName}|${sanitizedEmail}||||||||||${MERCHANT_SALT}`;
 
-  // Exact hash string format as per PayU
-  const hashString = `${MERCHANT_KEY}|${orderId}|${formattedAmount}|${productInfo}|${firstName}|${email}||||||||||${MERCHANT_SALT}`;
-
-  // Log hash string for debugging (remove in production)
   console.log("Hash String:", hashString);
+  console.log(
+    "Hash:",
+    crypto.createHash("sha512").update(hashString).digest("hex")
+  );
 
   const hash = crypto.createHash("sha512").update(hashString).digest("hex");
 
@@ -35,8 +48,8 @@ export default async function handler(req, res) {
     key: MERCHANT_KEY,
     amount: formattedAmount,
     productinfo: productInfo,
-    firstname: firstName,
-    email,
+    firstname: sanitizedFirstName,
+    email: sanitizedEmail,
     phone,
     surl: "https://jewelry-gules.vercel.app/api/payment-success",
     furl: "https://jewelry-gules.vercel.app/api/payment-failure",
