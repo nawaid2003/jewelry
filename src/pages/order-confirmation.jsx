@@ -1,4 +1,4 @@
-// components/OrderConfirmation.jsx
+//order-confirmation
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { doc, getDoc } from "firebase/firestore";
@@ -14,48 +14,45 @@ export default function OrderConfirmation() {
   const fallbackImage = "/images/fallback-product.jpg";
 
   useEffect(() => {
-    if (!orderId) return;
+    const verifyPayment = async () => {
+      if (!orderDetails || orderDetails.paymentInfo.status !== "pending")
+        return;
 
-    const fetchOrder = async () => {
       try {
-        setLoading(true);
-        const firestoreOrderId = localStorage.getItem("firestoreOrderId");
-        if (!firestoreOrderId) {
-          setError("Order not found. Please contact support.");
-          setLoading(false);
-          return;
-        }
+        const response = await fetch("/api/verify-payment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            paymentResponse: router.query,
+            orderId: orderDetails.orderId,
+          }),
+        });
 
-        const orderRef = doc(db, "orders", firestoreOrderId);
-        const orderSnap = await getDoc(orderRef);
-
-        if (orderSnap.exists()) {
-          const data = orderSnap.data();
-          const normalizedData = {
-            ...data,
-            items: data.items.map((item) => ({
-              ...item,
-              image: item.image || item.images?.[0] || fallbackImage,
-            })),
-          };
-          setOrderDetails(normalizedData);
-        } else {
-          setError("Order not found. Please contact support.");
+        const data = await response.json();
+        if (data.success) {
+          // Refresh order details
+          const orderRef = doc(
+            db,
+            "orders",
+            localStorage.getItem("firestoreOrderId")
+          );
+          const orderSnap = await getDoc(orderRef);
+          if (orderSnap.exists()) {
+            setOrderDetails(orderSnap.data());
+          }
         }
       } catch (err) {
-        console.error("Error fetching order:", err);
-        setError("Failed to load order details. Please try again.");
-      } finally {
-        setLoading(false);
+        console.error("Payment verification error:", err);
       }
     };
 
-    fetchOrder();
-  }, [orderId]);
+    verifyPayment();
+  }, [orderDetails, orderId, router.query]);
 
   const handleContinueShopping = () => {
     localStorage.removeItem("firestoreOrderId");
-    localStorage.removeItem("lastOrderId");
     router.push("/products");
   };
 
@@ -110,24 +107,16 @@ export default function OrderConfirmation() {
             />
           </svg>
         </div>
-        <h1 className={styles.successTitle}>
-          {orderDetails.orderStatus === "confirmed"
-            ? "Order Confirmed!"
-            : orderDetails.orderStatus === "failed"
-            ? "Order Failed"
-            : "Order Pending"}
-        </h1>
+        <h1 className={styles.successTitle}>Order Confirmed!</h1>
         <p className={styles.successMessage}>
-          {orderDetails.orderStatus === "confirmed"
-            ? "Thank you for your purchase. Your order has been received and is being processed."
-            : orderDetails.orderStatus === "failed"
-            ? "Your payment failed. Please try again or contact support."
-            : "Your order is pending payment confirmation."}
+          Thank you for your purchase. Your order has been received and is being
+          processed.
         </p>
       </div>
 
       <div className={styles.orderDetails}>
         <h2 className={styles.orderTitle}>Order Details</h2>
+
         <div className={styles.orderGrid}>
           <div className={styles.orderInfo}>
             <div className={styles.infoItem}>
@@ -150,42 +139,8 @@ export default function OrderConfirmation() {
                   : "Net Banking"}
               </span>
             </div>
-            <div className={styles.infoItem}>
-              <span className={styles.infoLabel}>Payment Status:</span>
-              <span className={styles.infoValue}>
-                {orderDetails.paymentInfo.status === "success"
-                  ? "Paid"
-                  : orderDetails.paymentInfo.status === "failed"
-                  ? "Failed"
-                  : "Pending"}
-              </span>
-            </div>
-            {orderDetails.paymentInfo.transactionId && (
-              <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Transaction ID:</span>
-                <span className={styles.infoValue}>
-                  {orderDetails.paymentInfo.transactionId}
-                </span>
-              </div>
-            )}
-            {orderDetails.paymentInfo.payuId && (
-              <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>PayU ID:</span>
-                <span className={styles.infoValue}>
-                  {orderDetails.paymentInfo.payuId}
-                </span>
-              </div>
-            )}
-            {orderDetails.paymentInfo.status === "failed" &&
-              orderDetails.paymentInfo.error && (
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Error:</span>
-                  <span className={styles.infoValue}>
-                    {orderDetails.paymentInfo.error}
-                  </span>
-                </div>
-              )}
           </div>
+
           <div className={styles.shippingDetails}>
             <h3>Shipping Information</h3>
             <div className={styles.addressBlock}>
@@ -204,6 +159,7 @@ export default function OrderConfirmation() {
             </div>
           </div>
         </div>
+
         {orderDetails.specialRequest && (
           <div className={styles.specialRequestSection}>
             <h3>Special Request</h3>
@@ -212,6 +168,7 @@ export default function OrderConfirmation() {
             </div>
           </div>
         )}
+
         <div className={styles.orderItems}>
           <h3>Items in Your Order</h3>
           <div className={styles.itemsList}>
@@ -240,6 +197,7 @@ export default function OrderConfirmation() {
             ))}
           </div>
         </div>
+
         <div className={styles.orderSummary}>
           <div className={styles.summaryRow}>
             <span>Subtotal</span>
@@ -258,6 +216,7 @@ export default function OrderConfirmation() {
             <span>₹{orderDetails.orderSummary.total.toFixed(2)}</span>
           </div>
         </div>
+
         <div className={styles.estimatedDelivery}>
           <div className={styles.deliveryIcon}>
             <svg
@@ -288,6 +247,7 @@ export default function OrderConfirmation() {
             </p>
           </div>
         </div>
+
         <div className={styles.orderActions}>
           <div className={styles.orderHelp}>
             <p>Have questions about your order?</p>

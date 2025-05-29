@@ -604,3 +604,25 @@ $success-green: #3bb75e;
     color: $error-red;
   }
 }
+
+.paymentSuccess {
+  display: flex;
+  align-items: center;
+  background-color: #e8f5e9;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+
+  .successIcon {
+    width: 24px;
+    height: 24px;
+    fill: #4caf50;
+    margin-right: 0.5rem;
+  }
+
+  p {
+    margin: 0;
+    color: #2e7d32;
+    font-weight: 500;
+  }
+}

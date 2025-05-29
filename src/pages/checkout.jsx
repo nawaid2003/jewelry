@@ -1,11 +1,12 @@
-// components/Checkout.jsx
+//checkout
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { useAuth } from "../context/AuthContext";
-import axios from "axios";
 import styles from "../styles/Checkout.module.scss";
+import { initPayUPayment } from "../lib/payu";
+import Script from "next/script";
 
 export default function Checkout() {
   const router = useRouter();
@@ -21,15 +22,16 @@ export default function Checkout() {
     state: "",
     pincode: "",
     paymentMethod: "card",
-    specialRequest: "",
+    specialRequest: "", // New field for special request
   });
   const [step, setStep] = useState(1);
   const [isFormValid, setIsFormValid] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const fallbackImage = "/images/fallback-product.jpg";
-  const maxSpecialRequestLength = 500;
+  const maxSpecialRequestLength = 500; // Character limit for special request
 
+  // Helper function to check if an item is a ring
   const isRingItem = (item) => {
     return (
       item?.category?.toLowerCase().includes("ring") ||
@@ -39,6 +41,7 @@ export default function Checkout() {
     );
   };
 
+  // Helper function to get ring size display text
   const getRingSizeDisplay = (item) => {
     if (!isRingItem(item)) return "";
     const ringSize = item.ringSize?.value || item.selectedSize;
@@ -52,6 +55,7 @@ export default function Checkout() {
     if (items.length === 0) {
       router.push("/cart");
     }
+    // Normalize cart items to ensure `image` field
     const normalizedItems = items.map((item) => ({
       ...item,
       image: item.images?.[0] || item.image || fallbackImage,
@@ -82,15 +86,34 @@ export default function Checkout() {
           state &&
           pincode
       );
-    } else {
+    } else if (step === 2) {
+      setIsFormValid(true);
+    } else if (step === 3) {
       setIsFormValid(true);
     }
   }, [formData, step]);
 
+  useEffect(() => {
+    const { payment } = router.query;
+
+    if (payment === "success") {
+      // Store payment success in localStorage
+      localStorage.setItem("paymentStatus", "success");
+      // Force step to be 3 (Review)
+      setStep(3);
+      // Remove query params to avoid infinite loop
+      router.replace("/checkout", undefined, { shallow: true });
+    } else if (payment === "failed") {
+      setError("Payment failed. Please try again.");
+      setStep(2); // Send back to payment step
+      router.replace("/checkout", undefined, { shallow: true });
+    }
+  }, [router.query]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "specialRequest" && value.length > maxSpecialRequestLength) {
-      return;
+      return; // Prevent exceeding character limit
     }
     setFormData((prev) => ({
       ...prev,
@@ -125,72 +148,15 @@ export default function Checkout() {
     return (subtotal + shipping).toFixed(2);
   };
 
+  // Update handlePayment function
   const handlePayment = async () => {
-    setIsSubmitting(true);
-    setError("");
     try {
-      const orderId = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
-      localStorage.setItem("lastOrderId", orderId);
+      setIsSubmitting(true);
+      setError("");
 
-      const formattedAmount = parseFloat(calculateTotal()).toFixed(2);
-      const sanitizedFirstName = formData.firstName
-        .replace(/[^a-zA-Z0-9 ]/g, "")
-        .trim();
-      const sanitizedEmail = formData.email.trim().toLowerCase();
-
-      console.log("Sending to /api/generate-payu-hash:", {
-        orderId,
-        amount: formattedAmount,
-        firstName: sanitizedFirstName,
-        email: sanitizedEmail,
-        phone: formData.phone,
-      });
-
-      const response = await axios.post("/api/generate-payu-hash", {
-        orderId,
-        amount: formattedAmount,
-        firstName: sanitizedFirstName,
-        email: sanitizedEmail,
-        phone: formData.phone,
-      });
-
-      const {
-        hash,
-        txnid,
-        key,
-        amount,
-        productinfo,
-        firstname,
-        email,
-        phone,
-        surl,
-        furl,
-        action,
-      } = response.data;
-
-      console.log("PayU Form Data:", {
-        key,
-        txnid,
-        amount,
-        productinfo,
-        firstname,
-        email,
-        phone,
-        surl,
-        furl,
-        hash,
-        mode:
-          formData.paymentMethod === "card"
-            ? "CC"
-            : formData.paymentMethod === "upi"
-            ? "UPI"
-            : "NB",
-      });
-
-      // Store order in Firestore
-      const docRef = await addDoc(collection(db, "orders"), {
-        orderId,
-        userId: user?.uid || null,
+      // Generate temporary order data (not saved to Firestore yet)
+      const tempOrderData = {
+        orderId: `TEMP${Date.now()}${Math.floor(Math.random() * 1000)}`,
         customerInfo: {
           firstName: formData.firstName,
           lastName: formData.lastName,
@@ -201,114 +167,54 @@ export default function Checkout() {
           state: formData.state,
           pincode: formData.pincode,
         },
-        specialRequest: formData.specialRequest || null,
-        items: cartItems.map((item) => {
-          const baseItem = {
-            id: item.id,
-            cartItemId: item.cartItemId,
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity,
-            image: item.image,
-            images: Array.isArray(item.images) ? item.images : [item.image],
-            total: (item.price * item.quantity).toFixed(2),
-            category: item.category || "",
-            type: item.type || "",
-          };
-          if (isRingItem(item)) {
-            const ringSize = item.ringSize?.value || item.selectedSize;
-            const isCustomSize =
-              item.ringSize?.isCustom || item.sizeType === "custom";
-            baseItem.ringDetails = {
-              isRing: true,
-              size: ringSize,
-              sizeType: isCustomSize ? "custom" : "standard",
-              isCustomSize,
-              sizeDisplay: getRingSizeDisplay(item),
-            };
-            baseItem.ringSize = ringSize;
-            baseItem.isCustomRingSize = isCustomSize;
-          }
-          return baseItem;
-        }),
-        orderSummary: {
-          subtotal: parseFloat(calculateSubtotal()),
-          shipping: calculateShipping(),
-          total: parseFloat(formattedAmount),
-          itemCount: cartItems.reduce(
-            (total, item) => total + item.quantity,
-            0
-          ),
-        },
-        paymentInfo: {
-          method: formData.paymentMethod,
-          status: "pending",
-          transactionId: txnid,
-        },
-        orderStatus: "pending",
-        metadata: {
-          hasRings: cartItems.some((item) => isRingItem(item)),
-          ringItems: cartItems
-            .filter((item) => isRingItem(item))
-            .map((item) => ({
-              productId: item.id,
-              cartItemId: item.cartItemId,
-              name: item.name,
-              size: item.ringSize?.value || item.selectedSize,
-              isCustomSize:
-                item.ringSize?.isCustom || item.sizeType === "custom",
-            })),
-          totalItems: cartItems.length,
-          hasSpecialRequest: !!formData.specialRequest,
-          browserInfo: {
-            userAgent: navigator.userAgent,
-            timestamp: Date.now(),
-          },
-        },
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
-
-      localStorage.setItem("firestoreOrderId", docRef.id);
-
-      // Create PayU form
-      const payuForm = document.createElement("form");
-      payuForm.method = "POST";
-      payuForm.action = action;
-
-      const fields = {
-        key,
-        txnid,
-        amount,
-        productinfo,
-        firstname,
-        email,
-        phone,
-        surl,
-        furl,
-        hash,
-        mode:
-          formData.paymentMethod === "card"
-            ? "CC"
-            : formData.paymentMethod === "upi"
-            ? "UPI"
-            : "NB",
+        items: cartItems,
+        totalAmount: calculateTotal(),
+        paymentMethod: formData.paymentMethod,
       };
 
-      for (const [name, value] of Object.entries(fields)) {
+      // Store temp order data in localStorage
+      localStorage.setItem("tempOrderData", JSON.stringify(tempOrderData));
+
+      // Prepare PayU payment data
+      const paymentData = {
+        txnid: tempOrderData.orderId,
+        amount: tempOrderData.totalAmount,
+        productinfo: `Purchase of ${cartItems.length} item(s)`,
+        firstname: tempOrderData.customerInfo.firstName,
+        email: tempOrderData.customerInfo.email,
+        phone: tempOrderData.customerInfo.phone,
+        address: tempOrderData.customerInfo.address,
+        city: tempOrderData.customerInfo.city,
+        state: tempOrderData.customerInfo.state,
+        country: "India",
+        zipcode: tempOrderData.customerInfo.pincode,
+        udf1: user?.uid || "guest",
+        udf2: JSON.stringify(cartItems.map((item) => item.id)),
+      };
+
+      // Initialize PayU payment
+      const payuParams = await initPayUPayment(paymentData);
+
+      // Create and submit form to PayU
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = `${PAYU_CONFIG.baseUrl}/_payment`;
+
+      Object.entries(payuParams).forEach(([key, value]) => {
         const input = document.createElement("input");
         input.type = "hidden";
-        input.name = name;
+        input.name = key;
         input.value = value;
-        payuForm.appendChild(input);
-      }
+        form.appendChild(input);
+      });
 
-      document.body.appendChild(payuForm);
-      console.log("Submitting PayU form to:", action);
-      payuForm.submit();
+      document.body.appendChild(form);
+      form.submit();
     } catch (err) {
-      console.error("Error initiating payment:", err);
-      setError("Failed to initiate payment. Please try again.");
+      console.error("Payment initialization failed:", err);
+      setError(
+        `Payment initialization failed: ${err.message || "Please try again"}`
+      );
       setIsSubmitting(false);
     }
   };
@@ -316,16 +222,69 @@ export default function Checkout() {
   const handleSubmitOrder = async () => {
     setIsSubmitting(true);
     setError("");
+
     try {
-      // Since order is already created in handlePayment, redirect to confirmation
-      const orderId = localStorage.getItem("lastOrderId");
+      // Check if payment was successful
+      const paymentStatus = localStorage.getItem("paymentStatus");
+      if (paymentStatus !== "success") {
+        throw new Error("Payment not verified. Please complete payment first.");
+      }
+
+      // Get temp order data
+      const tempOrderData = JSON.parse(localStorage.getItem("tempOrderData"));
+      if (!tempOrderData) {
+        throw new Error("Order data not found. Please start over.");
+      }
+
+      // Generate final order ID
+      const orderId = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
+
+      const orderData = {
+        orderId,
+        userId: user?.uid || null,
+        customerInfo: tempOrderData.customerInfo,
+        specialRequest: formData.specialRequest || null,
+        items: tempOrderData.items.map((item) => {
+          // ... (your existing item mapping logic)
+        }),
+        orderSummary: {
+          subtotal: parseFloat(calculateSubtotal()),
+          shipping: calculateShipping(),
+          total: parseFloat(tempOrderData.totalAmount),
+          itemCount: tempOrderData.items.reduce(
+            (total, item) => total + item.quantity,
+            0
+          ),
+        },
+        paymentInfo: {
+          method: tempOrderData.paymentMethod,
+          status: "success",
+          transactionId: tempOrderData.orderId.replace("TEMP", "PAY"),
+          amount: tempOrderData.totalAmount,
+          gateway: "PayU",
+        },
+        orderStatus: "confirmed",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      // Save to Firestore
+      const docRef = await addDoc(collection(db, "orders"), orderData);
+
+      // Clear all temporary data
       localStorage.removeItem("cartItems");
+      localStorage.removeItem("tempOrderData");
+      localStorage.removeItem("paymentStatus");
+
+      // Store order IDs for confirmation page
+      localStorage.setItem("lastOrderId", orderId);
+      localStorage.setItem("firestoreOrderId", docRef.id);
+
+      // Redirect to confirmation
       router.push(`/order-confirmation?orderId=${orderId}`);
     } catch (err) {
-      console.error("Error:", err);
-      setError(
-        `Failed to complete order: ${err.message || "Please try again"}`
-      );
+      console.error("Error storing order:", err);
+      setError(`Failed to place order: ${err.message || "Please try again"}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -381,6 +340,7 @@ export default function Checkout() {
                   />
                 </div>
               </div>
+
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
                   <label htmlFor="email">Email*</label>
@@ -405,6 +365,7 @@ export default function Checkout() {
                   />
                 </div>
               </div>
+
               <div className={styles.formGroup}>
                 <label htmlFor="address">Address*</label>
                 <input
@@ -416,6 +377,7 @@ export default function Checkout() {
                   required
                 />
               </div>
+
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
                   <label htmlFor="city">City*</label>
@@ -451,14 +413,17 @@ export default function Checkout() {
                   />
                 </div>
               </div>
+
               <div className={styles.formGroup}>
-                <label htmlFor="specialRequest">Special Requests</label>
+                <label htmlFor="specialRequest">
+                  Special Requests (e.g., gift message, engraving)
+                </label>
                 <textarea
                   id="specialRequest"
                   name="specialRequest"
                   value={formData.specialRequest}
                   onChange={handleChange}
-                  placeholder="E.g., Please engrave 'Love Always' on the ring"
+                  placeholder="E.g., Please engrave 'Love Always' on the ring or include a gift note saying 'Happy Birthday!'"
                   maxLength={maxSpecialRequestLength}
                   className={styles.specialRequest}
                 />
@@ -507,8 +472,9 @@ export default function Checkout() {
                   <label htmlFor="netbanking">Net Banking</label>
                 </div>
               </div>
-              <div className={styles.payuPlaceholder}>
-                <div className={styles.payuLogo}>
+
+              <div className={styles.razorpayPlaceholder}>
+                <div className={styles.razorpayLogo}>
                   <svg
                     width="40"
                     height="40"
@@ -521,7 +487,7 @@ export default function Checkout() {
                     <line x1="3" y1="10" x2="21" y2="10" />
                   </svg>
                 </div>
-                <p>PayU Payment Processing</p>
+                <p>Razorpay Payment Form Will Render Here</p>
                 <div className={styles.securePayment}>
                   <svg
                     width="16"
@@ -534,7 +500,7 @@ export default function Checkout() {
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                     <path d="M7 11V7a5 5 0 0110 0v4" />
                   </svg>
-                  <span>Secured by PayU</span>
+                  <span>Secured by Razorpay</span>
                 </div>
               </div>
             </div>
@@ -543,6 +509,17 @@ export default function Checkout() {
           {step === 3 && (
             <div className={styles.orderReview}>
               <h2>Order Review</h2>
+
+              {/* Show payment status */}
+              {localStorage.getItem("paymentStatus") === "success" && (
+                <div className={styles.paymentSuccess}>
+                  <svg viewBox="0 0 24 24" className={styles.successIcon}>
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+                  </svg>
+                  <p>Payment successful! Review your order details below.</p>
+                </div>
+              )}
+
               <div className={styles.reviewSection}>
                 <h3>Shipping Details</h3>
                 <div className={styles.reviewInfo}>
@@ -557,6 +534,7 @@ export default function Checkout() {
                   <p>Phone: {formData.phone}</p>
                 </div>
               </div>
+
               {formData.specialRequest && (
                 <div className={styles.reviewSection}>
                   <h3>Special Request</h3>
@@ -565,6 +543,7 @@ export default function Checkout() {
                   </div>
                 </div>
               )}
+
               <div className={styles.reviewSection}>
                 <h3>Payment Method</h3>
                 <div className={styles.reviewInfo}>
@@ -577,6 +556,7 @@ export default function Checkout() {
                   </p>
                 </div>
               </div>
+
               {cartItems.some((item) => isRingItem(item)) && (
                 <div className={styles.reviewSection}>
                   <h3>Ring Size Details</h3>
@@ -592,6 +572,7 @@ export default function Checkout() {
                   </div>
                 </div>
               )}
+
               {error && <div className={styles.error}>{error}</div>}
             </div>
           )}
@@ -621,6 +602,7 @@ export default function Checkout() {
               </div>
             ))}
           </div>
+
           <div className={styles.summaryCalculation}>
             <div className={styles.calculationRow}>
               <span>Subtotal</span>
@@ -652,6 +634,7 @@ export default function Checkout() {
             Back
           </button>
         )}
+
         {step < 3 ? (
           <button
             onClick={step === 2 ? handlePayment : nextStep}
