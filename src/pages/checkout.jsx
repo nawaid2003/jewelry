@@ -4,7 +4,6 @@ import { collection, addDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { useAuth } from "../context/AuthContext";
 import styles from "../styles/Checkout.module.scss";
-import crypto from "crypto";
 
 const PAYU_CONFIG = {
   merchantKey: process.env.NEXT_PUBLIC_PAYU_MERCHANT_KEY,
@@ -18,13 +17,6 @@ const PAYU_CONFIG = {
     process.env.PAYU_ENV === "production"
       ? "https://secure.payu.in/_payment"
       : "https://test.payu.in/_payment",
-};
-
-// Utility function to generate PayU hash
-const generatePayUHash = (params) => {
-  const { key, txnid, amount, productinfo, firstname, email } = params;
-  const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|||||||||||${PAYU_CONFIG.merchantSalt}`;
-  return crypto.createHash("sha512").update(hashString).digest("hex");
 };
 
 export default function Checkout() {
@@ -47,8 +39,52 @@ export default function Checkout() {
   const [isFormValid, setIsFormValid] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [scriptLoaded, setScriptLoaded] = useState(false);
   const fallbackImage = "/images/fallback-product.jpg";
   const maxSpecialRequestLength = 500;
+
+  // Load PayU Bolt script dynamically
+  const loadBoltScript = () => {
+    return new Promise((resolve, reject) => {
+      // Check if script is already loaded
+      if (window.bolt) {
+        setScriptLoaded(true);
+        resolve();
+        return;
+      }
+
+      // Check if script tag already exists
+      const existingScript = document.querySelector(
+        `script[src="${PAYU_CONFIG.boltScriptUrl}"]`
+      );
+      if (existingScript) {
+        existingScript.addEventListener("load", () => {
+          setScriptLoaded(true);
+          resolve();
+        });
+        existingScript.addEventListener("error", reject);
+        return;
+      }
+
+      // Create and load script
+      const script = document.createElement("script");
+      script.src = PAYU_CONFIG.boltScriptUrl;
+      script.async = true;
+
+      script.onload = () => {
+        console.log("PayU Bolt script loaded successfully");
+        setScriptLoaded(true);
+        resolve();
+      };
+
+      script.onerror = (error) => {
+        console.error("Failed to load PayU Bolt script:", error);
+        reject(new Error("Failed to load PayU Bolt script"));
+      };
+
+      document.head.appendChild(script);
+    });
+  };
 
   // Helper function to check if an item is a ring
   const isRingItem = (item) => {
@@ -88,6 +124,9 @@ export default function Checkout() {
         lastName: user.displayName?.split(" ")[1] || "",
       }));
     }
+
+    // Load PayU script when component mounts
+    loadBoltScript().catch(console.error);
   }, [router, user]);
 
   useEffect(() => {
@@ -154,6 +193,19 @@ export default function Checkout() {
     setError("");
 
     try {
+      // Ensure script is loaded before proceeding
+      if (!scriptLoaded || !window.bolt) {
+        console.log("PayU script not loaded, attempting to load...");
+        await loadBoltScript();
+      }
+
+      // Double check if bolt is available
+      if (!window.bolt) {
+        throw new Error(
+          "PayU Bolt SDK failed to load. Please refresh the page and try again."
+        );
+      }
+
       const orderId = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
       const productInfo = `Jewelry Order ${orderId}`;
       const amount = parseFloat(calculateTotal()).toFixed(2);
@@ -178,35 +230,36 @@ export default function Checkout() {
 
       const response = await fetch("/api/payu-hash", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify(paymentParams),
       });
 
-      const responseText = await response.text();
-      console.log("payu-hash response:", {
-        status: response.status,
-        statusText: response.statusText,
-        body: responseText,
-      });
+      console.log("payu-hash response status:", response.status);
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API Error Response:", errorText);
         throw new Error(
-          `Failed to generate payment hash: ${response.status} ${response.statusText}`
+          `Failed to generate payment hash: ${response.status} ${response.statusText} - ${errorText}`
         );
       }
 
-      const contentType = response.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        throw new Error(
-          `Invalid response from server: Expected JSON, got ${contentType}`
-        );
-      }
+      const responseData = await response.json();
+      const { hash } = responseData;
 
-      const { hash } = JSON.parse(responseText);
       if (!hash) {
         throw new Error("No hash returned from server");
       }
+
       paymentParams.hash = hash;
+
+      console.log("Launching PayU Bolt with params:", {
+        ...paymentParams,
+        hash: "***",
+      });
 
       window.bolt.launch(
         {
@@ -242,7 +295,9 @@ export default function Checkout() {
             console.error("PayU Bolt error:", error);
             setError(
               `Payment error: ${
-                error.response?.error_Message || "Network error"
+                error.response?.error_Message ||
+                error.message ||
+                "Network error"
               }`
             );
             setIsSubmitting(false);
@@ -251,9 +306,7 @@ export default function Checkout() {
       );
     } catch (err) {
       console.error("Payment error:", err);
-      Deletion: setError(
-        `Payment failed: ${err.message || "Please try again"}`
-      );
+      setError(`Payment failed: ${err.message || "Please try again"}`);
       setIsSubmitting(false);
     }
   };
@@ -670,6 +723,12 @@ export default function Checkout() {
                 </div>
               </div>
 
+              {!scriptLoaded && (
+                <div className={styles.scriptLoading}>
+                  <p>Loading payment gateway...</p>
+                </div>
+              )}
+
               {error && <div className={styles.error}>{error}</div>}
             </div>
           )}
@@ -744,15 +803,12 @@ export default function Checkout() {
           <button
             onClick={handlePayment}
             className={styles.placeOrderButton}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !scriptLoaded}
           >
             {isSubmitting ? "Processing Payment..." : "Pay Now"}
           </button>
         )}
       </div>
-
-      {/* PayU Bolt Script */}
-      <script src={PAYU_CONFIG.boltScriptUrl}></script>
     </div>
   );
 }
