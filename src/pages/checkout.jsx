@@ -169,12 +169,13 @@ export default function Checkout() {
         surl: `https://silverlining.store/order-confirmation?orderId=${orderId}`,
         furl: `https://silverlining.store/checkout?step=3`,
         pg:
-          formData.paymentMethod === "集card"
+          formData.paymentMethod === "card"
             ? "CC"
             : formData.paymentMethod.toUpperCase(),
       };
 
-      // Fetch hash from API route
+      console.log("Payment Params:", paymentParams); // Debug log
+
       const response = await fetch("/api/payu-hash", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -182,7 +183,13 @@ export default function Checkout() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to generate payment hash");
+        const errorData = await response.json();
+        console.error("Hash fetch error:", errorData);
+        throw new Error(
+          `Failed to generate payment hash: ${
+            errorData.error || response.statusText
+          }`
+        );
       }
 
       const { hash } = await response.json();
@@ -206,6 +213,7 @@ export default function Checkout() {
         },
         {
           responseHandler: async (response) => {
+            console.log("PayU Response:", response); // Debug log
             if (response.response.txnStatus === "SUCCESS") {
               formData.paymentMethod = response.response.mode.toLowerCase();
               await handleSubmitOrder();
@@ -218,6 +226,7 @@ export default function Checkout() {
             }
           },
           catchException: (error) => {
+            console.error("PayU Bolt error:", error);
             setError(
               `Payment error: ${
                 error.response?.error_Message || "Network error"
