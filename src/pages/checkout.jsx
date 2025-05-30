@@ -7,14 +7,14 @@ import styles from "../styles/Checkout.module.scss";
 
 const PAYU_CONFIG = {
   merchantKey: process.env.NEXT_PUBLIC_PAYU_MERCHANT_KEY,
-  merchantSalt: process.env.PAYU_MERCHANT_SALT,
-  env: process.env.PAYU_ENV || "test",
+  merchantSalt: process.env.NEXT_PUBLIC_PAYU_MERCHANT_SALT, // Add NEXT_PUBLIC_ prefix
+  env: process.env.NEXT_PUBLIC_PAYU_ENV || "production", // Change default to production
   boltScriptUrl:
-    process.env.PAYU_ENV === "production"
+    process.env.NEXT_PUBLIC_PAYU_ENV === "production"
       ? "https://jssdk.payu.in/bolt/bolt.min.js"
       : "https://jssdk-uat.payu.in/bolt/bolt.min.js",
   paymentUrl:
-    process.env.PAYU_ENV === "production"
+    process.env.NEXT_PUBLIC_PAYU_ENV === "production"
       ? "https://secure.payu.in/_payment"
       : "https://test.payu.in/_payment",
 };
