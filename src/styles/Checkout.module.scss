@@ -626,3 +626,234 @@ $success-green: #3bb75e;
     font-weight: 500;
   }
 }
+
+
+.payuPaymentSection {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 2px solid #e3e7ed;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 1.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #002970, #0056d3, #002970);
+  }
+
+  .payuLogo {
+    margin-bottom: 1rem;
+    
+    svg {
+      filter: drop-shadow(0 2px 4px rgba(0, 41, 112, 0.15));
+    }
+  }
+
+  .paymentDescription {
+    color: #495057;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    font-weight: 500;
+  }
+
+  .paymentMethods {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    
+    span {
+      color: #6c757d;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+  }
+
+  .paymentProcessing {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: rgba(0, 123, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 123, 255, 0.1);
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid #e3f2fd;
+      border-top: 3px solid #2196f3;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    p {
+      color: #1976d2;
+      font-weight: 500;
+      margin: 0;
+    }
+  }
+
+  .securePayment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: #28a745;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-top: 1rem;
+    
+    svg {
+      color: #28a745;
+    }
+  }
+}
+
+// Enhanced error styling
+.error {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  color: #721c24;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  border-left: 4px solid #dc3545;
+  margin-top: 1rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &::before {
+    content: '⚠️';
+    font-size: 1.1rem;
+  }
+}
+
+// Enhanced button styling for payment
+.placeOrderButton {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 200px;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+  }
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+    
+    &::before {
+      left: 100%;
+    }
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  
+  &:disabled {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+// Responsive design improvements
+@media (max-width: 768px) {
+  .payuPaymentSection {
+    padding: 1.5rem 1rem;
+    margin-top: 1rem;
+    
+    .payuLogo svg {
+      width: 100px;
+      height: 32px;
+    }
+    
+    .paymentMethods span {
+      font-size: 0.8rem;
+    }
+  }
+  
+  .paymentOptions {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    
+    .paymentOption label {
+      padding: 0.875rem 1rem;
+      padding-left: 2.75rem;
+      font-size: 0.9rem;
+      
+      &::before {
+        left: 0.875rem;
+        width: 18px;
+        height: 18px;
+      }
+      
+      &::after {
+        left: 1rem;
+        width: 8px;
+        height: 8px;
+      }
+    }
+  }
+  
+  .placeOrderButton {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+  }
+}
+
+// Keyframe animations
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+// Loading state for payment processing
+.paymentProcessing {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+// Success state styling (for future use)
+.paymentSuccess {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  color: #155724;
+  border-left: 4px solid #28a745;
+  
+  &::before {
+    content: '✅';
+  }
+}

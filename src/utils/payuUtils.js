@@ -20,3 +20,23 @@ export const formatPayUProductInfo = (items) => {
     .join(", ")
     .substring(0, 100); // PayU limit
 };
+
+export const validatePayUResponse = (responseData, salt, merchantKey) => {
+  const {
+    status,
+    txnid,
+    amount,
+    productinfo,
+    firstname,
+    email,
+    hash: receivedHash,
+  } = responseData;
+
+  const hashString = `${salt}|${status}|||||||||||${email}|${firstname}|${productinfo}|${amount}|${txnid}|${merchantKey}`;
+  const calculatedHash = crypto
+    .createHash("sha512")
+    .update(hashString)
+    .digest("hex");
+
+  return calculatedHash === receivedHash;
+};
