@@ -1,4 +1,3 @@
-//order-confirmation
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { doc, getDoc } from "firebase/firestore";
@@ -14,42 +13,45 @@ export default function OrderConfirmation() {
   const fallbackImage = "/images/fallback-product.jpg";
 
   useEffect(() => {
-    const verifyPayment = async () => {
-      if (!orderDetails || orderDetails.paymentInfo.status !== "pending")
-        return;
+    if (!orderId) return;
 
+    const fetchOrder = async () => {
       try {
-        const response = await fetch("/api/verify-payment", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            paymentResponse: router.query,
-            orderId: orderDetails.orderId,
-          }),
-        });
+        setLoading(true);
+        const firestoreOrderId = localStorage.getItem("firestoreOrderId");
+        if (!firestoreOrderId) {
+          setError("Order not found. Please contact support.");
+          setLoading(false);
+          return;
+        }
 
-        const data = await response.json();
-        if (data.success) {
-          // Refresh order details
-          const orderRef = doc(
-            db,
-            "orders",
-            localStorage.getItem("firestoreOrderId")
-          );
-          const orderSnap = await getDoc(orderRef);
-          if (orderSnap.exists()) {
-            setOrderDetails(orderSnap.data());
-          }
+        const orderRef = doc(db, "orders", firestoreOrderId);
+        const orderSnap = await getDoc(orderRef);
+
+        if (orderSnap.exists()) {
+          const data = orderSnap.data();
+          // Normalize items to ensure `image` field
+          const normalizedData = {
+            ...data,
+            items: data.items.map((item) => ({
+              ...item,
+              image: item.image || item.images?.[0] || fallbackImage,
+            })),
+          };
+          setOrderDetails(normalizedData);
+        } else {
+          setError("Order not found. Please contact support.");
         }
       } catch (err) {
-        console.error("Payment verification error:", err);
+        console.error("Error fetching order:", err);
+        setError("Failed to load order details. Please try again.");
+      } finally {
+        setLoading(false);
       }
     };
 
-    verifyPayment();
-  }, [orderDetails, orderId, router.query]);
+    fetchOrder();
+  }, [orderId]);
 
   const handleContinueShopping = () => {
     localStorage.removeItem("firestoreOrderId");

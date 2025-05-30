@@ -1,13 +1,9 @@
-//checkout
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { useAuth } from "../context/AuthContext";
 import styles from "../styles/Checkout.module.scss";
-import { PAYU_CONFIG } from "../lib/config";
-import { initPayUPayment } from "../lib/payu";
-import axios from "axios";
 
 export default function Checkout() {
   const router = useRouter();
@@ -88,28 +84,11 @@ export default function Checkout() {
           pincode
       );
     } else if (step === 2) {
-      setIsFormValid(true);
+      setIsFormValid(true); // Review step is always valid
     } else if (step === 3) {
-      setIsFormValid(true);
+      setIsFormValid(true); // Payment step is always valid
     }
   }, [formData, step]);
-
-  useEffect(() => {
-    const { payment } = router.query;
-
-    if (payment === "success") {
-      // Store payment success in localStorage
-      localStorage.setItem("paymentStatus", "success");
-      // Force step to be 3 (Review)
-      setStep(3);
-      // Remove query params to avoid infinite loop
-      router.replace("/checkout", undefined, { shallow: true });
-    } else if (payment === "failed") {
-      setError("Payment failed. Please try again.");
-      setStep(2); // Send back to payment step
-      router.replace("/checkout", undefined, { shallow: true });
-    }
-  }, [router.query]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -149,185 +128,120 @@ export default function Checkout() {
     return (subtotal + shipping).toFixed(2);
   };
 
-  // Update your hash generation function
-  const generatePayUHash = async (paymentData) => {
-    try {
-      const response = await axios.post(
-        "/api/generate-payu-hash",
-        {
-          ...paymentData,
-          merchantSalt: process.env.NEXT_PUBLIC_PAYU_MERCHANT_SALT,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          timeout: 5000, // 5 second timeout
-        }
-      );
-
-      if (!response.data.success) {
-        throw new Error(response.data.error || "Invalid hash response");
-      }
-
-      return response.data.hash;
-    } catch (error) {
-      console.error("Hash generation failed:", {
-        error: error.response?.data || error.message,
-        requestData: paymentData,
-      });
-      throw new Error(
-        error.response?.data?.error || "Payment processing failed"
-      );
-    }
-  };
-
   const handlePayment = async () => {
+    setIsSubmitting(true);
+    setError("");
+
     try {
-      setIsSubmitting(true);
-      setError("");
+      // TODO: Integrate with Razorpay here
+      alert("Razorpay integration will be implemented here!");
 
-      // 1. Prepare payment data with validation
-      const tempOrderId = `TEMP${Date.now()}${Math.floor(
-        Math.random() * 1000
-      )}`;
-      const totalAmount = parseFloat(calculateTotal()).toFixed(2);
-
-      if (isNaN(totalAmount)) {
-        throw new Error("Invalid order total");
-      }
-
-      const paymentData = {
-        txnid: tempOrderId,
-        amount: totalAmount,
-        productinfo: `Order ${tempOrderId} - ${cartItems.length} items`,
-        firstname: formData.firstName?.toString().trim(),
-        email: formData.email?.toString().trim(),
-        phone: formData.phone?.toString().trim() || "",
-        udf1: user?.uid || "guest",
-        udf2: JSON.stringify(cartItems.map((item) => item.id)),
-      };
-
-      console.log("Submitting payment data:", paymentData); // Debug log
-
-      // 2. Generate hash
-      const hash = await generatePayUHash(paymentData);
-
-      // 3. Prepare PayU request
-      const payuParams = {
-        key: process.env.NEXT_PUBLIC_PAYU_MERCHANT_KEY,
-        ...paymentData,
-        hash,
-        surl: `${window.location.origin}/checkout?step=3&payment=success`,
-        furl: `${window.location.origin}/checkout?step=3&payment=failed`,
-        service_provider: "payu_paisa",
-        curl: `${window.location.origin}/checkout?step=2`, // Cancel URL
-        // Additional required fields
-        address1: formData.address?.substring(0, 100) || "",
-        city: formData.city || "",
-        state: formData.state || "",
-        country: "India",
-        zipcode: formData.pincode || "",
-        phone: formData.phone || "",
-      };
-
-      // 4. Submit to PayU
-      const form = document.createElement("form");
-      form.method = "POST";
-      form.action = `${
-        process.env.NEXT_PUBLIC_PAYU_BASE_URL || "https://secure.payu.in"
-      }/_payment`;
-
-      Object.entries(payuParams).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          const input = document.createElement("input");
-          input.type = "hidden";
-          input.name = key;
-          input.value = value;
-          form.appendChild(input);
-        }
-      });
-
-      document.body.appendChild(form);
-      form.submit();
+      // After successful payment, submit the order
+      await handleSubmitOrder();
     } catch (err) {
-      console.error("Payment error:", {
-        error: err,
-        time: new Date().toISOString(),
-        user: user?.uid || "guest",
-      });
-
-      setError(err.message || "Payment processing failed. Please try again.");
+      console.error("Payment error:", err);
+      setError(`Payment failed: ${err.message || "Please try again"}`);
       setIsSubmitting(false);
     }
   };
 
   const handleSubmitOrder = async () => {
-    setIsSubmitting(true);
-    setError("");
-
     try {
-      // Check if payment was successful
-      const paymentStatus = localStorage.getItem("paymentStatus");
-      if (paymentStatus !== "success") {
-        throw new Error("Payment not verified. Please complete payment first.");
-      }
-
-      // Get temp order data
-      const tempOrderData = JSON.parse(localStorage.getItem("tempOrderData"));
-      if (!tempOrderData) {
-        throw new Error("Order data not found. Please start over.");
-      }
-
-      // Generate final order ID
       const orderId = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
-
       const orderData = {
         orderId,
         userId: user?.uid || null,
-        customerInfo: tempOrderData.customerInfo,
-        specialRequest: formData.specialRequest || null,
-        items: tempOrderData.items.map((item) => {
-          // ... (your existing item mapping logic)
+        customerInfo: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          pincode: formData.pincode,
+        },
+        specialRequest: formData.specialRequest || null, // Store special request
+        items: cartItems.map((item) => {
+          const baseItem = {
+            id: item.id,
+            cartItemId: item.cartItemId,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            image: item.image, // Use normalized single image
+            images: Array.isArray(item.images) ? item.images : [item.image], // Include full images array
+            total: (item.price * item.quantity).toFixed(2),
+            category: item.category || "",
+            type: item.type || "",
+          };
+
+          if (isRingItem(item)) {
+            const ringSize = item.ringSize?.value || item.selectedSize;
+            const isCustomSize =
+              item.ringSize?.isCustom || item.sizeType === "custom";
+
+            baseItem.ringDetails = {
+              isRing: true,
+              size: ringSize,
+              sizeType: isCustomSize ? "custom" : "standard",
+              isCustomSize: isCustomSize,
+              sizeDisplay: getRingSizeDisplay(item),
+            };
+            baseItem.ringSize = ringSize;
+            baseItem.isCustomRingSize = isCustomSize;
+          }
+
+          return baseItem;
         }),
         orderSummary: {
           subtotal: parseFloat(calculateSubtotal()),
           shipping: calculateShipping(),
-          total: parseFloat(tempOrderData.totalAmount),
-          itemCount: tempOrderData.items.reduce(
+          total: parseFloat(calculateTotal()),
+          itemCount: cartItems.reduce(
             (total, item) => total + item.quantity,
             0
           ),
         },
         paymentInfo: {
-          method: tempOrderData.paymentMethod,
-          status: "success",
-          transactionId: tempOrderData.orderId.replace("TEMP", "PAY"),
-          amount: tempOrderData.totalAmount,
-          gateway: "PayU",
+          method: formData.paymentMethod,
+          status: "completed", // Update status after successful payment
         },
-        orderStatus: "confirmed",
+        orderStatus: "confirmed", // Update status after successful payment
+        metadata: {
+          hasRings: cartItems.some((item) => isRingItem(item)),
+          ringItems: cartItems
+            .filter((item) => isRingItem(item))
+            .map((item) => ({
+              productId: item.id,
+              cartItemId: item.cartItemId,
+              name: item.name,
+              size: item.ringSize?.value || item.selectedSize,
+              isCustomSize:
+                item.ringSize?.isCustom || item.sizeType === "custom",
+            })),
+          totalItems: cartItems.length,
+          hasSpecialRequest: !!formData.specialRequest, // Flag for special request
+          browserInfo: {
+            userAgent: navigator.userAgent,
+            timestamp: Date.now(),
+          },
+        },
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
 
-      // Save to Firestore
+      console.log("Order data being submitted:", orderData);
+
       const docRef = await addDoc(collection(db, "orders"), orderData);
-
-      // Clear all temporary data
       localStorage.removeItem("cartItems");
-      localStorage.removeItem("tempOrderData");
-      localStorage.removeItem("paymentStatus");
-
-      // Store order IDs for confirmation page
       localStorage.setItem("lastOrderId", orderId);
       localStorage.setItem("firestoreOrderId", docRef.id);
-
-      // Redirect to confirmation
       router.push(`/order-confirmation?orderId=${orderId}`);
     } catch (err) {
       console.error("Error storing order:", err);
       setError(`Failed to place order: ${err.message || "Please try again"}`);
+      throw err; // Re-throw to be caught by handlePayment
     } finally {
       setIsSubmitting(false);
     }
@@ -345,12 +259,12 @@ export default function Checkout() {
         <div className={styles.stepConnector}></div>
         <div className={`${styles.step} ${step >= 2 ? styles.active : ""}`}>
           <span className={styles.stepNumber}>2</span>
-          <span className={styles.stepLabel}>Payment</span>
+          <span className={styles.stepLabel}>Review</span>
         </div>
         <div className={styles.stepConnector}></div>
         <div className={`${styles.step} ${step >= 3 ? styles.active : ""}`}>
           <span className={styles.stepNumber}>3</span>
-          <span className={styles.stepLabel}>Review</span>
+          <span className={styles.stepLabel}>Payment</span>
         </div>
       </div>
 
@@ -478,6 +392,82 @@ export default function Checkout() {
           )}
 
           {step === 2 && (
+            <div className={styles.orderReview}>
+              <h2>Order Review</h2>
+              <div className={styles.reviewSection}>
+                <h3>Shipping Details</h3>
+                <div className={styles.reviewInfo}>
+                  <p>
+                    {formData.firstName} {formData.lastName}
+                  </p>
+                  <p>{formData.address}</p>
+                  <p>
+                    {formData.city}, {formData.state} {formData.pincode}
+                  </p>
+                  <p>Email: {formData.email}</p>
+                  <p>Phone: {formData.phone}</p>
+                </div>
+              </div>
+
+              {formData.specialRequest && (
+                <div className={styles.reviewSection}>
+                  <h3>Special Request</h3>
+                  <div className={styles.reviewInfo}>
+                    <p>{formData.specialRequest}</p>
+                  </div>
+                </div>
+              )}
+
+              {cartItems.some((item) => isRingItem(item)) && (
+                <div className={styles.reviewSection}>
+                  <h3>Ring Size Details</h3>
+                  <div className={styles.reviewInfo}>
+                    {cartItems
+                      .filter((item) => isRingItem(item))
+                      .map((item, index) => (
+                        <p key={index}>
+                          <strong>{item.name}</strong>:{" "}
+                          {getRingSizeDisplay(item)}
+                        </p>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              <div className={styles.reviewSection}>
+                <h3>Order Items</h3>
+                <div className={styles.reviewItems}>
+                  {cartItems.map((item, index) => (
+                    <div
+                      key={`${item.cartItemId}-${index}`}
+                      className={styles.reviewItem}
+                    >
+                      <div className={styles.itemImage}>
+                        <img
+                          src={item.image || fallbackImage}
+                          alt={item.name}
+                        />
+                      </div>
+                      <div className={styles.itemDetails}>
+                        <h4>{item.name}</h4>
+                        {isRingItem(item) && (
+                          <p className={styles.ringSize}>
+                            {getRingSizeDisplay(item)}
+                          </p>
+                        )}
+                        <p className={styles.itemPrice}>
+                          ₹{item.price.toFixed(2)} × {item.quantity} = ₹
+                          {(item.price * item.quantity).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
             <div className={styles.paymentForm}>
               <h2>Payment Information</h2>
               <div className={styles.paymentOptions}>
@@ -546,75 +536,6 @@ export default function Checkout() {
                   <span>Secured by Razorpay</span>
                 </div>
               </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className={styles.orderReview}>
-              <h2>Order Review</h2>
-
-              {/* Show payment status */}
-              {localStorage.getItem("paymentStatus") === "success" && (
-                <div className={styles.paymentSuccess}>
-                  <svg viewBox="0 0 24 24" className={styles.successIcon}>
-                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
-                  </svg>
-                  <p>Payment successful! Review your order details below.</p>
-                </div>
-              )}
-
-              <div className={styles.reviewSection}>
-                <h3>Shipping Details</h3>
-                <div className={styles.reviewInfo}>
-                  <p>
-                    {formData.firstName} {formData.lastName}
-                  </p>
-                  <p>{formData.address}</p>
-                  <p>
-                    {formData.city}, {formData.state} {formData.pincode}
-                  </p>
-                  <p>Email: {formData.email}</p>
-                  <p>Phone: {formData.phone}</p>
-                </div>
-              </div>
-
-              {formData.specialRequest && (
-                <div className={styles.reviewSection}>
-                  <h3>Special Request</h3>
-                  <div className={styles.reviewInfo}>
-                    <p>{formData.specialRequest}</p>
-                  </div>
-                </div>
-              )}
-
-              <div className={styles.reviewSection}>
-                <h3>Payment Method</h3>
-                <div className={styles.reviewInfo}>
-                  <p>
-                    {formData.paymentMethod === "card"
-                      ? "Credit/Debit Card"
-                      : formData.paymentMethod === "upi"
-                      ? "UPI"
-                      : "Net Banking"}
-                  </p>
-                </div>
-              </div>
-
-              {cartItems.some((item) => isRingItem(item)) && (
-                <div className={styles.reviewSection}>
-                  <h3>Ring Size Details</h3>
-                  <div className={styles.reviewInfo}>
-                    {cartItems
-                      .filter((item) => isRingItem(item))
-                      .map((item, index) => (
-                        <p key={index}>
-                          <strong>{item.name}</strong>:{" "}
-                          {getRingSizeDisplay(item)}
-                        </p>
-                      ))}
-                  </div>
-                </div>
-              )}
 
               {error && <div className={styles.error}>{error}</div>}
             </div>
@@ -680,19 +601,19 @@ export default function Checkout() {
 
         {step < 3 ? (
           <button
-            onClick={step === 2 ? handlePayment : nextStep}
+            onClick={nextStep}
             className={styles.nextButton}
             disabled={!isFormValid || isSubmitting}
           >
-            {step === 1 ? "Continue to Payment" : "Pay Now"}
+            {step === 1 ? "Review Order" : "Proceed to Payment"}
           </button>
         ) : (
           <button
-            onClick={handleSubmitOrder}
+            onClick={handlePayment}
             className={styles.placeOrderButton}
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Placing Order..." : "Place Order"}
+            {isSubmitting ? "Processing Payment..." : "Pay Now"}
           </button>
         )}
       </div>
