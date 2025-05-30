@@ -183,16 +183,28 @@ export default function Checkout() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Hash fetch error:", errorData);
+        const errorText = await response.text(); // Get raw response for debugging
+        console.error("Hash fetch error:", {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText,
+        });
         throw new Error(
-          `Failed to generate payment hash: ${
-            errorData.error || response.statusText
-          }`
+          `Failed to generate payment hash: ${response.status} ${response.statusText}`
         );
       }
 
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const errorText = await response.text();
+        console.error("Invalid JSON response:", errorText);
+        throw new Error("Invalid response from server: Expected JSON");
+      }
+
       const { hash } = await response.json();
+      if (!hash) {
+        throw new Error("No hash returned from server");
+      }
       paymentParams.hash = hash;
 
       window.bolt.launch(

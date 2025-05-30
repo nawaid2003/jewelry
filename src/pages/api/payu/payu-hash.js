@@ -1,9 +1,7 @@
 // pages/api/payu-hash.js
-import crypto from "crypto";
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({ error: "Method Not Allowed" });
   }
 
   try {
@@ -13,7 +11,11 @@ export default async function handler(req, res) {
     }
 
     const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|||||||||||${process.env.PAYU_MERCHANT_SALT}`;
-    const hash = crypto.createHash("sha512").update(hashString).digest("hex");
+    const encoder = new TextEncoder();
+    const data = encoder.encode(hashString);
+    const hashBuffer = await crypto.subtle.digest("SHA-512", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hash = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
     res.status(200).json({ hash });
   } catch (error) {
     console.error("Hash generation error:", error);
