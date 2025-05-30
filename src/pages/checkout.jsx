@@ -4,6 +4,28 @@ import { collection, addDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { useAuth } from "../context/AuthContext";
 import styles from "../styles/Checkout.module.scss";
+import crypto from "crypto";
+
+const PAYU_CONFIG = {
+  merchantKey: process.env.NEXT_PUBLIC_PAYU_MERCHANT_KEY,
+  merchantSalt: process.env.PAYU_MERCHANT_SALT,
+  env: process.env.PAYU_ENV || "test",
+  boltScriptUrl:
+    process.env.PAYU_ENV === "production"
+      ? "https://jssdk.payu.in/bolt/bolt.min.js"
+      : "https://jssdk-uat.payu.in/bolt/bolt.min.js",
+  paymentUrl:
+    process.env.PAYU_ENV === "production"
+      ? "https://secure.payu.in/_payment"
+      : "https://test.payu.in/_payment",
+};
+
+// Utility function to generate PayU hash
+const generatePayUHash = (params) => {
+  const { key, txnid, amount, productinfo, firstname, email } = params;
+  const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|||||||||||${PAYU_CONFIG.merchantSalt}`;
+  return crypto.createHash("sha512").update(hashString).digest("hex");
+};
 
 export default function Checkout() {
   const router = useRouter();
@@ -25,7 +47,6 @@ export default function Checkout() {
   const [isFormValid, setIsFormValid] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [paymentProcessing, setPaymentProcessing] = useState(false);
   const fallbackImage = "/images/fallback-product.jpg";
   const maxSpecialRequestLength = 500;
 
@@ -48,7 +69,6 @@ export default function Checkout() {
     return isCustom ? `Custom Size: ${ringSize}` : `Size ${ringSize}`;
   };
 
-  // Load cart items and user data
   useEffect(() => {
     const items = JSON.parse(localStorage.getItem("cartItems")) || [];
     if (items.length === 0) {
@@ -70,7 +90,6 @@ export default function Checkout() {
     }
   }, [router, user]);
 
-  // Form validation
   useEffect(() => {
     const { firstName, lastName, email, phone, address, city, state, pincode } =
       formData;
@@ -130,122 +149,94 @@ export default function Checkout() {
     return (subtotal + shipping).toFixed(2);
   };
 
-  // PayU Payment Integration
   const handlePayment = async () => {
     setIsSubmitting(true);
-    setPaymentProcessing(true);
     setError("");
 
     try {
-      const txnid = `TXN${Date.now()}${Math.floor(Math.random() * 1000)}`;
-      const amount = calculateTotal();
-      const productinfo = cartItems
-        .map(
-          (item) =>
-            `${item.name}${
-              item.ringDetails ? ` (${getRingSizeDisplay(item)})` : ""
-            }`
-        )
-        .join(", ")
-        .substring(0, 100);
+      const orderId = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
+      const productInfo = `Jewelry Order ${orderId}`;
+      const amount = parseFloat(calculateTotal()).toFixed(2);
 
-      // Generate hash from server
-      const hashResponse = await fetch("/api/payu/generate-hash", {
+      const paymentParams = {
+        key: PAYU_CONFIG.merchantKey,
+        txnid: orderId,
+        amount: amount,
+        productinfo: productInfo,
+        firstname: formData.firstName,
+        email: formData.email,
+        phone: formData.phone,
+        surl: `https://silverlining.store/order-confirmation?orderId=${orderId}`,
+        furl: `https://silverlining.store/checkout?step=3`,
+        pg:
+          formData.paymentMethod === "集card"
+            ? "CC"
+            : formData.paymentMethod.toUpperCase(),
+      };
+
+      // Fetch hash from API route
+      const response = await fetch("/api/payu-hash", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          key: process.env.NEXT_PUBLIC_PAYU_MERCHANT_KEY,
-          txnid,
-          amount,
-          productinfo,
-          firstname: formData.firstName,
-          email: formData.email,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(paymentParams),
       });
 
-      const { hash } = await hashResponse.json();
-
-      if (!hash) {
+      if (!response.ok) {
         throw new Error("Failed to generate payment hash");
       }
 
-      // PayU Bolt configuration
-      const payuConfig = {
-        key: process.env.NEXT_PUBLIC_PAYU_MERCHANT_KEY,
-        txnid,
-        amount,
-        productinfo,
-        firstname: formData.firstName,
-        lastname: formData.lastname || "",
-        email: formData.email,
-        phone: formData.phone,
-        address1: formData.address,
-        city: formData.city,
-        state: formData.state,
-        zipcode: formData.pincode,
-        country: "India",
-        hash,
-        surl: `${window.location.origin}/api/payu/payment-response`, // Success URL
-        furl: `${window.location.origin}/api/payu/payment-response`, // Failure URL
-      };
+      const { hash } = await response.json();
+      paymentParams.hash = hash;
 
-      // Initialize PayU Bolt
-      if (window.bolt) {
-        window.bolt.launch(payuConfig, {
+      window.bolt.launch(
+        {
+          ...paymentParams,
+          lastname: formData.lastName,
+          address1: formData.address,
+          city: formData.city,
+          state: formData.state,
+          country: "India",
+          zipcode: formData.pincode,
+          udf1: formData.specialRequest || "",
+          enforce_paymethod:
+            formData.paymentMethod === "card"
+              ? "creditcard|debitcard"
+              : formData.paymentMethod,
+          display_lang: "en",
+        },
+        {
           responseHandler: async (response) => {
-            setPaymentProcessing(false);
-
-            if (response.status === "success") {
-              // Store payment info temporarily
-              sessionStorage.setItem(
-                "paymentData",
-                JSON.stringify({
-                  txnid: response.txnid,
-                  payuMoneyId: response.payuMoneyId,
-                  mihpayid: response.mihpayid,
-                  amount: response.amount,
-                  status: response.status,
-                })
-              );
-
-              // Submit order after successful payment
-              await handleSubmitOrder(response);
-            } else {
-              setError(
-                `Payment ${response.status}: ${
-                  response.error || "Please try again"
-                }`
-              );
+            if (response.response.txnStatus === "SUCCESS") {
+              formData.paymentMethod = response.response.mode.toLowerCase();
+              await handleSubmitOrder();
+            } else if (response.response.txnStatus === "FAILED") {
+              setError("Payment failed. Please try again.");
+              setIsSubmitting(false);
+            } else if (response.response.txnStatus === "CANCEL") {
+              setError("Payment was cancelled. Please try again.");
               setIsSubmitting(false);
             }
           },
           catchException: (error) => {
-            setPaymentProcessing(false);
-            console.error("PayU Error:", error);
-            setError("Payment failed. Please try again.");
+            setError(
+              `Payment error: ${
+                error.response?.error_Message || "Network error"
+              }`
+            );
             setIsSubmitting(false);
           },
-        });
-      } else {
-        throw new Error("PayU Bolt not loaded. Please refresh and try again.");
-      }
+        }
+      );
     } catch (err) {
       console.error("Payment error:", err);
       setError(`Payment failed: ${err.message || "Please try again"}`);
       setIsSubmitting(false);
-      setPaymentProcessing(false);
     }
   };
 
-  const handleSubmitOrder = async (paymentResponse = null) => {
+  const handleSubmitOrder = async () => {
     try {
       const orderId = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
-      const paymentData =
-        paymentResponse ||
-        JSON.parse(sessionStorage.getItem("paymentData") || "{}");
-
       const orderData = {
         orderId,
         userId: user?.uid || null,
@@ -302,13 +293,8 @@ export default function Checkout() {
           ),
         },
         paymentInfo: {
-          method: "payu",
-          gateway: "PayU",
+          method: formData.paymentMethod,
           status: "completed",
-          transactionId: paymentData.txnid || null,
-          payuMoneyId: paymentData.payuMoneyId || null,
-          mihpayid: paymentData.mihpayid || null,
-          paymentMethod: formData.paymentMethod,
         },
         orderStatus: "confirmed",
         metadata: {
@@ -334,11 +320,8 @@ export default function Checkout() {
         updatedAt: new Date().toISOString(),
       };
 
-      console.log("Order data being submitted:", orderData);
-
       const docRef = await addDoc(collection(db, "orders"), orderData);
       localStorage.removeItem("cartItems");
-      sessionStorage.removeItem("paymentData");
       localStorage.setItem("lastOrderId", orderId);
       localStorage.setItem("firestoreOrderId", docRef.id);
       router.push(`/order-confirmation?orderId=${orderId}`);
@@ -348,27 +331,8 @@ export default function Checkout() {
       throw err;
     } finally {
       setIsSubmitting(false);
-      setPaymentProcessing(false);
     }
   };
-
-  // Load PayU Bolt script
-  useEffect(() => {
-    if (step === 3 && !window.bolt) {
-      const script = document.createElement("script");
-      script.src =
-        "https://sboxcheckout-static.citruspay.com/bolt/run/bolt.min.js";
-      script.async = true;
-      script.onload = () => {
-        console.log("PayU Bolt loaded successfully");
-      };
-      script.onerror = () => {
-        console.error("Failed to load PayU Bolt");
-        setError("Payment system unavailable. Please refresh and try again.");
-      };
-      document.head.appendChild(script);
-    }
-  }, [step]);
 
   return (
     <div className={styles.checkoutContainer}>
@@ -393,7 +357,6 @@ export default function Checkout() {
 
       <div className={styles.checkoutContent}>
         <div className={styles.formContainer}>
-          {/* Step 1: Shipping Form */}
           {step === 1 && (
             <div className={styles.shippingForm}>
               <h2>Shipping Information</h2>
@@ -515,7 +478,6 @@ export default function Checkout() {
             </div>
           )}
 
-          {/* Step 2: Order Review */}
           {step === 2 && (
             <div className={styles.orderReview}>
               <h2>Order Review</h2>
@@ -592,7 +554,6 @@ export default function Checkout() {
             </div>
           )}
 
-          {/* Step 3: Payment */}
           {step === 3 && (
             <div className={styles.paymentForm}>
               <h2>Payment Information</h2>
@@ -639,7 +600,7 @@ export default function Checkout() {
                     checked={formData.paymentMethod === "wallet"}
                     onChange={handleChange}
                   />
-                  <label htmlFor="wallet">Wallets</label>
+                  <label htmlFor="wallet">Wallet</label>
                 </div>
                 <div className={styles.paymentOption}>
                   <input
@@ -654,36 +615,21 @@ export default function Checkout() {
                 </div>
               </div>
 
-              <div className={styles.payuPaymentSection}>
+              <div className={styles.payuContainer}>
                 <div className={styles.payuLogo}>
-                  <svg width="120" height="40" viewBox="0 0 120 40" fill="none">
-                    <rect width="120" height="40" rx="8" fill="#002970" />
-                    <text
-                      x="60"
-                      y="25"
-                      textAnchor="middle"
-                      fill="white"
-                      fontSize="16"
-                      fontWeight="bold"
-                    >
-                      PayU
-                    </text>
+                  <svg
+                    width="40"
+                    height="40"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+                    <path d="M8 10h8v4H8z" />
                   </svg>
                 </div>
-                <p className={styles.paymentDescription}>
-                  Secure payment gateway supporting all major payment methods
-                </p>
-                <div className={styles.paymentMethods}>
-                  <span>
-                    Supports: UPI • Cards • Net Banking • Wallets • EMI
-                  </span>
-                </div>
-                {paymentProcessing && (
-                  <div className={styles.paymentProcessing}>
-                    <div className={styles.spinner}></div>
-                    <p>Opening secure payment window...</p>
-                  </div>
-                )}
+                <p>PayU Secure Payment Form</p>
                 <div className={styles.securePayment}>
                   <svg
                     width="16"
@@ -696,7 +642,7 @@ export default function Checkout() {
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                     <path d="M7 11V7a5 5 0 0110 0v4" />
                   </svg>
-                  <span>Secured by PayU • SSL Encrypted</span>
+                  <span>Secured by PayU</span>
                 </div>
               </div>
 
@@ -705,7 +651,6 @@ export default function Checkout() {
           )}
         </div>
 
-        {/* Order Summary Sidebar */}
         <div className={styles.orderSummary}>
           <h2>Order Summary</h2>
           <div className={styles.summaryItems}>
@@ -752,7 +697,6 @@ export default function Checkout() {
         </div>
       </div>
 
-      {/* Navigation Buttons */}
       <div className={styles.checkoutActions}>
         {step > 1 && (
           <button
@@ -776,16 +720,15 @@ export default function Checkout() {
           <button
             onClick={handlePayment}
             className={styles.placeOrderButton}
-            disabled={isSubmitting || paymentProcessing}
+            disabled={isSubmitting}
           >
-            {paymentProcessing
-              ? "Opening PayU..."
-              : isSubmitting
-              ? "Processing..."
-              : `Pay ₹${calculateTotal()}`}
+            {isSubmitting ? "Processing Payment..." : "Pay Now"}
           </button>
         )}
       </div>
+
+      {/* PayU Bolt Script */}
+      <script src={PAYU_CONFIG.boltScriptUrl}></script>
     </div>
   );
 }
