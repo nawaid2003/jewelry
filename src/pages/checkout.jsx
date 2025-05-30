@@ -174,7 +174,7 @@ export default function Checkout() {
             : formData.paymentMethod.toUpperCase(),
       };
 
-      console.log("Payment Params:", paymentParams); // Debug log
+      console.log("Payment Params:", paymentParams);
 
       const response = await fetch("/api/payu-hash", {
         method: "POST",
@@ -182,13 +182,14 @@ export default function Checkout() {
         body: JSON.stringify(paymentParams),
       });
 
+      const responseText = await response.text();
+      console.log("payu-hash response:", {
+        status: response.status,
+        statusText: response.statusText,
+        body: responseText,
+      });
+
       if (!response.ok) {
-        const errorText = await response.text(); // Get raw response for debugging
-        console.error("Hash fetch error:", {
-          status: response.status,
-          statusText: response.statusText,
-          body: errorText,
-        });
         throw new Error(
           `Failed to generate payment hash: ${response.status} ${response.statusText}`
         );
@@ -196,12 +197,12 @@ export default function Checkout() {
 
       const contentType = response.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
-        const errorText = await response.text();
-        console.error("Invalid JSON response:", errorText);
-        throw new Error("Invalid response from server: Expected JSON");
+        throw new Error(
+          `Invalid response from server: Expected JSON, got ${contentType}`
+        );
       }
 
-      const { hash } = await response.json();
+      const { hash } = JSON.parse(responseText);
       if (!hash) {
         throw new Error("No hash returned from server");
       }
@@ -225,7 +226,7 @@ export default function Checkout() {
         },
         {
           responseHandler: async (response) => {
-            console.log("PayU Response:", response); // Debug log
+            console.log("PayU Response:", response);
             if (response.response.txnStatus === "SUCCESS") {
               formData.paymentMethod = response.response.mode.toLowerCase();
               await handleSubmitOrder();
@@ -250,7 +251,9 @@ export default function Checkout() {
       );
     } catch (err) {
       console.error("Payment error:", err);
-      setError(`Payment failed: ${err.message || "Please try again"}`);
+      Deletion: setError(
+        `Payment failed: ${err.message || "Please try again"}`
+      );
       setIsSubmitting(false);
     }
   };
