@@ -1,70 +1,78 @@
-// pages/api/payu-hash.js
-export default async function handler(req, res) {
-  // Set CORS headers if needed
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+import crypto from "crypto";
 
-  if (req.method === "OPTIONS") {
-    res.status(200).end();
-    return;
-  }
-
+export default function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method Not Allowed" });
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const { key, txnid, amount, productinfo, firstname, email } = req.body;
+    // Debug: Log what we received
+    console.log("PayU Hash API called with:", req.body);
 
-    // Log the incoming request for debugging
-    console.log("Received payment hash request:", {
-      key: key ? "***" : "missing",
+    // Get environment variables (server-side, no NEXT_PUBLIC_ needed)
+    const merchantSalt = process.env.PAYU_MERCHANT_SALT;
+    const merchantKey = process.env.PAYU_MERCHANT_KEY;
+
+    // Debug: Check if environment variables are set
+    console.log("Environment check:", {
+      merchantKey: merchantKey ? "Set" : "Not set",
+      merchantSalt: merchantSalt ? "Set" : "Not set",
+    });
+
+    if (!merchantSalt || !merchantKey) {
+      console.error("Missing environment variables");
+      return res.status(500).json({
+        error: "Server configuration error",
+        details: "Missing PayU credentials",
+      });
+    }
+
+    const {
+      key,
       txnid,
       amount,
       productinfo,
       firstname,
       email,
-    });
+      phone,
+      surl,
+      furl,
+      pg,
+    } = req.body;
 
+    // Validate required fields
     if (!key || !txnid || !amount || !productinfo || !firstname || !email) {
-      console.error("Missing required parameters:", {
-        key: !!key,
-        txnid: !!txnid,
-        amount: !!amount,
-        productinfo: !!productinfo,
-        firstname: !!firstname,
-        email: !!email,
+      console.error("Missing required fields:", req.body);
+      return res.status(400).json({
+        error: "Missing required payment parameters",
       });
-      return res.status(400).json({ error: "Missing required parameters" });
     }
 
-    // Check if PAYU_MERCHANT_SALT is available
-    if (!process.env.PAYU_MERCHANT_SALT) {
-      console.error("PAYU_MERCHANT_SALT environment variable is not set");
-      return res.status(500).json({ error: "Server configuration error" });
+    // Verify merchant key matches
+    if (key !== merchantKey) {
+      console.error("Merchant key mismatch");
+      return res.status(400).json({
+        error: "Invalid merchant key",
+      });
     }
 
-    const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|||||||||||${process.env.PAYU_MERCHANT_SALT}`;
+    // Create hash string (PayU format)
+    const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|||||||||||${merchantSalt}`;
 
-    // Log hash string for debugging (without salt)
-    console.log(
-      "Hash string (without salt):",
-      `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|||||||||||***`
-    );
+    // Debug: Log hash string (remove in production)
+    console.log("Hash string:", hashString.replace(merchantSalt, "***SALT***"));
 
-    const encoder = new TextEncoder();
-    const data = encoder.encode(hashString);
-    const hashBuffer = await crypto.subtle.digest("SHA-512", data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hash = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+    // Generate SHA512 hash
+    const hash = crypto.createHash("sha512").update(hashString).digest("hex");
 
     console.log("Hash generated successfully");
-    res.status(200).json({ hash });
+
+    return res.status(200).json({ hash });
   } catch (error) {
-    console.error("Hash generation error:", error);
-    res
-      .status(500)
-      .json({ error: "Failed to generate hash", details: error.message });
+    console.error("PayU hash generation error:", error);
+    return res.status(500).json({
+      error: "Server configuration error",
+      details: error.message,
+    });
   }
 }
