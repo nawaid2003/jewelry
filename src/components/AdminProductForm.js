@@ -10,8 +10,9 @@ export default function AdminProductForm() {
     category: "",
     description: "",
     price: "",
+    weight: "", // Added weight field
     details: [],
-    images: [], // Changed from `image` to `images` array
+    images: [],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -22,19 +23,16 @@ export default function AdminProductForm() {
 
   const categories = ["Necklaces", "Rings", "Earrings", "Bracelets"];
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle category selection
   const handleCategorySelect = (category) => {
     setFormData((prev) => ({ ...prev, category }));
     setIsDropdownOpen(false);
   };
 
-  // Handle adding details
   const handleAddDetail = () => {
     if (detailInput.trim()) {
       setFormData((prev) => ({
@@ -45,7 +43,6 @@ export default function AdminProductForm() {
     }
   };
 
-  // Handle pressing Enter in detail input
   const handleDetailKeyPress = (e) => {
     if (e.key === "Enter" && detailInput.trim()) {
       e.preventDefault();
@@ -53,7 +50,6 @@ export default function AdminProductForm() {
     }
   };
 
-  // Handle removing details
   const handleRemoveDetail = (index) => {
     setFormData((prev) => ({
       ...prev,
@@ -61,7 +57,6 @@ export default function AdminProductForm() {
     }));
   };
 
-  // Handle removing an image
   const handleRemoveImage = (index) => {
     setFormData((prev) => ({
       ...prev,
@@ -69,7 +64,6 @@ export default function AdminProductForm() {
     }));
   };
 
-  // Handle Cloudinary upload success
   const handleImageUpload = (result) => {
     if (result.event === "success") {
       setFormData((prev) => ({
@@ -79,7 +73,6 @@ export default function AdminProductForm() {
     }
   };
 
-  // Open Cloudinary Upload Widget
   const openUploadWidget = () => {
     if (window.cloudinary) {
       window.cloudinary
@@ -88,10 +81,10 @@ export default function AdminProductForm() {
             cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
             uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
             folder: "products",
-            multiple: true, // Enable multiple file uploads
+            multiple: true,
             resourceType: "image",
             clientAllowedFormats: ["jpg", "png", "jpeg"],
-            maxFiles: 5, // Limit to 5 images (adjust as needed)
+            maxFiles: 5,
           },
           (error, result) => {
             if (error) {
@@ -108,7 +101,6 @@ export default function AdminProductForm() {
     }
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.category) {
@@ -119,6 +111,10 @@ export default function AdminProductForm() {
       setError("Please upload at least one image.");
       return;
     }
+    if (!formData.weight || formData.weight <= 0) {
+      setError("Please enter a valid weight in grams.");
+      return;
+    }
     setIsSubmitting(true);
     setError("");
     setSuccess("");
@@ -127,6 +123,7 @@ export default function AdminProductForm() {
       const productData = {
         ...formData,
         price: parseFloat(formData.price),
+        weight: parseFloat(formData.weight), // Store weight as number
         createdAt: new Date().toISOString(),
       };
 
@@ -137,6 +134,7 @@ export default function AdminProductForm() {
         category: "",
         description: "",
         price: "",
+        weight: "",
         details: [],
         images: [],
       });
@@ -147,7 +145,6 @@ export default function AdminProductForm() {
     }
   };
 
-  // Handle drag events for upload area
   const handleDragEnter = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -263,6 +260,22 @@ export default function AdminProductForm() {
               required
               className={styles.formInput}
               placeholder="Enter price in ₹"
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="weight">Weight (grams)*</label>
+            <input
+              type="number"
+              id="weight"
+              name="weight"
+              value={formData.weight}
+              onChange={handleChange}
+              step="0.01"
+              min="0"
+              required
+              className={styles.formInput}
+              placeholder="Enter weight in grams"
             />
           </div>
 

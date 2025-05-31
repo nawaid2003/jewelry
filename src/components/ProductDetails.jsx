@@ -20,19 +20,16 @@ export default function ProductDetails({
   const [customSize, setCustomSize] = useState("");
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [sizeDropdownOpen, setSizeDropdownOpen] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0); // For slideshow
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const fallbackImage = "/images/fallback-product.jpg";
 
-  // Check if product is a ring
   const isRing =
     product?.category?.toLowerCase().includes("ring") ||
     product?.name?.toLowerCase().includes("ring") ||
     product?.type?.toLowerCase().includes("ring");
 
-  // Generate size options from 4 to 25
   const sizeOptions = Array.from({ length: 22 }, (_, i) => i + 4);
 
-  // Handle slideshow navigation
   const handlePrevImage = () => {
     setCurrentImageIndex((prev) =>
       prev === 0 ? product.images.length - 1 : prev - 1
@@ -183,28 +180,29 @@ export default function ProductDetails({
   };
 
   const renderDetails = () => {
-    if (
-      !product.details ||
-      (Array.isArray(product.details) && product.details.length === 0)
-    ) {
+    const details = [];
+    if (product.weight) {
+      details.push(`Weight: ${product.weight} grams`);
+    }
+    if (product.details && Array.isArray(product.details)) {
+      details.push(...product.details);
+    }
+
+    if (details.length === 0) {
       return <p className={styles.noDetails}>No details available.</p>;
     }
 
-    if (Array.isArray(product.details)) {
-      return (
-        <div className={styles.detailsCard}>
-          <ul className={styles.detailsList}>
-            {product.details.map((detail, index) => (
-              <li key={index} className={styles.detailItem}>
-                {detail}
-              </li>
-            ))}
-          </ul>
-        </div>
-      );
-    }
-
-    return <p>{JSON.stringify(product.details)}</p>;
+    return (
+      <div className={styles.detailsCard}>
+        <ul className={styles.detailsList}>
+          {details.map((detail, index) => (
+            <li key={index} className={styles.detailItem}>
+              {detail}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
   };
 
   const handleModalClick = (e) => {
