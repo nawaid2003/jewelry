@@ -7,8 +7,8 @@ import styles from "../styles/Checkout.module.scss";
 
 const PAYU_CONFIG = {
   merchantKey: process.env.NEXT_PUBLIC_PAYU_MERCHANT_KEY,
-  merchantSalt: process.env.NEXT_PUBLIC_PAYU_MERCHANT_SALT, // Add NEXT_PUBLIC_ prefix
-  env: process.env.NEXT_PUBLIC_PAYU_ENV || "production", // Change default to production
+  merchantSalt: process.env.NEXT_PUBLIC_PAYU_MERCHANT_SALT,
+  env: process.env.NEXT_PUBLIC_PAYU_ENV || "production",
   boltScriptUrl:
     process.env.NEXT_PUBLIC_PAYU_ENV === "production"
       ? "https://jssdk.payu.in/bolt/bolt.min.js"
@@ -40,20 +40,25 @@ export default function Checkout() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [scriptLoaded, setScriptLoaded] = useState(false);
+
+  // New shipping-related states
+  const [shippingOptions, setShippingOptions] = useState([]);
+  const [selectedShipping, setSelectedShipping] = useState(null);
+  const [loadingShipping, setLoadingShipping] = useState(false);
+  const [shippingError, setShippingError] = useState("");
+
   const fallbackImage = "/images/fallback-product.jpg";
   const maxSpecialRequestLength = 500;
 
   // Load PayU Bolt script dynamically
   const loadBoltScript = () => {
     return new Promise((resolve, reject) => {
-      // Check if script is already loaded
       if (window.bolt) {
         setScriptLoaded(true);
         resolve();
         return;
       }
 
-      // Check if script tag already exists
       const existingScript = document.querySelector(
         `script[src="${PAYU_CONFIG.boltScriptUrl}"]`
       );
@@ -66,7 +71,6 @@ export default function Checkout() {
         return;
       }
 
-      // Create and load script
       const script = document.createElement("script");
       script.src = PAYU_CONFIG.boltScriptUrl;
       script.async = true;
@@ -84,6 +88,61 @@ export default function Checkout() {
 
       document.head.appendChild(script);
     });
+  };
+
+  // Calculate total weight of items (you may need to adjust this based on your product data)
+  const calculateTotalWeight = () => {
+    return cartItems.reduce((total, item) => {
+      const itemWeight = item.weight || 0.1; // Default 100g per item if weight not specified
+      return total + itemWeight * item.quantity;
+    }, 0);
+  };
+
+  // Fetch shipping rates from iThink Logistics
+  const fetchShippingRates = async (pincode) => {
+    if (!pincode || pincode.length !== 6) {
+      setShippingOptions([]);
+      setSelectedShipping(null);
+      return;
+    }
+
+    setLoadingShipping(true);
+    setShippingError("");
+
+    try {
+      const response = await fetch("/api/ithink-shipping", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          destination_pincode: pincode,
+          weight: calculateTotalWeight(),
+          cod_amount:
+            formData.paymentMethod === "cod"
+              ? parseFloat(calculateSubtotal())
+              : 0,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setShippingOptions(data.shipping_options);
+        setSelectedShipping(data.default_option);
+      } else {
+        setShippingError(data.message || "Failed to fetch shipping rates");
+        setShippingOptions([]);
+        setSelectedShipping(null);
+      }
+    } catch (error) {
+      console.error("Error fetching shipping rates:", error);
+      setShippingError("Unable to fetch shipping rates. Please try again.");
+      setShippingOptions([]);
+      setSelectedShipping(null);
+    } finally {
+      setLoadingShipping(false);
+    }
   };
 
   // Helper function to check if an item is a ring
@@ -125,9 +184,15 @@ export default function Checkout() {
       }));
     }
 
-    // Load PayU script when component mounts
     loadBoltScript().catch(console.error);
   }, [router, user]);
+
+  // Fetch shipping rates when pincode changes
+  useEffect(() => {
+    if (formData.pincode && formData.pincode.length === 6) {
+      fetchShippingRates(formData.pincode);
+    }
+  }, [formData.pincode, cartItems]);
 
   useEffect(() => {
     const { firstName, lastName, email, phone, address, city, state, pincode } =
@@ -141,14 +206,15 @@ export default function Checkout() {
           address &&
           city &&
           state &&
-          pincode
+          pincode &&
+          selectedShipping
       );
     } else if (step === 2) {
       setIsFormValid(true);
     } else if (step === 3) {
       setIsFormValid(true);
     }
-  }, [formData, step]);
+  }, [formData, step, selectedShipping]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -159,6 +225,13 @@ export default function Checkout() {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleShippingChange = (e) => {
+    const selectedOption = shippingOptions.find(
+      (option) => option.courier_name === e.target.value
+    );
+    setSelectedShipping(selectedOption);
   };
 
   const nextStep = () => {
@@ -178,8 +251,7 @@ export default function Checkout() {
   };
 
   const calculateShipping = () => {
-    const subtotal = parseFloat(calculateSubtotal());
-    return subtotal > 2500 ? 0 : 0;
+    return selectedShipping ? selectedShipping.rate : 0;
   };
 
   const calculateTotal = () => {
@@ -193,13 +265,11 @@ export default function Checkout() {
     setError("");
 
     try {
-      // Ensure script is loaded before proceeding
       if (!scriptLoaded || !window.bolt) {
         console.log("PayU script not loaded, attempting to load...");
         await loadBoltScript();
       }
 
-      // Double check if bolt is available
       if (!window.bolt) {
         throw new Error(
           "PayU Bolt SDK failed to load. Please refresh the page and try again."
@@ -328,6 +398,17 @@ export default function Checkout() {
           pincode: formData.pincode,
         },
         specialRequest: formData.specialRequest || null,
+
+        // Add shipping information
+        shippingInfo: {
+          courier_name: selectedShipping?.courier_name,
+          courier_id: selectedShipping?.courier_id,
+          shipping_rate: selectedShipping?.rate || 0,
+          estimated_delivery_days: selectedShipping?.estimated_delivery_days,
+          service_type: selectedShipping?.service_type,
+          total_weight: calculateTotalWeight(),
+        },
+
         items: cartItems.map((item) => {
           const baseItem = {
             id: item.id,
@@ -335,6 +416,7 @@ export default function Checkout() {
             name: item.name,
             price: item.price,
             quantity: item.quantity,
+            weight: item.weight || 0.1, // Add weight info
             image: item.image,
             images: Array.isArray(item.images) ? item.images : [item.image],
             total: (item.price * item.quantity).toFixed(2),
@@ -360,6 +442,7 @@ export default function Checkout() {
 
           return baseItem;
         }),
+
         orderSummary: {
           subtotal: parseFloat(calculateSubtotal()),
           shipping: calculateShipping(),
@@ -369,11 +452,13 @@ export default function Checkout() {
             0
           ),
         },
+
         paymentInfo: {
           method: formData.paymentMethod,
           status: "completed",
         },
         orderStatus: "confirmed",
+
         metadata: {
           hasRings: cartItems.some((item) => isRingItem(item)),
           ringItems: cartItems
@@ -388,6 +473,7 @@ export default function Checkout() {
             })),
           totalItems: cartItems.length,
           hasSpecialRequest: !!formData.specialRequest,
+          shippingProvider: "ithink_logistics",
           browserInfo: {
             userAgent: navigator.userAgent,
             timestamp: Date.now(),
@@ -531,9 +617,68 @@ export default function Checkout() {
                     value={formData.pincode}
                     onChange={handleChange}
                     required
+                    maxLength="6"
+                    pattern="[0-9]{6}"
                   />
                 </div>
               </div>
+
+              {/* Shipping Options Section */}
+              {formData.pincode && formData.pincode.length === 6 && (
+                <div className={styles.shippingOptions}>
+                  <h3>Delivery Options</h3>
+                  {loadingShipping && (
+                    <div className={styles.loadingShipping}>
+                      <p>Loading delivery options...</p>
+                    </div>
+                  )}
+
+                  {shippingError && (
+                    <div className={styles.shippingError}>
+                      <p>{shippingError}</p>
+                    </div>
+                  )}
+
+                  {shippingOptions.length > 0 && !loadingShipping && (
+                    <div className={styles.shippingOptionsList}>
+                      {shippingOptions.map((option, index) => (
+                        <div key={index} className={styles.shippingOption}>
+                          <input
+                            type="radio"
+                            id={`shipping-${index}`}
+                            name="shippingOption"
+                            value={option.courier_name}
+                            checked={
+                              selectedShipping?.courier_name ===
+                              option.courier_name
+                            }
+                            onChange={handleShippingChange}
+                          />
+                          <label
+                            htmlFor={`shipping-${index}`}
+                            className={styles.shippingOptionLabel}
+                          >
+                            <div className={styles.shippingOptionInfo}>
+                              <div className={styles.courierName}>
+                                {option.courier_name}
+                              </div>
+                              <div className={styles.serviceType}>
+                                {option.service_type}
+                              </div>
+                              <div className={styles.deliveryTime}>
+                                Delivery: {option.estimated_delivery_days} days
+                              </div>
+                            </div>
+                            <div className={styles.shippingPrice}>
+                              ₹{option.rate.toFixed(2)}
+                            </div>
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className={styles.formGroup}>
                 <label htmlFor="specialRequest">
@@ -572,6 +717,29 @@ export default function Checkout() {
                   <p>Phone: {formData.phone}</p>
                 </div>
               </div>
+
+              {/* Add shipping method review */}
+              {selectedShipping && (
+                <div className={styles.reviewSection}>
+                  <h3>Delivery Method</h3>
+                  <div className={styles.reviewInfo}>
+                    <p>
+                      <strong>Courier:</strong> {selectedShipping.courier_name}
+                    </p>
+                    <p>
+                      <strong>Service:</strong> {selectedShipping.service_type}
+                    </p>
+                    <p>
+                      <strong>Estimated Delivery:</strong>{" "}
+                      {selectedShipping.estimated_delivery_days} days
+                    </p>
+                    <p>
+                      <strong>Shipping Cost:</strong> ₹
+                      {selectedShipping.rate.toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {formData.specialRequest && (
                 <div className={styles.reviewSection}>
@@ -772,6 +940,14 @@ export default function Checkout() {
                   : `₹${calculateShipping().toFixed(2)}`}
               </span>
             </div>
+            {selectedShipping && (
+              <div className={styles.calculationRow}>
+                <span className={styles.shippingDetails}>
+                  via {selectedShipping.courier_name}
+                </span>
+                <span></span>
+              </div>
+            )}
             <div className={`${styles.calculationRow} ${styles.totalRow}`}>
               <span>Total</span>
               <span>₹{calculateTotal()}</span>
