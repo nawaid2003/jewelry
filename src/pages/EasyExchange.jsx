@@ -31,7 +31,7 @@ export default function EasyExchange() {
         <a href="mailto:silverlining4622@gmail.com">
           silverlining4622@gmail.com
         </a>{" "}
-        or call us at 123 456-7890. Please provide clear images or videos of the
+        or call us at 9370664930. Please provide clear images or videos of the
         damaged product along with your order number, name, and contact
         information.
       </p>

@@ -351,7 +351,7 @@ export default function Design() {
                     value={formData.phone}
                     onChange={handleChange}
                     pattern="[0-9]{10}"
-                    placeholder="1234567890"
+                    placeholder="9370664930"
                     required
                     disabled={isSubmitting}
                   />
@@ -500,7 +500,7 @@ export default function Design() {
                         value={formData.phone}
                         onChange={handleChange}
                         pattern="[0-9]{10}"
-                        placeholder="1234567890"
+                        placeholder="9370664930"
                         required
                         disabled={isSubmitting}
                       />
