@@ -142,6 +142,16 @@ $success-green: #3bb75e;
       font-size: 1.8rem;
       font-weight: 600;
       margin-bottom: 24px;
+      position: relative;
+
+      &:after {
+        content: '';
+        display: block;
+        width: 40px;
+        height: 2px;
+        background: $primary-blue;
+        margin-top: 8px;
+      }
     }
   }
 
@@ -197,7 +207,7 @@ $success-green: #3bb75e;
     margin-bottom: 8px;
   }
 
-  input {
+  input, textarea {
     width: 100%;
     padding: 14px 16px;
     border: 1px solid $border-color;
@@ -256,17 +266,16 @@ $success-green: #3bb75e;
   }
 }
 
-.razorpayPlaceholder {
+.payuContainer {
   background: $light-blue;
-  border: 1px dashed $border-color;
+  border: 1px solid $border-color;
   border-radius: 12px;
-  padding: 30px;
+  padding: 20px;
   text-align: center;
   margin-top: 20px;
 
-  .razorpayLogo {
+  .payuLogo {
     margin-bottom: 15px;
-    color: $primary-blue;
   }
 
   p {
@@ -286,29 +295,144 @@ $success-green: #3bb75e;
   }
 }
 
+.scriptLoading {
+  text-align: center;
+  padding: 20px;
+  color: $text-dark;
+}
+
 // Order Review
 .orderReview {
+  background: $white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 12px rgba($primary-blue, 0.1);
+  animation: fadeIn 0.5s ease-in-out;
+
+  h2 {
+    color: $primary-blue;
+    font-family: 'Cinzel', serif;
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 24px;
+    position: relative;
+
+    &:after {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 2px;
+      background: $primary-blue;
+      margin-top: 8px;
+    }
+  }
+
   .reviewSection {
     margin-bottom: 30px;
+    background: lighten($background-offwhite, 2%);
+    border: 1px solid $border-color;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 6px 16px rgba($primary-blue, 0.15);
+    }
 
     h3 {
       color: $primary-blue;
-      font-family: 'The Seasons', serif;
-      font-size: 1.2rem;
+      font-family: 'Cinzel', serif;
+      font-size: 1.4rem;
       font-weight: 600;
       margin-bottom: 16px;
-      border-bottom: 1px solid $border-color;
-      padding-bottom: 8px;
+      position: relative;
+
+      &:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: $gradient;
+      }
     }
 
     .reviewInfo {
-      padding-left: 16px;
+      padding: 10px;
 
       p {
         color: $text-dark;
         font-family: 'The Seasons', serif;
         font-size: 1rem;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
+        line-height: 1.6;
+
+        strong {
+          color: $primary-blue;
+        }
+      }
+    }
+
+    .reviewItems {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .reviewItem {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border: 1px solid $border-color;
+      border-radius: 8px;
+      background: $white;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: $light-blue;
+        transform: translateY(-2px);
+      }
+
+      .itemImage {
+        width: 80px;
+        height: 80px;
+        flex-shrink: 0;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 8px;
+          border: 1px solid $border-color;
+        }
+      }
+
+      .itemDetails {
+        margin-left: 20px;
+        flex: 1;
+
+        h4 {
+          color: $text-dark;
+          font-family: 'The Seasons', serif;
+          font-size: 1.1rem;
+          font-weight: 600;
+          margin-bottom: 8px;
+        }
+
+        .ringSize {
+          color: $primary-blue;
+          font-family: 'The Seasons', serif;
+          font-size: 0.95rem;
+          margin-bottom: 8px;
+        }
+
+        .itemPrice {
+          color: $text-dark;
+          font-family: 'The Seasons', serif;
+          font-size: 1rem;
+          font-weight: 500;
+        }
       }
     }
   }
@@ -385,6 +509,12 @@ $success-green: #3bb75e;
       font-size: 1rem;
       font-weight: 600;
       margin-bottom: 4px;
+    }
+
+    .ringSize {
+      color: $primary-blue;
+      font-family: 'The Seasons', serif;
+      font-size: 0.9rem;
     }
 
     .itemPrice {
@@ -484,11 +614,13 @@ $success-green: #3bb75e;
   }
 
   .placeOrderButton {
-    background: $gradient;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
     animation: pulse 2s infinite ease-in-out;
 
     &:hover:not(:disabled) {
       animation: none;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
     }
   }
 }
@@ -545,6 +677,23 @@ $success-green: #3bb75e;
       width: 100%;
     }
   }
+
+  .orderReview {
+    .reviewSection {
+      .reviewItem {
+        flex-direction: column;
+        align-items: flex-start;
+
+        .itemImage {
+          margin-bottom: 10px;
+        }
+
+        .itemDetails {
+          margin-left: 0;
+        }
+      }
+    }
+  }
 }
 
 @keyframes fadeIn {
@@ -559,12 +708,21 @@ $success-green: #3bb75e;
 }
 
 .error {
-  color: #dc3545;
-  padding: 10px;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  border-radius: 4px;
-  margin: 10px 0;
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  color: #721c24;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  border-left: 4px solid $error-red;
+  margin-top: 1rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &::before {
+    content: '⚠️';
+    font-size: 1.1rem;
+  }
 }
 
 .specialRequest {
@@ -605,415 +763,10 @@ $success-green: #3bb75e;
   }
 }
 
-.paymentSuccess {
-  display: flex;
-  align-items: center;
-  background-color: #e8f5e9;
-  padding: 1rem;
-  border-radius: 4px;
-  margin-bottom: 1.5rem;
-
-  .successIcon {
-    width: 24px;
-    height: 24px;
-    fill: #4caf50;
-    margin-right: 0.5rem;
-  }
-
-  p {
-    margin: 0;
-    color: #2e7d32;
-    font-weight: 500;
-  }
-}
-
-
-.payuPaymentSection {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border: 2px solid #e3e7ed;
-  border-radius: 12px;
-  padding: 2rem;
-  margin-top: 1.5rem;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #002970, #0056d3, #002970);
-  }
-
-  .payuLogo {
-    margin-bottom: 1rem;
-    
-    svg {
-      filter: drop-shadow(0 2px 4px rgba(0, 41, 112, 0.15));
-    }
-  }
-
-  .paymentDescription {
-    color: #495057;
-    font-size: 0.95rem;
-    margin-bottom: 1rem;
-    font-weight: 500;
-  }
-
-  .paymentMethods {
-    background: rgba(255, 255, 255, 0.8);
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    
-    span {
-      color: #6c757d;
-      font-size: 0.85rem;
-      font-weight: 500;
-    }
-  }
-
-  .paymentProcessing {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    margin: 1.5rem 0;
-    padding: 1rem;
-    background: rgba(0, 123, 255, 0.05);
-    border-radius: 8px;
-    border: 1px solid rgba(0, 123, 255, 0.1);
-
-    .spinner {
-      width: 32px;
-      height: 32px;
-      border: 3px solid #e3f2fd;
-      border-top: 3px solid #2196f3;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    p {
-      color: #1976d2;
-      font-weight: 500;
-      margin: 0;
-    }
-  }
-
+.payuContainer {
   .securePayment {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    color: #28a745;
-    font-size: 0.85rem;
-    font-weight: 500;
-    margin-top: 1rem;
-    
     svg {
-      color: #28a745;
+      color: $success-green;
     }
   }
 }
-
-// Enhanced error styling
-.error {
-  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-  color: #721c24;
-  padding: 1rem 1.25rem;
-  border-radius: 8px;
-  border-left: 4px solid #dc3545;
-  margin-top: 1rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  
-  &::before {
-    content: '⚠️';
-    font-size: 1.1rem;
-  }
-}
-
-// Enhanced button styling for payment
-.placeOrderButton {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-  color: white;
-  border: none;
-  padding: 1rem 2rem;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 200px;
-  position: relative;
-  overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s ease;
-  }
-  
-  &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
-    
-    &::before {
-      left: 100%;
-    }
-  }
-  
-  &:active:not(:disabled) {
-    transform: translateY(0);
-  }
-  
-  &:disabled {
-    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-}
-
-// Responsive design improvements
-@media (max-width: 768px) {
-  .payuPaymentSection {
-    padding: 1.5rem 1rem;
-    margin-top: 1rem;
-    
-    .payuLogo svg {
-      width: 100px;
-      height: 32px;
-    }
-    
-    .paymentMethods span {
-      font-size: 0.8rem;
-    }
-  }
-  
-  .paymentOptions {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-    
-    .paymentOption label {
-      padding: 0.875rem 1rem;
-      padding-left: 2.75rem;
-      font-size: 0.9rem;
-      
-      &::before {
-        left: 0.875rem;
-        width: 18px;
-        height: 18px;
-      }
-      
-      &::after {
-        left: 1rem;
-        width: 8px;
-        height: 8px;
-      }
-    }
-  }
-  
-  .placeOrderButton {
-    width: 100%;
-    padding: 1rem;
-    font-size: 1rem;
-  }
-}
-
-// Keyframe animations
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-
-// Loading state for payment processing
-.paymentProcessing {
-  animation: pulse 2s ease-in-out infinite;
-}
-
-// Success state styling (for future use)
-.paymentSuccess {
-  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-  color: #155724;
-  border-left: 4px solid #28a745;
-  
-  &::before {
-    content: '✅';
-  }
-}
-
-// Add these styles to your existing Checkout.module.scss file
-
-.shippingOptions {
-  margin-top: 20px;
-  padding: 15px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-
-  h3 {
-    margin-bottom: 15px;
-    color: #333;
-    font-size: 16px;
-    font-weight: 600;
-  }
-}
-
-.loadingShipping {
-  text-align: center;
-  padding: 20px;
-  
-  p {
-    color: #666;
-    font-style: italic;
-  }
-}
-
-.shippingError {
-  padding: 10px;
-  background-color: #fee;
-  border: 1px solid #fcc;
-  border-radius: 4px;
-  color: #c33;
-  font-size: 14px;
-}
-
-.shippingOptionsList {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.shippingOption {
-  display: flex;
-  align-items: center;
-
-  input[type="radio"] {
-    margin-right: 10px;
-    width: 16px;
-    height: 16px;
-  }
-}
-
-.shippingOptionLabel {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: 12px 15px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  background-color: white;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    border-color: #007bff;
-    background-color: #f8f9ff;
-  }
-
-  .shippingOption input[type="radio"]:checked + & {
-    border-color: #007bff;
-    background-color: #f0f8ff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
-  }
-}
-
-.shippingOptionInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-
-  .courierName {
-    font-weight: 600;
-    color: #333;
-    font-size: 14px;
-  }
-
-  .serviceType {
-    font-size: 12px;
-    color: #666;
-    text-transform: capitalize;
-  }
-
-  .deliveryTime {
-    font-size: 12px;
-    color: #007bff;
-    font-weight: 500;
-  }
-}
-
-.shippingPrice {
-  font-weight: 600;
-  color: #28a745;
-  font-size: 16px;
-}
-
-.shippingDetails {
-  font-size: 12px;
-  color: #666;
-  font-style: italic;
-}
-
-// Responsive adjustments
-@media (max-width: 768px) {
-  .shippingOptionLabel {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .shippingPrice {
-    align-self: flex-end;
-  }
-
-  .shippingOptions {
-    margin-top: 15px;
-    padding: 12px;
-  }
-}
-
-// Enhanced form validation styles
-.formGroup {
-  input[pattern]:invalid {
-    border-color: #dc3545;
-  }
-
-  input[pattern]:valid {
-    border-color: #28a745;
-  }
-}
-
-// Loading state for next button when shipping is loading
-.nextButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-// Enhanced error styling
-.error {
-  background-color: #f8d7da;
-  color: #721c24;
-  padding: 12px;
-  border-radius: 6px;
-  border: 1px solid #f5c6cb;
-  margin-top: 10px;
-  font-size: 14px;
-}
-

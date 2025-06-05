@@ -22,29 +22,38 @@ export default async function handler(req, res) {
   const itemList = items
     .map(
       (item) => `
-        <li>
-          ${item.name} ${
+        <li style="margin-bottom: 15px; display: flex; align-items: center;">
+          <img src="${item.image || "/images/fallback-product.jpg"}" alt="${
+        item.name
+      }" style="width: 100px; height: auto; margin-right: 15px; border: 1px solid #ddd;" />
+          <div>
+            <strong>${item.name}</strong> ${
         item.ringDetails?.sizeDisplay ? `(${item.ringDetails.sizeDisplay})` : ""
-      }
-          - Quantity: ${item.quantity}
-          - Price: ₹${(item.price * item.quantity).toFixed(2)}
+      }<br>
+            Quantity: ${item.quantity}<br>
+            Price: ₹${(item.price * item.quantity).toFixed(2)}
+          </div>
         </li>
       `
     )
     .join("");
 
   const customerEmailContent = `
-    <h2>Thank You for Your Order!</h2>
+    <h2 style="color: #333;">Thank You for Your Order!</h2>
     <p>Dear ${customerInfo.firstName} ${customerInfo.lastName},</p>
     <p>Thank you for shopping with Silverlining! Your order (ID: ${orderId}) has been successfully placed.</p>
-    <h3>Order Details</h3>
-    <ul>${itemList}</ul>
-    ${specialRequest ? `<h3>Special Request</h3><p>${specialRequest}</p>` : ""}
-    <h3>Order Summary</h3>
+    <h3 style="color: #333;">Order Details</h3>
+    <ul style="list-style: none; padding: 0;">${itemList}</ul>
+    ${
+      specialRequest
+        ? `<h3 style="color: #333;">Special Request</h3><p>${specialRequest}</p>`
+        : ""
+    }
+    <h3 style="color: #333;">Order Summary</h3>
     <p>Subtotal: ₹${orderSummary.subtotal.toFixed(2)}</p>
     <p>Shipping: ₹${orderSummary.shipping.toFixed(2)}</p>
     <p><strong>Total: ₹${orderSummary.total.toFixed(2)}</strong></p>
-    <h3>Shipping Information</h3>
+    <h3 style="color: #333;">Shipping Information</h3>
     <p>${customerInfo.address}, ${customerInfo.city}, ${customerInfo.state} ${
     customerInfo.pincode
   }</p>

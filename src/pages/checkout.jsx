@@ -110,8 +110,8 @@ export default function Checkout() {
     // =============================================
     // TEST OVERRIDE - REMOVE FOR PRODUCTION
     // =============================================
-    if (pincode === "440032") {
-      console.log("🧪 TEST MODE: Special shipping rate for pincode 440032");
+    if (pincode === "999999") {
+      console.log("🧪 TEST MODE: Special shipping rate for pincode 999999");
       return 1; // ₹1 for testing
     }
     // =============================================
