@@ -13,7 +13,7 @@ $background-gradient: linear-gradient(to bottom, lighten($background-offwhite, 5
 $light-blue: rgba($primary-blue, 0.05);
 $border-color: rgba($primary-blue, 0.2);
 $error-red: #d64545;
-$success-green: #1c365d;
+$success-green: #3bb75e;
 
 .checkoutContainer {
   max-width: 1200px;
@@ -620,7 +620,7 @@ $success-green: #1c365d;
     &:hover:not(:disabled) {
       animation: none;
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+      box-shadow: 0 8px 25px rgba(40, 49, 167, 0.3);
     }
   }
 }
