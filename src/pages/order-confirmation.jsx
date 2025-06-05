@@ -12,6 +12,38 @@ export default function OrderConfirmation() {
   const [error, setError] = useState("");
   const fallbackImage = "/images/fallback-product.jpg";
 
+  // Helper function to check if an item is a ring (matching checkout logic)
+  const isRingItem = (item) => {
+    return (
+      item?.category?.toLowerCase().includes("ring") ||
+      item?.name?.toLowerCase().includes("ring") ||
+      item?.type?.toLowerCase().includes("ring") ||
+      item?.ringSize ||
+      item?.ringDetails
+    );
+  };
+
+  // Helper function to get ring size display text (matching checkout logic)
+  const getRingSizeDisplay = (item) => {
+    if (!isRingItem(item)) return "";
+
+    // Check for ringDetails first (from order data structure)
+    if (item.ringDetails?.sizeDisplay) {
+      return item.ringDetails.sizeDisplay;
+    }
+
+    // Fallback to direct ring size fields
+    const ringSize =
+      item.ringSize?.value || item.ringSize || item.selectedSize || item.size;
+    const isCustom =
+      item.ringDetails?.isCustomSize ||
+      item.ringSize?.isCustom ||
+      item.sizeType === "custom";
+
+    if (!ringSize) return "";
+    return isCustom ? `Custom Size: ${ringSize}` : `Size ${ringSize}`;
+  };
+
   useEffect(() => {
     if (!orderId) return;
 
@@ -138,7 +170,11 @@ export default function OrderConfirmation() {
                   ? "Credit/Debit Card"
                   : orderDetails.paymentInfo.method === "upi"
                   ? "UPI"
-                  : "Net Banking"}
+                  : orderDetails.paymentInfo.method === "netbanking"
+                  ? "Net Banking"
+                  : orderDetails.paymentInfo.method === "wallet"
+                  ? "Wallet"
+                  : "Online Payment"}
               </span>
             </div>
           </div>
@@ -159,6 +195,14 @@ export default function OrderConfirmation() {
               <p>Email: {orderDetails.customerInfo.email}</p>
               <p>Phone: {orderDetails.customerInfo.phone}</p>
             </div>
+            <div className={styles.shippingNote}>
+              <p>
+                A reliable courier (e.g., Blue Dart, Delhivery) will be assigned
+                for secure delivery. Tracking updates will be sent via SMS,
+                WhatsApp, and email within 24 hours (Also check your Spam folder
+                for the tracking link).
+              </p>
+            </div>
           </div>
         </div>
 
@@ -167,6 +211,22 @@ export default function OrderConfirmation() {
             <h3>Special Request</h3>
             <div className={styles.specialRequestContent}>
               <p>{orderDetails.specialRequest}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Ring Size Details Section - Only show if there are rings */}
+        {orderDetails.items.some((item) => isRingItem(item)) && (
+          <div className={styles.ringSizeSection}>
+            <h3>Ring Size Details</h3>
+            <div className={styles.ringSizeContent}>
+              {orderDetails.items
+                .filter((item) => isRingItem(item))
+                .map((item, index) => (
+                  <div key={index} className={styles.ringSizeItem}>
+                    <strong>{item.name}</strong>: {getRingSizeDisplay(item)}
+                  </div>
+                ))}
             </div>
           </div>
         )}
@@ -188,11 +248,14 @@ export default function OrderConfirmation() {
                     <span className={styles.itemPrice}>
                       ₹{item.price.toFixed(2)}
                     </span>
-                    {item.ringDetails && (
+                    {isRingItem(item) && getRingSizeDisplay(item) && (
                       <span className={styles.itemRingSize}>
-                        {item.ringDetails.sizeDisplay}
+                        {getRingSizeDisplay(item)}
                       </span>
                     )}
+                  </div>
+                  <div className={styles.itemTotal}>
+                    Total: ₹{(item.price * item.quantity).toFixed(2)}
                   </div>
                 </div>
               </div>
@@ -216,37 +279,6 @@ export default function OrderConfirmation() {
           <div className={`${styles.summaryRow} ${styles.totalRow}`}>
             <span>Total</span>
             <span>₹{orderDetails.orderSummary.total.toFixed(2)}</span>
-          </div>
-        </div>
-
-        <div className={styles.estimatedDelivery}>
-          <div className={styles.deliveryIcon}>
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <rect x="1" y="3" width="15" height="13" />
-              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
-              <circle cx="5.5" cy="18.5" r="2.5" />
-              <circle cx="18.5" cy="18.5" r="2.5" />
-            </svg>
-          </div>
-          <div className={styles.deliveryText}>
-            <p className={styles.deliveryTitle}>Estimated Delivery</p>
-            <p className={styles.deliveryDate}>
-              {new Date(
-                new Date(orderDetails.createdAt).getTime() +
-                  7 * 24 * 60 * 60 * 1000
-              ).toLocaleDateString("en-IN", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}
-            </p>
           </div>
         </div>
 

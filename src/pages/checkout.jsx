@@ -19,12 +19,6 @@ const PAYU_CONFIG = {
       : "https://test.payu.in/_payment",
 };
 
-const ITHINK_CONFIG = {
-  baseUrl: "https://api.ithinklogistics.com",
-  rateEndpoint: "/api_v3/rate",
-  orderEndpoint: "/api_v3/order/add.json",
-};
-
 export default function Checkout() {
   const router = useRouter();
   const { user } = useAuth();
@@ -47,7 +41,6 @@ export default function Checkout() {
   const [error, setError] = useState("");
   const [scriptLoaded, setScriptLoaded] = useState(false);
   const [shippingCost, setShippingCost] = useState(null);
-  const [isShippingLoading, setIsShippingLoading] = useState(false);
   const [shippingError, setShippingError] = useState("");
   const fallbackImage = "/images/fallback-product.jpg";
   const maxSpecialRequestLength = 500;
@@ -106,124 +99,47 @@ export default function Checkout() {
     return isCustom ? `Custom Size: ${ringSize}` : `Size ${ringSize}`;
   };
 
-  // Fetch shipping cost from iThink Logistics
-  const fetchShippingCost = async (pincode) => {
-    if (!pincode || pincode.length !== 6) return;
-    setIsShippingLoading(true);
+  // Calculate fixed shipping cost based on cart total and pincode
+  const calculateShippingCost = (cartTotal, pincode) => {
     setShippingError("");
-    try {
-      const totalWeight = cartItems.reduce(
-        (total, item) => total + item.quantity * 0.5, // Assume 0.5 kg per item
-        0
-      );
-      const payload = {
-        api_key: process.env.ITHINK_API_KEY, // Server-side env variable
-        origin_pincode: "400001", // Your warehouse pincode
-        destination_pincode: pincode,
-        weight: totalWeight,
-        length: 20, // cm, adjust based on your products
-        breadth: 15, // cm
-        height: 5, // cm
-        payment_type: formData.paymentMethod === "cod" ? "COD" : "Prepaid",
-        order_amount: calculateSubtotal(),
-      };
-      const response = await fetch("/api/ithink/rate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await response.json();
-      if (data.status === "success" && data.data?.recommended_courier) {
-        setShippingCost(data.data.recommended_courier.shipping_charge);
-      } else {
-        setShippingError(
-          "Unable to calculate shipping cost. Please check pincode."
-        );
-        setShippingCost(null);
-      }
-    } catch (err) {
-      setShippingError("Failed to fetch shipping cost. Please try again.");
-      setShippingCost(null);
-    } finally {
-      setIsShippingLoading(false);
+    if (!pincode || !/^\d{6}$/.test(pincode)) {
+      setShippingError("Please enter a valid 6-digit pincode.");
+      return null;
     }
-  };
 
-  // Create order with iThink Logistics
-  const createShipment = async (orderId, orderData) => {
-    try {
-      const payload = {
-        data: {
-          shipments: [
-            {
-              order: orderId,
-              order_date: new Date().toISOString().split("T")[0], // Format: YYYY-MM-DD
-              total_amount: calculateTotal(),
-              name: `${formData.firstName} ${formData.lastName}`,
-              company_name: "", // Optional, add if applicable
-              add: formData.address,
-              add2: "",
-              add3: "",
-              pin: formData.pincode,
-              city: formData.city,
-              state: formData.state,
-              country: "India",
-              phone: formData.phone,
-              alt_phone: "",
-              email: formData.email,
-              is_billing_same_as_shipping: "yes",
-              products: cartItems.map((item) => ({
-                product_name: item.name,
-                product_sku: item.id || `SKU-${item.cartItemId}`,
-                product_quantity: item.quantity,
-                product_price: item.price,
-                product_tax_rate: "0", // Adjust if applicable
-                product_hsn_code: "", // Add HSN code if required
-                product_discount: "0",
-                product_img_url: item.image || "",
-              })),
-              shipment_length: 20,
-              shipment_width: 15,
-              shipment_height: 5,
-              weight: cartItems.reduce(
-                (total, item) => total + item.quantity * 0.5,
-                0
-              ),
-              shipping_charges: calculateShipping(),
-              giftwrap_charges: "0",
-              transaction_charges: "0",
-              total_discount: "0",
-              first_attemp_discount: "0",
-              cod_amount:
-                formData.paymentMethod === "cod" ? calculateTotal() : "0",
-              payment_mode:
-                formData.paymentMethod === "cod" ? "COD" : "Prepaid",
-              return_address_id: "84748", // Replace with your return address ID
-            },
-          ],
-          pickup_address_id: "84748", // Replace with your pickup address ID
-          access_token: process.env.ITHINK_API_KEY, // Server-side env variable
-          secret_key: process.env.ITHINK_SECRET_KEY, // Server-side env variable
-        },
-      };
-      const response = await fetch("/api/ithink/order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await response.json();
-      if (data.status === "success" && data.data?.shipments?.[0]?.awb_number) {
-        return {
-          awb_number: data.data.shipments[0].awb_number,
-          courier_name: data.data.shipments[0].courier_name || "Unknown",
-        };
-      } else {
-        throw new Error(data.message || "Failed to create shipment");
-      }
-    } catch (err) {
-      console.error("Shipment creation error:", err);
-      throw err;
+    // =============================================
+    // TEST OVERRIDE - REMOVE FOR PRODUCTION
+    // =============================================
+    if (pincode === "440032") {
+      console.log("🧪 TEST MODE: Special shipping rate for pincode 440032");
+      return 1; // ₹1 for testing
     }
+    // =============================================
+    // END TEST OVERRIDE
+    // =============================================
+
+    // Your existing logic continues...
+    let priceBasedRate = 0;
+    if (cartTotal <= 500) priceBasedRate = 100;
+    else if (cartTotal <= 1000) priceBasedRate = 150;
+    else if (cartTotal <= 2500) priceBasedRate = 50;
+    else return 0;
+
+    const metroPrefixes = [
+      "400",
+      "110",
+      "560",
+      "600",
+      "700",
+      "500",
+      "411",
+      "380",
+      "382",
+    ];
+    const isMetro = metroPrefixes.some((prefix) => pincode.startsWith(prefix));
+    const locationBasedRate = isMetro ? 100 : 150;
+
+    return Math.max(priceBasedRate, locationBasedRate);
   };
 
   useEffect(() => {
@@ -244,45 +160,146 @@ export default function Checkout() {
         lastName: user.displayName?.split(" ")[1] || "",
       }));
     }
-    loadBoltScript().catch(console.error);
+    loadBoltScript().catch((err) => console.error("Bolt script error:", err));
   }, [router, user]);
 
   useEffect(() => {
     const { firstName, lastName, email, phone, address, city, state, pincode } =
       formData;
+
     if (step === 1) {
-      setIsFormValid(
-        firstName &&
-          lastName &&
-          email &&
-          phone &&
-          address &&
-          city &&
-          state &&
-          pincode &&
-          !isShippingLoading &&
-          !shippingError &&
-          shippingCost !== null
-      );
-      if (pincode.length === 6) {
-        fetchShippingCost(pincode);
-      }
-    } else if (step === 2) {
-      setIsFormValid(true);
-    } else if (step === 3) {
+      const subtotal = parseFloat(calculateSubtotal());
+      const shipping = calculateShippingCost(subtotal, pincode);
+      setShippingCost(shipping);
+
+      // Add a small delay to ensure shipping cost state is updated
+      setTimeout(() => {
+        const allFieldsValid =
+          firstName?.trim() &&
+          lastName?.trim() &&
+          email?.trim() &&
+          phone?.trim() &&
+          address?.trim() &&
+          city?.trim() &&
+          state?.trim() &&
+          pincode?.trim();
+        const shippingValid = !shippingError && shipping !== null;
+        setIsFormValid(allFieldsValid && shippingValid);
+      }, 50);
+    } else {
       setIsFormValid(true);
     }
-  }, [formData, step, isShippingLoading, shippingError, shippingCost]);
+  }, [formData, step, shippingError]);
+
+  useEffect(() => {
+    console.log("=== FORM VALIDATION DEBUG ===");
+    console.log("Current step:", step);
+    console.log("Form data:", formData);
+    console.log("Shipping cost:", shippingCost);
+    console.log("Shipping error:", shippingError);
+    console.log("Is form valid:", isFormValid);
+
+    if (step === 1) {
+      const {
+        firstName,
+        lastName,
+        email,
+        phone,
+        address,
+        city,
+        state,
+        pincode,
+      } = formData;
+      console.log("Field validation:");
+      console.log("- firstName:", !!firstName, firstName);
+      console.log("- lastName:", !!lastName, lastName);
+      console.log("- email:", !!email, email);
+      console.log("- phone:", !!phone, phone);
+      console.log("- address:", !!address, address);
+      console.log("- city:", !!city, city);
+      console.log("- state:", !!state, state);
+      console.log("- pincode:", !!pincode, pincode);
+      console.log("- shippingError:", !shippingError, shippingError);
+      console.log("- shipping !== null:", shippingCost !== null, shippingCost);
+
+      const allFieldsValid =
+        firstName &&
+        lastName &&
+        email &&
+        phone &&
+        address &&
+        city &&
+        state &&
+        pincode;
+      const shippingValid = !shippingError && shippingCost !== null;
+      console.log("All fields valid:", allFieldsValid);
+      console.log("Shipping valid:", shippingValid);
+      console.log("Overall valid:", allFieldsValid && shippingValid);
+    }
+    console.log("==============================");
+  }, [formData, step, shippingCost, shippingError, isFormValid]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     if (name === "specialRequest" && value.length > maxSpecialRequestLength) {
       return;
     }
+
+    // Ensure pincode is always a string
+    const processedValue = name === "pincode" ? value.toString() : value;
+
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: processedValue,
     }));
+  };
+
+  const canProceedToReview = () => {
+    const { firstName, lastName, email, phone, address, city, state, pincode } =
+      formData;
+    const hasAllFields = [
+      firstName,
+      lastName,
+      email,
+      phone,
+      address,
+      city,
+      state,
+      pincode,
+    ].every((field) => field && field.toString().trim().length > 0);
+    const hasValidShipping = shippingCost !== null && !shippingError;
+    return hasAllFields && hasValidShipping;
+  };
+
+  const isValidEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validateStep1 = () => {
+    const { firstName, lastName, email, phone, address, city, state, pincode } =
+      formData;
+
+    // Check all required fields
+    const requiredFields = [
+      firstName,
+      lastName,
+      email,
+      phone,
+      address,
+      city,
+      state,
+      pincode,
+    ];
+    const allFieldsFilled = requiredFields.every(
+      (field) => field && field.trim() !== ""
+    );
+
+    // Check shipping calculation
+    const shippingValid =
+      !shippingError && shippingCost !== null && shippingCost >= 0;
+
+    return allFieldsFilled && shippingValid;
   };
 
   const nextStep = () => {
@@ -295,20 +312,31 @@ export default function Checkout() {
     setStep((prev) => Math.max(prev - 1, 1));
   };
 
+  // Calculate subtotal (unchanged)
   const calculateSubtotal = () => {
     return cartItems
       .reduce((total, item) => total + item.price * item.quantity, 0)
       .toFixed(2);
   };
 
+  // Calculate shipping (unchanged)
   const calculateShipping = () => {
     return shippingCost !== null ? parseFloat(shippingCost) : 0;
   };
 
+  // Calculate GST (3% of subtotal + shipping)
+  const calculateGST = () => {
+    const subtotal = parseFloat(calculateSubtotal());
+    const shipping = calculateShipping();
+    return ((subtotal + shipping) * 0.03).toFixed(2); // 3% GST on (subtotal + shipping)
+  };
+
+  // Calculate total (subtotal + shipping + GST)
   const calculateTotal = () => {
     const subtotal = parseFloat(calculateSubtotal());
     const shipping = calculateShipping();
-    return (subtotal + shipping).toFixed(2);
+    const gst = parseFloat(calculateGST());
+    return (subtotal + shipping + gst).toFixed(2);
   };
 
   const handlePayment = async () => {
@@ -320,7 +348,7 @@ export default function Checkout() {
       }
       if (!window.bolt) {
         throw new Error(
-          "PayU Bolt SDK failed to load. Please refresh the page and try again."
+          "PayU Bolt SDK failed to load. Please refresh the page."
         );
       }
       const orderId = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
@@ -343,16 +371,12 @@ export default function Checkout() {
       };
       const response = await fetch("/api/payu-hash", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(paymentParams),
       });
       if (!response.ok) {
-        const errorText = await response.text();
         throw new Error(
-          `Failed to generate payment hash: ${response.status} ${response.statusText} - ${errorText}`
+          `Failed to generate payment hash: ${response.statusText}`
         );
       }
       const { hash } = await response.json();
@@ -390,26 +414,19 @@ export default function Checkout() {
             }
           },
           catchException: (error) => {
-            setError(
-              `Payment error: ${
-                error.response?.error_Message ||
-                error.message ||
-                "Network error"
-              }`
-            );
+            setError(`Payment error: ${error.message || "Network error"}`);
             setIsSubmitting(false);
           },
         }
       );
     } catch (err) {
-      setError(`Payment failed: ${err.message || "Please try again"}`);
+      setError(`Payment failed: ${err.message}`);
       setIsSubmitting(false);
     }
   };
 
   const handleSubmitOrder = async (orderId) => {
     try {
-      const shippingDetails = await createShipment(orderId, formData);
       const orderData = {
         orderId,
         userId: user?.uid || null,
@@ -436,6 +453,8 @@ export default function Checkout() {
             total: (item.price * item.quantity).toFixed(2),
             category: item.category || "",
             type: item.type || "",
+            hsn_code: item.hsn_code || "7113",
+            weight: item.weight || 0.1,
           };
           if (isRingItem(item)) {
             const ringSize = item.ringSize?.value || item.selectedSize;
@@ -456,6 +475,7 @@ export default function Checkout() {
         orderSummary: {
           subtotal: parseFloat(calculateSubtotal()),
           shipping: calculateShipping(),
+          gst: parseFloat(calculateGST()), // Updated GST
           total: parseFloat(calculateTotal()),
           itemCount: cartItems.reduce(
             (total, item) => total + item.quantity,
@@ -467,9 +487,10 @@ export default function Checkout() {
           status: "completed",
         },
         shippingInfo: {
-          awb_number: shippingDetails.awb_number,
-          courier_name: shippingDetails.courier_name,
-          estimated_delivery: null, // Can be updated via iThink API if available
+          awb_number: null,
+          courier_name: null,
+          estimated_delivery: null,
+          status: "pending",
         },
         orderStatus: "confirmed",
         metadata: {
@@ -494,16 +515,60 @@ export default function Checkout() {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
+
+      // Save order to Firestore
       const docRef = await addDoc(collection(db, "orders"), orderData);
+
+      // Send customer thank you email
+      try {
+        const customerEmailResponse = await fetch("/api/send-customer-email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ orderData }),
+        });
+
+        if (!customerEmailResponse.ok) {
+          console.error("Failed to send customer email");
+          // Continue even if email fails
+        } else {
+          console.log("Customer thank you email sent successfully");
+        }
+      } catch (customerEmailError) {
+        console.error("Customer email error:", customerEmailError);
+        // Continue even if email fails
+      }
+
+      // Send admin notification email
+      try {
+        const adminEmailResponse = await fetch("/api/send-order-notification", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ orderData }),
+        });
+
+        if (!adminEmailResponse.ok) {
+          console.error("Failed to send admin notification email");
+          // Continue even if email fails
+        } else {
+          console.log("Admin notification email sent successfully");
+        }
+      } catch (adminEmailError) {
+        console.error("Admin email error:", adminEmailError);
+        // Continue even if email fails
+      }
+
+      // Clear cart and redirect
       localStorage.removeItem("cartItems");
       localStorage.setItem("lastOrderId", orderId);
       localStorage.setItem("firestoreOrderId", docRef.id);
       router.push(`/order-confirmation?orderId=${orderId}`);
     } catch (err) {
-      console.error("Error storing order:", err);
-      setError(`Failed to place order: ${err.message || "Please try again"}`);
-      throw err;
-    } finally {
+      console.error("Order submission error:", err);
+      setError(`Failed to place order: ${err.message}`);
       setIsSubmitting(false);
     }
   };
@@ -629,9 +694,13 @@ export default function Checkout() {
                     onChange={handleChange}
                     required
                   />
-                  {isShippingLoading && <p>Calculating shipping...</p>}
                   {shippingError && (
                     <p className={styles.error}>{shippingError}</p>
+                  )}
+                  {shippingCost !== null && !shippingError && (
+                    <p className={styles.shippingInfo}>
+                      Shipping Cost: ₹{shippingCost.toFixed(2)}
+                    </p>
                   )}
                 </div>
               </div>
@@ -780,28 +849,6 @@ export default function Checkout() {
                   />
                   <label htmlFor="wallet">Wallet</label>
                 </div>
-                <div className={styles.paymentOption}>
-                  <input
-                    type="radio"
-                    id="emi"
-                    name="paymentMethod"
-                    value="emi"
-                    checked={formData.paymentMethod === "emi"}
-                    onChange={handleChange}
-                  />
-                  <label htmlFor="emi">EMI</label>
-                </div>
-                <div className={styles.paymentOption}>
-                  <input
-                    type="radio"
-                    id="cod"
-                    name="paymentMethod"
-                    value="cod"
-                    checked={formData.paymentMethod === "cod"}
-                    onChange={handleChange}
-                  />
-                  <label htmlFor="cod">Cash on Delivery</label>
-                </div>
               </div>
 
               <div className={styles.payuContainer}>
@@ -879,14 +926,16 @@ export default function Checkout() {
             <div className={styles.calculationRow}>
               <span>Shipping</span>
               <span>
-                {isShippingLoading
-                  ? "Calculating..."
-                  : shippingError
-                  ? "N/A"
+                {shippingError
+                  ? "Enter pincode"
                   : shippingCost !== null
                   ? `₹${shippingCost.toFixed(2)}`
                   : "Enter pincode"}
               </span>
+            </div>
+            <div className={styles.calculationRow}>
+              <span>GST (3%)</span>
+              <span>₹{calculateGST()}</span>
             </div>
             <div className={`${styles.calculationRow} ${styles.totalRow}`}>
               <span>Total</span>
@@ -899,6 +948,7 @@ export default function Checkout() {
       <div className={styles.checkoutActions}>
         {step > 1 && (
           <button
+            を取り
             onClick={prevStep}
             className={styles.backButton}
             disabled={isSubmitting}
@@ -912,8 +962,9 @@ export default function Checkout() {
             onClick={nextStep}
             className={styles.nextButton}
             disabled={!isFormValid || isSubmitting}
+            title={`Form Valid: ${isFormValid}, Submitting: ${isSubmitting}`} // Debug tooltip
           >
-            {step === 1 ? "Review Order" : "Proceed to Payment"}
+            {step === 1 ? "Review Order" : "Continue to Payment"}
           </button>
         ) : (
           <button
