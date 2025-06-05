@@ -118,7 +118,6 @@ export default function Checkout() {
     // END TEST OVERRIDE
     // =============================================
 
-    // Your existing logic continues...
     let priceBasedRate = 0;
     if (cartTotal <= 500) priceBasedRate = 100;
     else if (cartTotal <= 1000) priceBasedRate = 150;
@@ -312,31 +311,23 @@ export default function Checkout() {
     setStep((prev) => Math.max(prev - 1, 1));
   };
 
-  // Calculate subtotal (unchanged)
+  // Calculate subtotal
   const calculateSubtotal = () => {
     return cartItems
       .reduce((total, item) => total + item.price * item.quantity, 0)
       .toFixed(2);
   };
 
-  // Calculate shipping (unchanged)
+  // Calculate shipping
   const calculateShipping = () => {
     return shippingCost !== null ? parseFloat(shippingCost) : 0;
   };
 
-  // Calculate GST (3% of subtotal + shipping)
-  const calculateGST = () => {
-    const subtotal = parseFloat(calculateSubtotal());
-    const shipping = calculateShipping();
-    return ((subtotal + shipping) * 0.03).toFixed(2); // 3% GST on (subtotal + shipping)
-  };
-
-  // Calculate total (subtotal + shipping + GST)
+  // Calculate total (subtotal + shipping)
   const calculateTotal = () => {
     const subtotal = parseFloat(calculateSubtotal());
     const shipping = calculateShipping();
-    const gst = parseFloat(calculateGST());
-    return (subtotal + shipping + gst).toFixed(2);
+    return (subtotal + shipping).toFixed(2);
   };
 
   const handlePayment = async () => {
@@ -475,7 +466,6 @@ export default function Checkout() {
         orderSummary: {
           subtotal: parseFloat(calculateSubtotal()),
           shipping: calculateShipping(),
-          gst: parseFloat(calculateGST()), // Updated GST
           total: parseFloat(calculateTotal()),
           itemCount: cartItems.reduce(
             (total, item) => total + item.quantity,
@@ -531,13 +521,11 @@ export default function Checkout() {
 
         if (!customerEmailResponse.ok) {
           console.error("Failed to send customer email");
-          // Continue even if email fails
         } else {
           console.log("Customer thank you email sent successfully");
         }
       } catch (customerEmailError) {
         console.error("Customer email error:", customerEmailError);
-        // Continue even if email fails
       }
 
       // Send admin notification email
@@ -552,13 +540,11 @@ export default function Checkout() {
 
         if (!adminEmailResponse.ok) {
           console.error("Failed to send admin notification email");
-          // Continue even if email fails
         } else {
           console.log("Admin notification email sent successfully");
         }
       } catch (adminEmailError) {
         console.error("Admin email error:", adminEmailError);
-        // Continue even if email fails
       }
 
       // Clear cart and redirect
@@ -731,6 +717,11 @@ export default function Checkout() {
               <div className={styles.reviewSection}>
                 <h3>Shipping Details</h3>
                 <div className={styles.reviewInfo}>
+                  <p>
+                    A reliable courier (e.g., Blue Dart, Delhivery) will be
+                    assigned for secure delivery. Tracking updates will be sent
+                    via SMS, WhatsApp, and email within 24 hours.
+                  </p>
                   <p>
                     {formData.firstName} {formData.lastName}
                   </p>
@@ -933,10 +924,6 @@ export default function Checkout() {
                   : "Enter pincode"}
               </span>
             </div>
-            <div className={styles.calculationRow}>
-              <span>GST (3%)</span>
-              <span>₹{calculateGST()}</span>
-            </div>
             <div className={`${styles.calculationRow} ${styles.totalRow}`}>
               <span>Total</span>
               <span>₹{calculateTotal()}</span>
@@ -948,7 +935,6 @@ export default function Checkout() {
       <div className={styles.checkoutActions}>
         {step > 1 && (
           <button
-            を取り
             onClick={prevStep}
             className={styles.backButton}
             disabled={isSubmitting}
@@ -962,7 +948,7 @@ export default function Checkout() {
             onClick={nextStep}
             className={styles.nextButton}
             disabled={!isFormValid || isSubmitting}
-            title={`Form Valid: ${isFormValid}, Submitting: ${isSubmitting}`} // Debug tooltip
+            title={`Form Valid: ${isFormValid}, Submitting: ${isSubmitting}`}
           >
             {step === 1 ? "Review Order" : "Continue to Payment"}
           </button>

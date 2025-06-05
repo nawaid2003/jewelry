@@ -57,7 +57,6 @@ export default async function handler(req, res) {
     <h3>Order Summary</h3>
     <p><strong>Subtotal:</strong> ₹${orderSummary.subtotal.toFixed(2)}</p>
     <p><strong>Shipping:</strong> ₹${orderSummary.shipping.toFixed(2)}</p>
-    <p><strong>GST (3%):</strong> ₹${orderSummary.gst.toFixed(2)}</p>
     <p><strong>Total:</strong> ₹${orderSummary.total.toFixed(2)}</p>
     <h3>Shipment Creation Instructions</h3>
     <p>Please create a shipment on iThink Logistics with the following details:</p>

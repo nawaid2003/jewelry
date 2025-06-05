@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     },
   });
 
-  // Construct the email content
+  // Construct customer email content
   const { customerInfo, items, orderSummary, specialRequest, orderId } =
     orderData;
   const itemList = items
@@ -43,7 +43,6 @@ export default async function handler(req, res) {
     <h3>Order Summary</h3>
     <p>Subtotal: ₹${orderSummary.subtotal.toFixed(2)}</p>
     <p>Shipping: ₹${orderSummary.shipping.toFixed(2)}</p>
-    <p>GST (3%): ₹${orderSummary.gst.toFixed(2)}</p>
     <p><strong>Total: ₹${orderSummary.total.toFixed(2)}</strong></p>
     <h3>Shipping Information</h3>
     <p>${customerInfo.address}, ${customerInfo.city}, ${customerInfo.state} ${
