@@ -4,6 +4,13 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import styles from "../styles/OrderConfirmation.module.scss";
 
+const InfoItem = ({ label, value }) => (
+  <div className={styles.infoItem}>
+    <span className={styles.infoLabel}>{label}</span>
+    <span className={styles.infoValue}>{value}</span>
+  </div>
+);
+
 export default function OrderConfirmation() {
   const router = useRouter();
   const { orderId } = router.query;
@@ -12,7 +19,6 @@ export default function OrderConfirmation() {
   const [error, setError] = useState("");
   const fallbackImage = "/images/fallback-product.jpg";
 
-  // Helper function to check if an item is a ring (matching checkout logic)
   const isRingItem = (item) => {
     return (
       item?.category?.toLowerCase().includes("ring") ||
@@ -23,23 +29,17 @@ export default function OrderConfirmation() {
     );
   };
 
-  // Helper function to get ring size display text (matching checkout logic)
   const getRingSizeDisplay = (item) => {
     if (!isRingItem(item)) return "";
-
-    // Check for ringDetails first (from order data structure)
     if (item.ringDetails?.sizeDisplay) {
       return item.ringDetails.sizeDisplay;
     }
-
-    // Fallback to direct ring size fields
     const ringSize =
       item.ringSize?.value || item.ringSize || item.selectedSize || item.size;
     const isCustom =
       item.ringDetails?.isCustomSize ||
       item.ringSize?.isCustom ||
       item.sizeType === "custom";
-
     if (!ringSize) return "";
     return isCustom ? `Custom Size: ${ringSize}` : `Size ${ringSize}`;
   };
@@ -62,7 +62,6 @@ export default function OrderConfirmation() {
 
         if (orderSnap.exists()) {
           const data = orderSnap.data();
-          // Normalize items to ensure `image` field
           const normalizedData = {
             ...data,
             items: data.items.map((item) => ({
@@ -91,7 +90,7 @@ export default function OrderConfirmation() {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return "";
+    if (!dateString) return "N/A";
     return new Date(dateString).toLocaleDateString("en-IN", {
       day: "numeric",
       month: "long",
@@ -114,6 +113,7 @@ export default function OrderConfirmation() {
           <button
             onClick={handleContinueShopping}
             className={styles.continueShoppingButton}
+            aria-label="Continue shopping"
           >
             Continue Shopping
           </button>
@@ -153,20 +153,15 @@ export default function OrderConfirmation() {
 
         <div className={styles.orderGrid}>
           <div className={styles.orderInfo}>
-            <div className={styles.infoItem}>
-              <span className={styles.infoLabel}>Order Number:</span>
-              <span className={styles.infoValue}>{orderDetails.orderId}</span>
-            </div>
-            <div className={styles.infoItem}>
-              <span className={styles.infoLabel}>Date:</span>
-              <span className={styles.infoValue}>
-                {formatDate(orderDetails.createdAt)}
-              </span>
-            </div>
-            <div className={styles.infoItem}>
-              <span className={styles.infoLabel}>Payment Method:</span>
-              <span className={styles.infoValue}>
-                {orderDetails.paymentInfo.method === "card"
+            <InfoItem label="Order Number:" value={orderDetails.orderId} />
+            <InfoItem
+              label="Date:"
+              value={formatDate(orderDetails.createdAt)}
+            />
+            <InfoItem
+              label="Payment Method:"
+              value={
+                orderDetails.paymentInfo.method === "card"
                   ? "Credit/Debit Card"
                   : orderDetails.paymentInfo.method === "upi"
                   ? "UPI"
@@ -174,9 +169,9 @@ export default function OrderConfirmation() {
                   ? "Net Banking"
                   : orderDetails.paymentInfo.method === "wallet"
                   ? "Wallet"
-                  : "Online Payment"}
-              </span>
-            </div>
+                  : "Online Payment"
+              }
+            />
           </div>
 
           <div className={styles.shippingDetails}>
@@ -215,7 +210,6 @@ export default function OrderConfirmation() {
           </div>
         )}
 
-        {/* Ring Size Details Section - Only show if there are rings */}
         {orderDetails.items.some((item) => isRingItem(item)) && (
           <div className={styles.ringSizeSection}>
             <h3>Ring Size Details</h3>
@@ -237,7 +231,11 @@ export default function OrderConfirmation() {
             {orderDetails.items.map((item) => (
               <div key={item.cartItemId} className={styles.orderItem}>
                 <div className={styles.itemImage}>
-                  <img src={item.image || fallbackImage} alt={item.name} />
+                  <img
+                    src={item.image || fallbackImage}
+                    alt={item.name}
+                    onError={(e) => (e.target.src = fallbackImage)}
+                  />
                 </div>
                 <div className={styles.itemDetails}>
                   <div className={styles.itemName}>{item.name}</div>
@@ -292,6 +290,7 @@ export default function OrderConfirmation() {
           <button
             onClick={handleContinueShopping}
             className={styles.continueShoppingButton}
+            aria-label="Continue shopping"
           >
             Continue Shopping
           </button>

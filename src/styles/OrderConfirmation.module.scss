@@ -12,13 +12,25 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
 $success-green: #3bb75e;
 $border-color: rgba($primary-blue, 0.2);
 
+// Typography
+@mixin heading-font {
+  font-family: 'Cinzel', serif;
+  color: $primary-blue;
+  text-shadow: 0 1px 2px rgba($primary-blue, 0.1);
+}
+
+@mixin body-font {
+  font-family: 'The Seasons', serif;
+  color: $text-dark;
+}
+
 .confirmationContainer {
   max-width: 1000px;
   margin: 40px auto;
-  padding: 40px;
-  font-family: 'The Seasons', serif;
+  padding: 48px;
+  @include body-font;
   background: $background-offwhite;
-  border-radius: 20px;
+  border-radius: 24px;
   box-shadow: $shadow;
   min-height: 80vh;
   position: relative;
@@ -30,26 +42,29 @@ $border-color: rgba($primary-blue, 0.2);
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
+    height: 5px;
     background: $gradient;
   }
 }
 
 .successBanner {
   text-align: center;
-  margin-bottom: 40px;
-  padding: 30px;
-  background: $white;
+  margin-bottom: 48px;
+  padding: 32px;
+  background: linear-gradient(180deg, $white, lighten($background-offwhite, 2%));
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba($primary-blue, 0.1);
-  animation: fadeIn 0.5s ease-in-out;
+  box-shadow: 0 4px 12px rgba($primary-blue, 0.08);
+  animation: fadeIn 0.8s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .checkmarkCircle {
   display: inline-block;
-  width: 60px;
-  height: 60px;
-  margin-bottom: 20px;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 24px;
 
   .checkmark {
     width: 100%;
@@ -57,110 +72,105 @@ $border-color: rgba($primary-blue, 0.2);
 
     .checkmarkCircle {
       stroke: $success-green;
-      stroke-width: 2;
+      stroke-width: 2.5;
       stroke-miterlimit: 10;
-      animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+      animation: stroke 0.7s cubic-bezier(0.65, 0, 0.45, 1) forwards;
     }
 
     .checkmarkCheck {
       stroke: $success-green;
-      stroke-width: 2;
+      stroke-width: 2.5;
       stroke-miterlimit: 10;
       stroke-dasharray: 48;
       stroke-dashoffset: 48;
-      animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+      animation: stroke 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.9s forwards;
     }
   }
 }
 
 .successTitle {
-  color: $primary-blue;
-  font-family: 'Cinzel', serif;
+  @include heading-font;
   font-size: 2.8rem;
   font-weight: 700;
-  margin-bottom: 16px;
-  text-shadow: 0 1px 2px rgba($primary-blue, 0.1);
+  margin-bottom: 18px;
 }
 
 .successMessage {
-  color: $text-dark;
-  font-family: 'The Seasons', serif;
+  @include body-font;
   font-size: 1.2rem;
-  opacity: 0.8;
+  line-height: 1.6;
+  opacity: 0.85;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .errorTitle {
-  color: $primary-blue;
-  font-family: 'Cinzel', serif;
+  @include heading-font;
   font-size: 2.2rem;
   font-weight: 700;
   text-align: center;
-  margin-bottom: 40px;
-  text-shadow: 0 1px 2px rgba($primary-blue, 0.1);
+  margin-bottom: 48px;
 }
 
 .orderDetails {
   background: $white;
   border-radius: 16px;
-  padding: 30px;
-  box-shadow: 0 4px 12px rgba($primary-blue, 0.1);
+  padding: 32px;
+  box-shadow: 0 4px 12px rgba($primary-blue, 0.08);
 }
 
 .orderTitle {
-  color: $primary-blue;
-  font-family: 'Cinzel', serif;
+  @include heading-font;
   font-size: 2rem;
   font-weight: 600;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
   border-bottom: 1px solid $border-color;
-  padding-bottom: 8px;
+  padding-bottom: 10px;
 }
 
 .orderGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 40px;
-  margin-bottom: 30px;
+  gap: 48px;
+  margin-bottom: 32px;
 }
 
 .orderInfo {
   .infoItem {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 16px;
-    padding-bottom: 8px;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
     border-bottom: 1px solid $border-color;
 
     .infoLabel {
-      color: $text-dark;
-      font-family: 'The Seasons', serif;
-      font-size: 1.1rem;
+      @include body-font;
+      font-size: 1.15rem;
       font-weight: 600;
     }
 
     .infoValue {
+      @include body-font;
+      font-size: 1.15rem;
       color: $primary-blue;
-      font-family: 'The Seasons', serif;
-      font-size: 1.1rem;
     }
   }
 }
 
 .shippingDetails {
   h3 {
-    color: $primary-blue;
-    font-family: 'Cinzel', serif;
+    @include heading-font;
     font-size: 1.4rem;
     font-weight: 600;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
   }
 
   .addressBlock {
     p {
-      color: $text-dark;
-      font-family: 'The Seasons', serif;
-      font-size: 1.1rem;
-      margin-bottom: 8px;
+      @include body-font;
+      font-size: 1.15rem;
+      line-height: 1.6;
+      margin-bottom: 10px;
     }
 
     .name {
@@ -168,23 +178,31 @@ $border-color: rgba($primary-blue, 0.2);
       color: $primary-blue;
     }
   }
+
+  .shippingNote {
+    @include body-font;
+    font-size: 1rem;
+    line-height: 1.6;
+    opacity: 0.8;
+    margin-top: 16px;
+  }
 }
 
 .orderItems {
-  margin-bottom: 30px;
+  margin-bottom: 32px;
 
   h3 {
-    color: $primary-blue;
-    font-family: 'Cinzel', serif;
+    @include heading-font;
     font-size: 1.4rem;
     font-weight: 600;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
   }
 
   .itemsList {
     max-height: 400px;
     overflow-y: auto;
-    padding-right: 10px;
+    padding-right: 12px;
+    border-radius: 8px;
 
     &::-webkit-scrollbar {
       width: 6px;
@@ -192,20 +210,25 @@ $border-color: rgba($primary-blue, 0.2);
 
     &::-webkit-scrollbar-track {
       background: $background-offwhite;
-      border-radius: 10px;
+      border-radius: 12px;
     }
 
     &::-webkit-scrollbar-thumb {
-      background: $border-color;
-      border-radius: 10px;
+      background: $primary-blue;
+      border-radius: 12px;
     }
   }
 
   .orderItem {
     display: flex;
     align-items: center;
-    padding: 16px 0;
+    padding: 18px 0;
     border-bottom: 1px solid $border-color;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: lighten($background-offwhite, 1%);
+    }
 
     &:last-child {
       border-bottom: none;
@@ -215,91 +238,129 @@ $border-color: rgba($primary-blue, 0.2);
       width: 80px;
       height: 80px;
       flex-shrink: 0;
+      background: $background-offwhite;
+      border-radius: 10px;
+      overflow: hidden;
 
       img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        border-radius: 8px;
+        display: block;
       }
     }
 
     .itemDetails {
-      margin-left: 16px;
+      margin-left: 18px;
       flex: 1;
 
       .itemName {
-        color: $text-dark;
-        font-family: 'The Seasons', serif;
-        font-size: 1.1rem;
+        @include body-font;
+        font-size: 1.15rem;
         font-weight: 600;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
       }
 
       .itemMeta {
         display: flex;
         justify-content: space-between;
+        align-items: center;
 
         .itemQuantity,
-        .itemPrice {
-          color: $primary-blue;
-          font-family: 'The Seasons', serif;
+        .itemPrice,
+        .itemRingSize {
+          @include body-font;
           font-size: 1rem;
+          color: $primary-blue;
         }
+      }
+
+      .itemTotal {
+        @include body-font;
+        font-size: 1rem;
+        color: $text-dark;
+        margin-top: 8px;
+        font-weight: 600;
       }
     }
   }
 }
 
-.orderSummary {
-  margin-bottom: 30px;
+.ringSizeSection {
+  margin-bottom: 32px;
 
-  .summaryRow {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 12px;
-    color: $text-dark;
-    font-family: 'The Seasons', serif;
-    font-size: 1.1rem;
+  h3 {
+    @include heading-font;
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 18px;
+    border-bottom: 1px solid $border-color;
+    padding-bottom: 10px;
+  }
 
-    &.totalRow {
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid $border-color;
-      font-family: 'Cinzel', serif;
-      font-weight: 700;
-      font-size: 1.3rem;
-      color: $primary-blue;
+  .ringSizeContent {
+    padding: 16px;
+    background: lighten($background-offwhite, 2%);
+    border-radius: 12px;
+    border-left: 3px solid $primary-blue;
+
+    .ringSizeItem {
+      @include body-font;
+      font-size: 1.15rem;
+      margin-bottom: 10px;
+      color: $text-dark;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
     }
   }
 }
 
-.estimatedDelivery {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 30px;
-  padding: 16px;
-  background: lighten($background-offwhite, 2%);
-  border-radius: 12px;
+.specialRequestSection {
+  margin-bottom: 32px;
 
-  .deliveryIcon {
-    color: $primary-blue;
+  h3 {
+    @include heading-font;
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 18px;
+    border-bottom: 1px solid $border-color;
+    padding-bottom: 10px;
   }
 
-  .deliveryText {
-    .deliveryTitle {
-      color: $primary-blue;
-      font-family: 'The Seasons', serif;
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
+  .specialRequestContent {
+    padding: 16px;
+    background: lighten($background-offwhite, 2%);
+    border-radius: 12px;
+    border-left: 3px solid $primary-blue;
+    @include body-font;
+    font-size: 1.15rem;
+    line-height: 1.6;
 
-    .deliveryDate {
-      color: $text-dark;
-      font-family: 'The Seasons', serif;
-      font-size: 1rem;
+    p {
+      margin: 0;
+    }
+  }
+}
+
+.orderSummary {
+  margin-bottom: 32px;
+
+  .summaryRow {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    @include body-font;
+    font-size: 1.15rem;
+
+    &.totalRow {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid $border-color;
+      @include heading-font;
+      font-size: 1.3rem;
+      font-weight: 700;
     }
   }
 }
@@ -308,21 +369,21 @@ $border-color: rgba($primary-blue, 0.2);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 20px;
+  gap: 24px;
 
   .orderHelp {
     p {
-      color: $text-dark;
-      font-family: 'The Seasons', serif;
+      @include body-font;
       font-size: 1rem;
-      margin-bottom: 8px;
+      line-height: 1.6;
+      margin-bottom: 10px;
     }
 
     .contactLink {
-      color: $primary-blue;
-      font-family: 'The Seasons', serif;
+      @include body-font;
       font-size: 1rem;
       font-weight: 600;
+      color: $primary-blue;
       text-decoration: none;
       transition: color 0.3s ease;
 
@@ -333,7 +394,7 @@ $border-color: rgba($primary-blue, 0.2);
   }
 
   .continueShoppingButton {
-    padding: 14px 28px;
+    padding: 14px 32px;
     border: 2px solid transparent;
     border-radius: 12px;
     background: $gradient;
@@ -357,24 +418,27 @@ $border-color: rgba($primary-blue, 0.2);
       border-radius: 10px;
       padding: 2px;
       background: $gradient-border;
-      -webkit-mask: 
-        linear-gradient($white 0 0) content-box, 
-        linear-gradient($white 0 0);
+      -webkit-mask: linear-gradient($white 0 0) content-box, linear-gradient($white 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
     }
 
     &:hover {
       transform: scale(1.05);
-      box-shadow: 0 6px 16px rgba($primary-blue, 0.4);
+      box-shadow: 0 6px 16px rgba($primary-blue, 0.3);
+      background: linear-gradient(135deg, lighten($primary-blue, 25%), lighten($primary-blue, 5%));
     }
   }
 }
 
 @media (max-width: 768px) {
   .confirmationContainer {
-    margin: 20px;
-    padding: 20px;
+    margin: 24px;
+    padding: 24px;
+  }
+
+  .successBanner {
+    padding: 24px;
   }
 
   .successTitle {
@@ -383,25 +447,38 @@ $border-color: rgba($primary-blue, 0.2);
 
   .orderGrid {
     grid-template-columns: 1fr;
+    gap: 32px;
   }
 
   .orderActions {
     flex-direction: column;
     align-items: stretch;
+    gap: 16px;
 
     .continueShoppingButton {
       width: 100%;
     }
   }
+
+  .checkmarkCircle {
+    width: 56px;
+    height: 56px;
+  }
 }
 
 @media (max-width: 480px) {
+  .confirmationContainer {
+    margin: 16px;
+    padding: 16px;
+  }
+
   .successTitle {
     font-size: 1.8rem;
   }
 
   .successMessage {
     font-size: 1rem;
+    line-height: 1.5;
   }
 
   .orderTitle {
@@ -410,9 +487,14 @@ $border-color: rgba($primary-blue, 0.2);
 
   .orderItem {
     .itemImage {
-      width: 60px;
-      height: 60px;
+      width: 64px;
+      height: 64px;
     }
+  }
+
+  .checkmarkCircle {
+    width: 48px;
+    height: 48px;
   }
 }
 
@@ -423,34 +505,12 @@ $border-color: rgba($primary-blue, 0.2);
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.specialRequestSection {
-  margin-bottom: 30px;
-
-  h3 {
-    color: $primary-blue;
-    font-family: 'Cinzel', serif;
-    font-size: 1.4rem;
-    font-weight: 600;
-    margin-bottom: 16px;
-    border-bottom: 1px solid $border-color;
-    padding-bottom: 8px;
+  from {
+    opacity: 0;
+    transform: translateY(12px);
   }
-
-  .specialRequestContent {
-    padding: 16px;
-    background: lighten($background-offwhite, 2%);
-    border-radius: 12px;
-    border-left: 3px solid $primary-blue;
-    font-family: 'The Seasons', serif;
-    font-size: 1.1rem;
-    color: $text-dark;
-
-    p {
-      margin: 0;
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

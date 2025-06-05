@@ -718,11 +718,6 @@ export default function Checkout() {
                 <h3>Shipping Details</h3>
                 <div className={styles.reviewInfo}>
                   <p>
-                    A reliable courier (e.g., Blue Dart, Delhivery) will be
-                    assigned for secure delivery. Tracking updates will be sent
-                    via SMS, WhatsApp, and email within 24 hours.
-                  </p>
-                  <p>
                     {formData.firstName} {formData.lastName}
                   </p>
                   <p>{formData.address}</p>
