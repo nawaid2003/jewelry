@@ -7,18 +7,24 @@ export default async function handler(req, res) {
 
   const { orderData } = req.body;
 
-  // Configure your email transporter (e.g., using Gmail, SendGrid, etc.)
+  // Configure your email transporter
   const transporter = nodemailer.createTransport({
-    service: "gmail", // Or your preferred email service
+    service: "gmail",
     auth: {
-      user: process.env.GMAIL_USER, // Your email address
-      pass: process.env.GMAIL_APP_PASSWORD, // Your email password or app-specific password
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD,
     },
   });
 
   // Construct customer email content
-  const { customerInfo, items, orderSummary, specialRequest, orderId } =
-    orderData;
+  const {
+    customerInfo,
+    items,
+    orderSummary,
+    specialRequest,
+    orderId,
+    paymentInfo,
+  } = orderData;
   const itemList = items
     .map(
       (item) => `
@@ -38,6 +44,10 @@ export default async function handler(req, res) {
     )
     .join("");
 
+  // Capitalize payment method for display
+  const paymentMethodDisplay =
+    paymentInfo.method.charAt(0).toUpperCase() + paymentInfo.method.slice(1);
+
   const customerEmailContent = `
     <h2 style="color: #333;">Thank You for Your Order!</h2>
     <p>Dear ${customerInfo.firstName} ${customerInfo.lastName},</p>
@@ -52,6 +62,12 @@ export default async function handler(req, res) {
     <h3 style="color: #333;">Order Summary</h3>
     <p>Subtotal: ₹${orderSummary.subtotal.toFixed(2)}</p>
     <p>Shipping: ₹${orderSummary.shipping.toFixed(2)}</p>
+    ${
+      orderSummary.codFee > 0
+        ? `<p>COD Fee: ₹${orderSummary.codFee.toFixed(2)}</p>`
+        : ""
+    }
+    <p>Payment Method: ${paymentMethodDisplay}</p>
     <p><strong>Total: ₹${orderSummary.total.toFixed(2)}</strong></p>
     <h3 style="color: #333;">Shipping Information</h3>
     <p>${customerInfo.address}, ${customerInfo.city}, ${customerInfo.state} ${

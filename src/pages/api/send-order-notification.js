@@ -17,8 +17,14 @@ export default async function handler(req, res) {
   });
 
   // Construct admin email content
-  const { customerInfo, items, orderSummary, specialRequest, orderId } =
-    orderData;
+  const {
+    customerInfo,
+    items,
+    orderSummary,
+    specialRequest,
+    orderId,
+    paymentInfo,
+  } = orderData;
   const itemList = items
     .map(
       (item) => `
@@ -44,6 +50,10 @@ export default async function handler(req, res) {
     )
     .join("");
 
+  // Capitalize payment method for display
+  const paymentMethodDisplay =
+    paymentInfo.method.charAt(0).toUpperCase() + paymentInfo.method.slice(1);
+
   const adminEmailContent = `
     <h2 style="color: #333;">New Order Received (Order ID: ${orderId})</h2>
     <p>A new order has been placed and requires manual shipment creation on iThink Logistics.</p>
@@ -66,6 +76,12 @@ export default async function handler(req, res) {
     <h3 style="color: #333;">Order Summary</h3>
     <p><strong>Subtotal:</strong> ₹${orderSummary.subtotal.toFixed(2)}</p>
     <p><strong>Shipping:</strong> ₹${orderSummary.shipping.toFixed(2)}</p>
+    ${
+      orderSummary.codFee > 0
+        ? `<p><strong>COD Fee:</strong> ₹${orderSummary.codFee.toFixed(2)}</p>`
+        : ""
+    }
+    <p><strong>Payment Method:</strong> ${paymentMethodDisplay}</p>
     <p><strong>Total:</strong> ₹${orderSummary.total.toFixed(2)}</p>
     <h3 style="color: #333;">Shipment Creation Instructions</h3>
     <p>Please create a shipment on iThink Logistics with the following details:</p>
@@ -88,13 +104,14 @@ export default async function handler(req, res) {
       <li><strong>Special Instructions:</strong> ${
         specialRequest || "None"
       }</li>
+      <li><strong>Payment Method:</strong> ${paymentMethodDisplay}</li>
     </ul>
     <p>Log in to the iThink Logistics dashboard and enter these details to generate the AWB number and assign a courier.</p>
   `;
 
   const mailOptions = {
     from: process.env.GMAIL_USER,
-    to: process.env.RECEIVER_EMAIL, // Your admin email address
+    to: process.env.RECEIVER_EMAIL,
     subject: `New Order Notification (Order ID: ${orderId})`,
     html: adminEmailContent,
   };
