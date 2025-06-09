@@ -169,6 +169,8 @@ export default function OrderConfirmation() {
                   ? "Net Banking"
                   : orderDetails.paymentInfo.method === "wallet"
                   ? "Wallet"
+                  : orderDetails.paymentInfo.method === "cod"
+                  ? "Cash on Delivery"
                   : "Online Payment"
               }
             />
@@ -274,6 +276,12 @@ export default function OrderConfirmation() {
                 : `₹${orderDetails.orderSummary.shipping.toFixed(2)}`}
             </span>
           </div>
+          {orderDetails.orderSummary.codFee > 0 && (
+            <div className={styles.summaryRow}>
+              <span>COD Fee</span>
+              <span>₹{orderDetails.orderSummary.codFee.toFixed(2)}</span>
+            </div>
+          )}
           <div className={`${styles.summaryRow} ${styles.totalRow}`}>
             <span>Total</span>
             <span>₹{orderDetails.orderSummary.total.toFixed(2)}</span>

@@ -44,6 +44,7 @@ export default function Checkout() {
   const [shippingError, setShippingError] = useState("");
   const fallbackImage = "/images/fallback-product.jpg";
   const maxSpecialRequestLength = 500;
+  const COD_FEE = 50; // Define COD fee
 
   // Load PayU Bolt script dynamically
   const loadBoltScript = () => {
@@ -323,93 +324,106 @@ export default function Checkout() {
     return shippingCost !== null ? parseFloat(shippingCost) : 0;
   };
 
-  // Calculate total (subtotal + shipping)
+  // Calculate COD fee
+  const calculateCODFee = () => {
+    return formData.paymentMethod === "cod" ? COD_FEE : 0;
+  };
+
+  // Calculate total (subtotal + shipping + COD fee)
   const calculateTotal = () => {
     const subtotal = parseFloat(calculateSubtotal());
     const shipping = calculateShipping();
-    return (subtotal + shipping).toFixed(2);
+    const codFee = calculateCODFee();
+    return (subtotal + shipping + codFee).toFixed(2);
   };
 
   const handlePayment = async () => {
     setIsSubmitting(true);
     setError("");
     try {
-      if (!scriptLoaded || !window.bolt) {
-        await loadBoltScript();
-      }
-      if (!window.bolt) {
-        throw new Error(
-          "PayU Bolt SDK failed to load. Please refresh the page."
-        );
-      }
       const orderId = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
-      const productInfo = `Jewelry Order ${orderId}`;
-      const amount = parseFloat(calculateTotal()).toFixed(2);
-      const paymentParams = {
-        key: PAYU_CONFIG.merchantKey,
-        txnid: orderId,
-        amount: amount,
-        productinfo: productInfo,
-        firstname: formData.firstName,
-        email: formData.email,
-        phone: formData.phone,
-        surl: `https://silverlining.store/order-confirmation?orderId=${orderId}`,
-        furl: `https://silverlining.store/checkout?step=3`,
-        pg:
-          formData.paymentMethod === "card"
-            ? "CC"
-            : formData.paymentMethod.toUpperCase(),
-      };
-      const response = await fetch("/api/payu-hash", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(paymentParams),
-      });
-      if (!response.ok) {
-        throw new Error(
-          `Failed to generate payment hash: ${response.statusText}`
+
+      if (formData.paymentMethod === "cod") {
+        // Handle COD order
+        await handleSubmitOrder(orderId);
+      } else {
+        // Existing PayU payment logic
+        if (!scriptLoaded || !window.bolt) {
+          await loadBoltScript();
+        }
+        if (!window.bolt) {
+          throw new Error(
+            "PayU Bolt SDK failed to load. Please refresh the page."
+          );
+        }
+        const productInfo = `Jewelry Order ${orderId}`;
+        const amount = parseFloat(calculateTotal()).toFixed(2);
+        const paymentParams = {
+          key: PAYU_CONFIG.merchantKey,
+          txnid: orderId,
+          amount: amount,
+          productinfo: productInfo,
+          firstname: formData.firstName,
+          email: formData.email,
+          phone: formData.phone,
+          surl: `https://silverlining.store/order-confirmation?orderId=${orderId}`,
+          furl: `https://silverlining.store/checkout?step=3`,
+          pg:
+            formData.paymentMethod === "card"
+              ? "CC"
+              : formData.paymentMethod.toUpperCase(),
+        };
+        const response = await fetch("/api/payu-hash", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(paymentParams),
+        });
+        if (!response.ok) {
+          throw new Error(
+            `Failed to generate payment hash: ${response.statusText}`
+          );
+        }
+        const { hash } = await response.json();
+        if (!hash) {
+          throw new Error("No hash returned from server");
+        }
+        paymentParams.hash = hash;
+        window.bolt.launch(
+          {
+            ...paymentParams,
+            lastname: formData.lastName,
+            address1: formData.address,
+            city: formData.city,
+            state: formData.state,
+            country: "India",
+            zipcode: formData.pincode,
+            udf1: formData.specialRequest || "",
+            enforce_paymethod:
+              formData.paymentMethod === "card"
+                ? "creditcard|debitcard"
+                : formData.paymentMethod,
+            display_lang: "en",
+          },
+          {
+            responseHandler: async (response) => {
+              if (response.response.txnStatus === "SUCCESS") {
+                formData.paymentMethod = response.response.mode.toLowerCase();
+                await handleSubmitOrder(orderId);
+              } else if (response.response.txnStatus === "FAILED") {
+                setError("Payment failed. Please try again.");
+                setIsSubmitting(false);
+              } else if (response.response.txnStatus === "CANCEL") {
+                setError("Payment was cancelled. Please try again.");
+                setIsSubmitting(false);
+              }
+            },
+            catchException: (error) => {
+              setError(`Payment error: ${error.message || "Network error"}`);
+              setIsSubmitting(false);
+            },
+          }
         );
       }
-      const { hash } = await response.json();
-      if (!hash) {
-        throw new Error("No hash returned from server");
-      }
-      paymentParams.hash = hash;
-      window.bolt.launch(
-        {
-          ...paymentParams,
-          lastname: formData.lastName,
-          address1: formData.address,
-          city: formData.city,
-          state: formData.state,
-          country: "India",
-          zipcode: formData.pincode,
-          udf1: formData.specialRequest || "",
-          enforce_paymethod:
-            formData.paymentMethod === "card"
-              ? "creditcard|debitcard"
-              : formData.paymentMethod,
-          display_lang: "en",
-        },
-        {
-          responseHandler: async (response) => {
-            if (response.response.txnStatus === "SUCCESS") {
-              formData.paymentMethod = response.response.mode.toLowerCase();
-              await handleSubmitOrder(orderId);
-            } else if (response.response.txnStatus === "FAILED") {
-              setError("Payment failed. Please try again.");
-              setIsSubmitting(false);
-            } else if (response.response.txnStatus === "CANCEL") {
-              setError("Payment was cancelled. Please try again.");
-              setIsSubmitting(false);
-            }
-          },
-          catchException: (error) => {
-            setError(`Payment error: ${error.message || "Network error"}`);
-            setIsSubmitting(false);
-          },
-        }
-      );
     } catch (err) {
       setError(`Payment failed: ${err.message}`);
       setIsSubmitting(false);
@@ -466,6 +480,7 @@ export default function Checkout() {
         orderSummary: {
           subtotal: parseFloat(calculateSubtotal()),
           shipping: calculateShipping(),
+          codFee: calculateCODFee(), // Store COD fee
           total: parseFloat(calculateTotal()),
           itemCount: cartItems.reduce(
             (total, item) => total + item.quantity,
@@ -473,8 +488,8 @@ export default function Checkout() {
           ),
         },
         paymentInfo: {
-          method: formData.paymentMethod,
-          status: "completed",
+          method: formData.paymentMethod, // Store the payment method (including 'cod')
+          status: formData.paymentMethod === "cod" ? "pending" : "completed",
         },
         shippingInfo: {
           awb_number: null,
@@ -835,6 +850,20 @@ export default function Checkout() {
                   />
                   <label htmlFor="wallet">Wallet</label>
                 </div>
+                <div className={styles.paymentOption}>
+                  <input
+                    type="radio"
+                    id="cod"
+                    name="paymentMethod"
+                    value="cod"
+                    checked={formData.paymentMethod === "cod"}
+                    onChange={handleChange}
+                  />
+                  <label htmlFor="cod">Cash on Delivery</label>
+                  <span className={styles.codNote}>
+                    (Additional ₹50 COD handling fee applies)
+                  </span>
+                </div>
               </div>
 
               <div className={styles.payuContainer}>
@@ -868,7 +897,7 @@ export default function Checkout() {
                 </div>
               </div>
 
-              {!scriptLoaded && (
+              {!scriptLoaded && formData.paymentMethod !== "cod" && (
                 <div className={styles.scriptLoading}>
                   <p>Loading payment gateway...</p>
                 </div>
@@ -919,6 +948,12 @@ export default function Checkout() {
                   : "Enter pincode"}
               </span>
             </div>
+            {formData.paymentMethod === "cod" && (
+              <div className={styles.calculationRow}>
+                <span>COD Fee</span>
+                <span>₹{COD_FEE.toFixed(2)}</span>
+              </div>
+            )}
             <div className={`${styles.calculationRow} ${styles.totalRow}`}>
               <span>Total</span>
               <span>₹{calculateTotal()}</span>
@@ -951,9 +986,17 @@ export default function Checkout() {
           <button
             onClick={handlePayment}
             className={styles.placeOrderButton}
-            disabled={isSubmitting || !scriptLoaded || shippingCost === null}
+            disabled={
+              isSubmitting ||
+              (!scriptLoaded && formData.paymentMethod !== "cod") ||
+              shippingCost === null
+            }
           >
-            {isSubmitting ? "Processing Payment..." : "Pay Now"}
+            {isSubmitting
+              ? "Processing..."
+              : formData.paymentMethod === "cod"
+              ? "Place Order"
+              : "Pay Now"}
           </button>
         )}
       </div>

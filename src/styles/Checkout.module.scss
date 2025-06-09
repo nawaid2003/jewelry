@@ -246,6 +246,7 @@ $success-green: #3bb75e;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
+    position: relative;
 
     &:hover {
       background: $light-blue;
@@ -262,6 +263,15 @@ $success-green: #3bb75e;
       font-size: 1.1rem;
       color: $text-dark;
       cursor: pointer;
+    }
+
+    .codNote {
+      font-family: 'The Seasons', serif;
+      font-size: 0.9rem;
+      color: $text-dark;
+      font-style: italic;
+      margin-left: 10px;
+      opacity: 0.8;
     }
   }
 }
@@ -614,13 +624,13 @@ $success-green: #3bb75e;
   }
 
   .placeOrderButton {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    background: linear-gradient(135deg, #1c365d 0%, #4a6fa5 100%);
     animation: pulse 2s infinite ease-in-out;
 
     &:hover:not(:disabled) {
       animation: none;
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(40, 49, 167, 0.3);
+      box-shadow: 0 8px 25px rgba(28, 54, 93, 0.3);
     }
   }
 }
