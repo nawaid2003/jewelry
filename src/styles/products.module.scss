@@ -215,3 +215,115 @@ $gradient-border: linear-gradient(135deg, lighten($primary-blue, 10%), darken($p
   50% { box-shadow: 0 6px 16px rgba($primary-blue, 0.3); }
   100% { box-shadow: 0 4px 12px rgba($primary-blue, 0.2); }
 }
+
+// Add these styles to your existing products.module.scss file
+
+.madeToOrderBanner {
+  background: linear-gradient(135deg, rgba($primary-blue, 0.05), rgba($primary-blue, 0.02));
+  border: 1px solid rgba($primary-blue, 0.15);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: $gradient;
+  }
+
+  &:after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba($primary-blue, 0.03) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+}
+
+.bannerContent {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.bannerIcon {
+  font-size: 2.5rem;
+  animation: sparkle 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.bannerText {
+  flex: 1;
+}
+
+.bannerTitle {
+  font-family: 'Cinzel', serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: $primary-blue;
+  margin: 0 0 8px 0;
+  text-shadow: 0 1px 2px rgba($primary-blue, 0.1);
+}
+
+.bannerDescription {
+  font-family: 'The Seasons', serif;
+  font-size: 1.1rem;
+  color: $text-dark;
+  margin: 0;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+.highlight {
+  color: $primary-blue;
+  font-weight: 600;
+  font-family: 'Hello Paris', sans-serif;
+}
+
+@keyframes sparkle {
+  0%, 100% { 
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.1) rotate(10deg);
+    opacity: 0.8;
+  }
+}
+
+// Mobile responsiveness for the banner
+@media (max-width: 600px) {
+  .madeToOrderBanner {
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+
+  .bannerContent {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .bannerIcon {
+    font-size: 2rem;
+  }
+
+  .bannerTitle {
+    font-size: 1.2rem;
+  }
+
+  .bannerDescription {
+    font-size: 1rem;
+  }
+}

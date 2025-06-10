@@ -17,31 +17,26 @@ export default function Products() {
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState([]);
   const [showLoginMessage, setShowLoginMessage] = useState(false);
-
   const handleShowLoginMessage = () => setShowLoginMessage(true);
   const handleCloseLoginMessage = () => setShowLoginMessage(false);
 
   // Load products from Firestore
   useEffect(() => {
     setLoading(true);
-
     try {
       const productsQuery = query(
         collection(db, "products"),
         orderBy("createdAt", "desc")
       );
-
       const unsubscribe = onSnapshot(
         productsQuery,
         (snapshot) => {
           setLoading(false);
-
           if (snapshot.empty) {
             setError("No products found in the database.");
             setProducts([]);
             return;
           }
-
           const fetchedProducts = snapshot.docs.map((doc) => {
             const data = doc.data();
             return {
@@ -71,7 +66,6 @@ export default function Products() {
                 : ["/images/fallback-product.jpg"],
             };
           });
-
           setProducts(fetchedProducts);
         },
         (err) => {
@@ -81,7 +75,6 @@ export default function Products() {
           setProducts([]);
         }
       );
-
       return () => unsubscribe();
     } catch (err) {
       console.error("Error setting up Firestore listener:", err);
@@ -109,7 +102,6 @@ export default function Products() {
   const filteredProducts = products.filter((product) => {
     const matchesCategory =
       selectedCategory === "All" || product.category === selectedCategory;
-
     const matchesSearch =
       searchQuery.trim() === ""
         ? true
@@ -126,7 +118,6 @@ export default function Products() {
             product.details.some((detail) =>
               detail.toLowerCase().includes(searchQuery.toLowerCase())
             ));
-
     return matchesCategory && matchesSearch;
   });
 
@@ -147,6 +138,21 @@ export default function Products() {
   return (
     <div className={styles.productsContainer}>
       <h1 className={styles.productsTitle}>Our Collections</h1>
+
+      {/* Made-to-Order Message */}
+      <div className={styles.madeToOrderBanner}>
+        <div className={styles.bannerContent}>
+          <div className={styles.bannerIcon}>✨</div>
+          <div className={styles.bannerText}>
+            <h3 className={styles.bannerTitle}>Crafted Just For You</h3>
+            <p className={styles.bannerDescription}>
+              Each piece is lovingly made-to-order by our skilled artisans.
+              <span className={styles.highlight}> Allow 7-14 days</span> for
+              your unique treasure to be created with care.
+            </p>
+          </div>
+        </div>
+      </div>
 
       <div className={styles.searchBar}>
         <input
@@ -173,7 +179,6 @@ export default function Products() {
       </div>
 
       {loading && <p className={styles.loadingMessage}>Loading products...</p>}
-
       {error && <p className={styles.errorMessage}>{error}</p>}
 
       {!loading && (
